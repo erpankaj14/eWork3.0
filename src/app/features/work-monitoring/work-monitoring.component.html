@@ -1,0 +1,619 @@
+<div class="space-y-6 animate-fadeIn pb-12 font-sans">
+
+  <!-- ========================================================================= -->
+  <!-- 1. OFFICIAL EXECUTIVE FILTER RIBBON (CLEAN LIGHT-MODE INSTITUTIONAL BAR)  -->
+  <!-- ========================================================================= -->
+  <div class="bg-white dark:bg-dark-900 rounded-xl border border-slate-200/80 dark:border-dark-800 shadow-xs p-4 transition-colors">
+    <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      
+      <!-- Left Title & Breadcrumb -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-[#0B2240] dark:bg-[#0F294A] text-white flex items-center justify-center shadow-2xs flex-shrink-0">
+          <svg class="w-5 h-5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-sm sm:text-base font-extrabold text-[#0B2240] dark:text-white tracking-tight font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य प्रगति एवं वित्तीय निगरानी डैशबोर्ड' : 'Work Progress & Financial Monitoring Dashboard' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'वित्तीय वर्ष 2026-27 | जिला जयपुर एकीकृत रिपोर्ट' : 'Financial Year 2026-27 | District Jaipur Consolidated Report' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Filter Selectors & View Records Action Button -->
+      <div class="flex flex-wrap items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+        
+        <!-- From Year -->
+        <div class="flex flex-col flex-1 sm:flex-initial min-w-[95px]">
+          <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'से (वर्ष)' : 'From FY' }}
+          </label>
+          <select [(ngModel)]="fromYear"
+            class="w-full h-9 px-3 rounded-lg bg-slate-50 dark:bg-dark-800 border border-slate-300 dark:border-dark-700 text-slate-800 dark:text-slate-100 text-xs font-bold focus:ring-2 focus:ring-[#0B2240] outline-none transition-all">
+            <option *ngFor="let y of yearsList" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+
+        <!-- To Year -->
+        <div class="flex flex-col flex-1 sm:flex-initial min-w-[95px]">
+          <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'तक (वर्ष)' : 'To FY' }}
+          </label>
+          <select [(ngModel)]="toYear"
+            class="w-full h-9 px-3 rounded-lg bg-slate-50 dark:bg-dark-800 border border-slate-300 dark:border-dark-700 text-slate-800 dark:text-slate-100 text-xs font-bold focus:ring-2 focus:ring-[#0B2240] outline-none transition-all">
+            <option *ngFor="let y of yearsList" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+
+        <!-- District -->
+        <div class="flex flex-col flex-1 sm:flex-initial min-w-[125px]">
+          <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'जिला (District)' : 'District' }}
+          </label>
+          <select [(ngModel)]="selectedDistrict"
+            class="w-full h-9 px-3 rounded-lg bg-slate-50 dark:bg-dark-800 border border-slate-300 dark:border-dark-700 text-slate-800 dark:text-slate-100 text-xs font-bold focus:ring-2 focus:ring-[#0B2240] outline-none transition-all">
+            <option *ngFor="let d of districtsList" [value]="d">{{ (languageService.currentLang$ | async) === 'hi' && d === 'JAIPUR' ? 'जयपुर (JAIPUR)' : d }}</option>
+          </select>
+        </div>
+
+        <!-- Block -->
+        <div class="flex flex-col flex-1 sm:flex-initial min-w-[125px]">
+          <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'ब्लॉक (Block)' : 'Block' }}
+          </label>
+          <select [(ngModel)]="selectedBlock"
+            class="w-full h-9 px-3 rounded-lg bg-slate-50 dark:bg-dark-800 border border-slate-300 dark:border-dark-700 text-slate-800 dark:text-slate-100 text-xs font-bold focus:ring-2 focus:ring-[#0B2240] outline-none transition-all">
+            <option *ngFor="let b of blocksList" [value]="b">{{ b }}</option>
+          </select>
+        </div>
+
+        <!-- Scheme -->
+        <div class="flex flex-col flex-1 sm:flex-initial min-w-[125px]">
+          <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'योजना (Scheme)' : 'Scheme' }}
+          </label>
+          <select [(ngModel)]="selectedSchemeFilter"
+            class="w-full h-9 px-3 rounded-lg bg-slate-50 dark:bg-dark-800 border border-slate-300 dark:border-dark-700 text-slate-800 dark:text-slate-100 text-xs font-bold focus:ring-2 focus:ring-[#0B2240] outline-none transition-all">
+            <option value="MLA-LAD">MLA-LAD</option>
+            <option value="MP-LAD">MP-LAD</option>
+            <option value="MMVY">MMVY</option>
+            <option value="SBM-JJM">SBM-JJM</option>
+          </select>
+        </div>
+
+        <!-- View Records Button (Authentic Government Saffron Button) -->
+        <div class="flex flex-col justify-end pt-2 sm:pt-0 w-full sm:w-auto">
+          <button (click)="onViewRecords()"
+            class="w-full sm:w-auto h-9 px-5 rounded-lg btn-shiny-saffron font-extrabold text-xs shadow-xs hover:shadow-sm transition-all flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'रिकॉर्ड देखें' : 'View Records' }}</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. EXECUTIVE KPI METRIC CARDS (6 CLEAN WHITE/SLATE ENTERPRISE CARDS)       -->
+  <!-- ========================================================================= -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div *ngFor="let kpi of kpiCards"
+      class="bg-white dark:bg-dark-900 rounded-xl border border-slate-200/80 dark:border-dark-800 shadow-xs hover:shadow-sm transition-all p-4 relative overflow-hidden group flex flex-col justify-between">
+      
+      <!-- Top Indicator Accent Line -->
+      <div class="absolute top-0 left-0 right-0 h-1"
+        [ngClass]="{
+          'bg-emerald-600': kpi.colorClass === 'emerald',
+          'bg-purple-600': kpi.colorClass === 'purple',
+          'bg-orange-600': kpi.colorClass === 'orange',
+          'bg-cyan-600': kpi.colorClass === 'cyan',
+          'bg-rose-600': kpi.colorClass === 'rose',
+          'bg-amber-500': kpi.colorClass === 'amber'
+        }"></div>
+
+      <!-- Header: Title + Icon -->
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <span class="block text-xs font-extrabold text-slate-800 dark:text-slate-200 font-devanagari tracking-tight">
+            {{ (languageService.currentLang$ | async) === 'hi' ? kpi.labelHi : kpi.label }}
+          </span>
+          <span class="block text-[11px] font-semibold text-slate-400 mt-0.5">
+            {{ (languageService.currentLang$ | async) === 'hi' ? kpi.label : kpi.labelHi }}
+          </span>
+        </div>
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110"
+          [ngClass]="{
+            'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400': kpi.colorClass === 'emerald',
+            'bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400': kpi.colorClass === 'purple',
+            'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400': kpi.colorClass === 'orange',
+            'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400': kpi.colorClass === 'cyan',
+            'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400': kpi.colorClass === 'rose',
+            'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400': kpi.colorClass === 'amber'
+          }">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="kpi.icon" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Main Animated Value -->
+      <div class="mt-3 flex items-baseline gap-1">
+        <span *ngIf="kpi.isCurrency" class="text-sm font-bold text-slate-500">₹</span>
+        <span class="text-2xl font-black text-[#0B2240] dark:text-white font-heading tracking-tight"
+          [appCountUp]="kpi.value" [duration]="1200" [decimals]="kpi.isCurrency ? 2 : 0">
+          {{ kpi.value }}
+        </span>
+        <span *ngIf="kpi.isCurrency" class="text-xs font-semibold text-slate-500">{{ (languageService.currentLang$ | async) === 'hi' ? 'लाख' : 'Lakhs' }}</span>
+      </div>
+
+      <!-- Status Footer Badge -->
+      <div class="mt-2 pt-2 border-t border-slate-100 dark:border-dark-800 flex items-center justify-between text-[11px]">
+        <span class="font-medium text-slate-500">{{ kpi.trend }}</span>
+        <span class="font-bold text-[#E15B25]">{{ (languageService.currentLang$ | async) === 'hi' ? 'सक्रिय' : 'Live' }}</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. FOUR EXECUTIVE ANALYTICS REGISTERS (2x2 GRID - BRIGHT & CLEAN IN LIGHT MODE) -->
+  <!-- ========================================================================= -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Box 1: Scheme-wise Incomplete Works -->
+    <div class="bg-white dark:bg-dark-900 rounded-xl border border-slate-200/80 dark:border-dark-800 shadow-xs overflow-hidden flex flex-col transition-colors">
+      <!-- Clean Light Mode Header Bar -->
+      <div class="bg-slate-50/90 dark:bg-dark-850 border-b border-slate-200/80 dark:border-dark-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-purple-600"></span>
+          <h3 class="text-xs font-extrabold text-[#0B2240] dark:text-white font-devanagari tracking-wide uppercase">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'वित्तीय वर्ष 2026-27 योजनावार अपूर्ण कार्य' : 'Scheme-wise Incomplete Works FY 2026-27' }}
+          </h3>
+        </div>
+        <!-- Table/Chart Toggle Pill -->
+        <button (click)="toggleView(1)"
+          class="px-2.5 py-1 rounded-lg bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 hover:border-[#E15B25] text-slate-700 dark:text-slate-300 hover:text-[#E15B25] text-[10px] font-extrabold transition-all uppercase tracking-wider shadow-2xs cursor-pointer">
+          {{ box1View === 'table' ? ((languageService.currentLang$ | async) === 'hi' ? 'ग्राफ देखें' : 'Chart View') : ((languageService.currentLang$ | async) === 'hi' ? 'टेबल देखें' : 'Table View') }}
+        </button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="p-4 flex-1 overflow-x-auto">
+        <table *ngIf="box1View === 'table'" class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-dark-800 text-slate-500 dark:text-slate-400 uppercase font-bold text-[10px]">
+              <th class="py-2 pr-2">#</th>
+              <th class="py-2 pr-2">{{ (languageService.currentLang$ | async) === 'hi' ? 'योजना' : 'Scheme' }}</th>
+              <th class="py-2 px-2 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृत' : 'Sanct.' }}</th>
+              <th class="py-2 px-2 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'पूर्ण' : 'Comp.' }}</th>
+              <th class="py-2 px-2 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'अपूर्ण' : 'Incomp.' }}</th>
+              <th class="py-2 pl-2 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रतिशत' : 'Share' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
+            <tr *ngFor="let row of schemeIncompleteWorks" class="hover:bg-slate-50 dark:hover:bg-dark-800/50 transition-colors">
+              <td class="py-2.5 pr-2 font-mono text-slate-400">{{ row.sno }}</td>
+              <td class="py-2.5 pr-2 font-semibold text-slate-800 dark:text-slate-100 font-devanagari">
+                {{ (languageService.currentLang$ | async) === 'hi' ? row.nameHi : row.name }}
+              </td>
+              <td class="py-2.5 px-2 text-center font-bold text-slate-600 dark:text-slate-400">{{ row.sanctioned }}</td>
+              <td class="py-2.5 px-2 text-center font-bold text-emerald-600">{{ row.completed }}</td>
+              <td class="py-2.5 px-2 text-center font-bold text-rose-600">{{ row.incomplete }}</td>
+              <td class="py-2.5 pl-2 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <span class="font-bold text-slate-700 dark:text-slate-300 w-8">{{ row.percent }}%</span>
+                  <div class="w-12 h-1.5 rounded-full bg-slate-100 dark:bg-dark-800 overflow-hidden">
+                    <div class="h-full bg-purple-600 rounded-full" [style.width]="row.percent + '%'"></div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Visual Chart View -->
+        <div *ngIf="box1View === 'chart'" class="overflow-x-auto custom-scrollbar">
+          <div class="h-48 flex items-end justify-around pt-6 px-4 gap-4 min-w-[420px] border-b border-slate-100 dark:border-dark-800">
+            <div *ngFor="let row of schemeIncompleteWorks" class="flex flex-col items-center flex-1 h-full justify-end">
+              <span class="text-[11px] font-bold text-purple-600 mb-1">{{ row.incomplete }}</span>
+              <div class="w-full max-w-[32px] bg-purple-600/80 hover:bg-purple-600 rounded-t-sm transition-all"
+                [style.height]="(row.incomplete / 50 * 120) + 'px'"></div>
+              <span class="text-[10px] font-semibold text-slate-500 mt-2 text-center truncate w-full">
+                {{ row.name }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Box 2: Category-wise Incomplete Works -->
+    <div class="bg-white dark:bg-dark-900 rounded-xl border border-slate-200/80 dark:border-dark-800 shadow-xs overflow-hidden flex flex-col transition-colors">
+      <!-- Clean Light Mode Header Bar -->
+      <div class="bg-slate-50/90 dark:bg-dark-850 border-b border-slate-200/80 dark:border-dark-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-rose-600"></span>
+          <h3 class="text-xs font-extrabold text-[#0B2240] dark:text-white font-devanagari tracking-wide uppercase">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'वित्तीय वर्ष 2026-27 श्रेणीवार अपूर्ण कार्य' : 'Category-wise Incomplete Works FY 2026-27' }}
+          </h3>
+        </div>
+        <button (click)="toggleView(2)"
+          class="px-2.5 py-1 rounded-lg bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 hover:border-[#E15B25] text-slate-700 dark:text-slate-300 hover:text-[#E15B25] text-[10px] font-extrabold transition-all uppercase tracking-wider shadow-2xs cursor-pointer">
+          {{ box2View === 'table' ? ((languageService.currentLang$ | async) === 'hi' ? 'ग्राफ देखें' : 'Chart View') : ((languageService.currentLang$ | async) === 'hi' ? 'टेबल देखें' : 'Table View') }}
+        </button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="p-4 flex-1 overflow-x-auto">
+        <table *ngIf="box2View === 'table'" class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-dark-800 text-slate-500 dark:text-slate-400 uppercase font-bold text-[10px]">
+              <th class="py-2 pr-2">#</th>
+              <th class="py-2 pr-2">{{ (languageService.currentLang$ | async) === 'hi' ? 'श्रेणी (Category)' : 'Category' }}</th>
+              <th class="py-2 px-2 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृत' : 'Sanct.' }}</th>
+              <th class="py-2 px-2 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'पूर्ण' : 'Comp.' }}</th>
+              <th class="py-2 px-2 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'अपूर्ण' : 'Incomp.' }}</th>
+              <th class="py-2 pl-2 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रतिशत' : 'Share' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
+            <tr *ngFor="let row of categoryIncompleteWorks" class="hover:bg-slate-50 dark:hover:bg-dark-800/50 transition-colors">
+              <td class="py-2.5 pr-2 font-mono text-slate-400">{{ row.sno }}</td>
+              <td class="py-2.5 pr-2 font-semibold text-slate-800 dark:text-slate-100 font-devanagari">
+                {{ (languageService.currentLang$ | async) === 'hi' ? row.nameHi : row.name }}
+              </td>
+              <td class="py-2.5 px-2 text-center font-bold text-slate-600 dark:text-slate-400">{{ row.sanctioned }}</td>
+              <td class="py-2.5 px-2 text-center font-bold text-emerald-600">{{ row.completed }}</td>
+              <td class="py-2.5 px-2 text-center font-bold text-rose-600">{{ row.incomplete }}</td>
+              <td class="py-2.5 pl-2 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <span class="font-bold text-slate-700 dark:text-slate-300 w-8">{{ row.percent }}%</span>
+                  <div class="w-12 h-1.5 rounded-full bg-slate-100 dark:bg-dark-800 overflow-hidden">
+                    <div class="h-full bg-rose-600 rounded-full" [style.width]="row.percent + '%'"></div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Visual Chart View -->
+        <div *ngIf="box2View === 'chart'" class="overflow-x-auto custom-scrollbar">
+          <div class="h-48 flex items-end justify-around pt-6 px-4 gap-2 min-w-[420px] border-b border-slate-100 dark:border-dark-800">
+            <div *ngFor="let row of categoryIncompleteWorks" class="flex flex-col items-center flex-1 h-full justify-end">
+              <span class="text-[11px] font-bold text-rose-600 mb-1">{{ row.incomplete }}</span>
+              <div class="w-full max-w-[28px] bg-rose-600/80 hover:bg-rose-600 rounded-t-sm transition-all"
+                [style.height]="(row.incomplete / 33 * 120) + 'px'"></div>
+              <span class="text-[10px] font-semibold text-slate-500 mt-2 text-center truncate w-full" [title]="row.name">
+                {{ row.name.split(' ')[0] }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Box 3: Department-wise Incomplete Works -->
+    <div class="bg-white dark:bg-dark-900 rounded-xl border border-slate-200/80 dark:border-dark-800 shadow-xs overflow-hidden flex flex-col transition-colors">
+      <!-- Clean Light Mode Header Bar -->
+      <div class="bg-slate-50/90 dark:bg-dark-850 border-b border-slate-200/80 dark:border-dark-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+          <h3 class="text-xs font-extrabold text-[#0B2240] dark:text-white font-devanagari tracking-wide uppercase">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'वित्तीय वर्ष 2026-27 विभागवार अपूर्ण कार्य' : 'Department-wise Incomplete Works FY 2026-27' }}
+          </h3>
+        </div>
+        <button (click)="toggleView(3)"
+          class="px-2.5 py-1 rounded-lg bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 hover:border-[#E15B25] text-slate-700 dark:text-slate-300 hover:text-[#E15B25] text-[10px] font-extrabold transition-all uppercase tracking-wider shadow-2xs cursor-pointer">
+          {{ box3View === 'table' ? ((languageService.currentLang$ | async) === 'hi' ? 'ग्राफ देखें' : 'Chart View') : ((languageService.currentLang$ | async) === 'hi' ? 'टेबल देखें' : 'Table View') }}
+        </button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="p-4 flex-1 overflow-x-auto">
+        <table *ngIf="box3View === 'table'" class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-dark-800 text-slate-500 dark:text-slate-400 uppercase font-bold text-[10px]">
+              <th class="py-2 pr-2">#</th>
+              <th class="py-2 pr-2">{{ (languageService.currentLang$ | async) === 'hi' ? 'विभाग (Department)' : 'Department' }}</th>
+              <th class="py-2 px-2 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृत' : 'Sanct.' }}</th>
+              <th class="py-2 px-2 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'पूर्ण' : 'Comp.' }}</th>
+              <th class="py-2 px-2 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'अपूर्ण' : 'Incomp.' }}</th>
+              <th class="py-2 pl-2 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रतिशत' : 'Share' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
+            <tr *ngFor="let row of deptIncompleteWorks" class="hover:bg-slate-50 dark:hover:bg-dark-800/50 transition-colors">
+              <td class="py-2.5 pr-2 font-mono text-slate-400">{{ row.sno }}</td>
+              <td class="py-2.5 pr-2 font-semibold text-slate-800 dark:text-slate-100 font-devanagari">
+                {{ (languageService.currentLang$ | async) === 'hi' ? row.nameHi : row.name }}
+              </td>
+              <td class="py-2.5 px-2 text-center font-bold text-slate-600 dark:text-slate-400">{{ row.sanctioned }}</td>
+              <td class="py-2.5 px-2 text-center font-bold text-emerald-600">{{ row.completed }}</td>
+              <td class="py-2.5 px-2 text-center font-bold text-rose-600">{{ row.incomplete }}</td>
+              <td class="py-2.5 pl-2 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <span class="font-bold text-slate-700 dark:text-slate-300 w-8">{{ row.percent }}%</span>
+                  <div class="w-12 h-1.5 rounded-full bg-slate-100 dark:bg-dark-800 overflow-hidden">
+                    <div class="h-full bg-emerald-600 rounded-full" [style.width]="row.percent + '%'"></div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Visual Chart View -->
+        <div *ngIf="box3View === 'chart'" class="overflow-x-auto custom-scrollbar">
+          <div class="h-48 flex items-end justify-around pt-6 px-4 gap-2 min-w-[420px] border-b border-slate-100 dark:border-dark-800">
+            <div *ngFor="let row of deptIncompleteWorks" class="flex flex-col items-center flex-1 h-full justify-end">
+              <span class="text-[11px] font-bold text-emerald-600 mb-1">{{ row.incomplete }}</span>
+              <div class="w-full max-w-[28px] bg-emerald-600/80 hover:bg-emerald-600 rounded-t-sm transition-all"
+                [style.height]="(row.incomplete / 48 * 120) + 'px'"></div>
+              <span class="text-[10px] font-semibold text-slate-500 mt-2 text-center truncate w-full" [title]="row.name">
+                {{ row.name.split(' ')[0] }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Box 4: Scheme-wise Financial Expenditure -->
+    <div class="bg-white dark:bg-dark-900 rounded-xl border border-slate-200/80 dark:border-dark-800 shadow-xs overflow-hidden flex flex-col transition-colors">
+      <!-- Clean Light Mode Header Bar -->
+      <div class="bg-slate-50/90 dark:bg-dark-850 border-b border-slate-200/80 dark:border-dark-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+          <h3 class="text-xs font-extrabold text-[#0B2240] dark:text-white font-devanagari tracking-wide uppercase">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'वित्तीय वर्ष 2026-27 योजनावार वित्तीय व्यय (लाखों में)' : 'Scheme-wise Financial Expenditure FY 2026-27 (₹ in Lakhs)' }}
+          </h3>
+        </div>
+        <button (click)="toggleView(4)"
+          class="px-2.5 py-1 rounded-lg bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 hover:border-[#E15B25] text-slate-700 dark:text-slate-300 hover:text-[#E15B25] text-[10px] font-extrabold transition-all uppercase tracking-wider shadow-2xs cursor-pointer">
+          {{ box4View === 'table' ? ((languageService.currentLang$ | async) === 'hi' ? 'ग्राफ देखें' : 'Chart View') : ((languageService.currentLang$ | async) === 'hi' ? 'टेबल देखें' : 'Table View') }}
+        </button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="p-4 flex-1 overflow-x-auto">
+        <table *ngIf="box4View === 'table'" class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-dark-800 text-slate-500 dark:text-slate-400 uppercase font-bold text-[10px]">
+              <th class="py-2 pr-2">#</th>
+              <th class="py-2 pr-2">{{ (languageService.currentLang$ | async) === 'hi' ? 'योजना' : 'Scheme' }}</th>
+              <th class="py-2 px-2 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृत राशि' : 'Sanct. Amt' }}</th>
+              <th class="py-2 px-2 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'व्यय राशि' : 'Exp. Amt' }}</th>
+              <th class="py-2 pl-2 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'बचत राशि' : 'Bal. Amt' }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
+            <tr *ngFor="let row of schemeExpenditures" class="hover:bg-slate-50 dark:hover:bg-dark-800/50 transition-colors">
+              <td class="py-2.5 pr-2 font-mono text-slate-400">{{ row.sno }}</td>
+              <td class="py-2.5 pr-2 font-semibold text-slate-800 dark:text-slate-100 font-devanagari">
+                {{ (languageService.currentLang$ | async) === 'hi' ? row.nameHi : row.name }}
+              </td>
+              <td class="py-2.5 px-2 text-right font-mono font-bold text-slate-700 dark:text-slate-300">₹{{ row.sanctionedAmt | number:'1.2-2' }}</td>
+              <td class="py-2.5 px-2 text-right font-mono font-bold text-rose-600">₹{{ row.expenditureAmt | number:'1.2-2' }}</td>
+              <td class="py-2.5 pl-2 text-right font-mono font-bold text-emerald-600">₹{{ row.balanceAmt | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Visual Chart View -->
+        <div *ngIf="box4View === 'chart'" class="overflow-x-auto custom-scrollbar">
+          <div class="h-48 flex items-end justify-around pt-6 px-4 gap-4 min-w-[420px] border-b border-slate-100 dark:border-dark-800">
+            <div *ngFor="let row of schemeExpenditures" class="flex flex-col items-center flex-1 h-full justify-end">
+              <span class="text-[11px] font-bold text-amber-600 mb-1">₹{{ row.sanctionedAmt | number:'1.0-0' }}</span>
+              <div class="w-full max-w-[36px] bg-amber-500/80 hover:bg-amber-500 rounded-t-sm transition-all"
+                [style.height]="(row.sanctionedAmt / 352 * 120) + 'px'"></div>
+              <span class="text-[10px] font-semibold text-slate-500 mt-2 text-center truncate w-full">
+                {{ row.name }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. SCHEME SELECTOR & BLOCK-WISE PHYSICAL PROGRESS REGISTER (12 JAIPUR BLOCKS) -->
+  <!-- ========================================================================= -->
+  <div class="bg-white dark:bg-dark-900 rounded-xl border border-slate-200/80 dark:border-dark-800 shadow-xs overflow-hidden transition-colors">
+    
+    <!-- Top Scheme Tab Switcher Ribbon -->
+    <div class="bg-slate-50 dark:bg-dark-850 p-3 border-b border-slate-200/80 dark:border-dark-800 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-xs font-bold text-slate-500 mr-2 uppercase tracking-wider">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'योजना चुनें:' : 'Select Scheme:' }}
+        </span>
+        <button *ngFor="let tab of schemeTabs" (click)="setActiveScheme(tab.id)"
+          [ngClass]="activeSchemeTab === tab.id
+            ? 'bg-[#0B2240] text-white font-extrabold shadow-sm border-[#0B2240]'
+            : 'bg-white dark:bg-dark-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-700 border-slate-300 dark:border-dark-700'"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer">
+          <span>{{ tab.label }}</span>
+          <span [ngClass]="activeSchemeTab === tab.id ? 'bg-[#E15B25] text-white' : 'bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300'"
+            class="px-1.5 py-0.2 rounded-full text-[10px] font-black">{{ tab.count }}</span>
+        </button>
+      </div>
+
+      <div class="text-right">
+        <span class="text-xs font-semibold text-slate-500">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'कुल ब्लॉक:' : 'Total Blocks:' }}
+          <strong class="text-slate-800 dark:text-slate-100 ml-1">12 (Jaipur District)</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Table Header Title -->
+    <div class="px-5 py-3.5 border-b border-slate-200/80 dark:border-dark-800 bg-white dark:bg-dark-900 flex items-center justify-between">
+      <h3 class="text-sm font-extrabold text-[#0B2240] dark:text-white font-devanagari">
+        {{ (languageService.currentLang$ | async) === 'hi'
+          ? 'विधायक स्थानीय क्षेत्र विकास योजना वित्तीय वर्ष 2026-27 के ब्लॉकवार भौतिक प्रगति'
+          : 'MLA Local Area Development Scheme FY 2026-27 Block-wise Physical Progress' }}
+      </h3>
+      <span class="text-xs font-semibold text-slate-500 uppercase font-mono">{{ activeSchemeTab }}</span>
+    </div>
+
+    <!-- Full 12-Block Physical Progress Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead>
+          <tr class="bg-slate-50 dark:bg-dark-850 text-slate-500 dark:text-slate-400 uppercase font-bold text-[10px] border-b border-slate-200/80 dark:border-dark-800">
+            <th class="py-3 px-4">#</th>
+            <th class="py-3 px-4">{{ (languageService.currentLang$ | async) === 'hi' ? 'ब्लॉक का नाम' : 'Block Name' }}</th>
+            <th class="py-3 px-4 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृत कार्य' : 'Sanctioned Works' }}</th>
+            <th class="py-3 px-4 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'पूर्ण कार्य' : 'Completed Works' }}</th>
+            <th class="py-3 px-4 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'अपूर्ण कार्य' : 'Incomplete Works' }}</th>
+            <th class="py-3 px-4 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रगति दर' : 'Progress Rate' }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
+          <tr *ngFor="let b of blockProgressData" class="hover:bg-slate-50 dark:hover:bg-dark-800/50 transition-colors">
+            <td class="py-2.5 px-4 font-mono text-slate-400">{{ b.sno }}</td>
+            <td class="py-2.5 px-4 font-bold text-slate-800 dark:text-slate-100 font-devanagari">
+              {{ (languageService.currentLang$ | async) === 'hi' ? b.blockHi : b.block }}
+            </td>
+            <td class="py-2.5 px-4 text-center font-extrabold text-slate-700 dark:text-slate-300">{{ b.sanctioned }}</td>
+            <td class="py-2.5 px-4 text-center font-extrabold text-emerald-600">{{ b.completed }}</td>
+            <td class="py-2.5 px-4 text-center font-extrabold text-rose-600">{{ b.incomplete }}</td>
+            <td class="py-2.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <span class="font-bold text-slate-700 dark:text-slate-300 w-10 text-right">{{ b.progressRate }}%</span>
+                <div class="w-16 h-2 rounded-full bg-slate-100 dark:bg-dark-800 overflow-hidden">
+                  <div class="h-full bg-emerald-500 rounded-full" [style.width]="b.progressRate + '%'"></div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        <!-- Total Summary Row -->
+        <tfoot class="bg-slate-50 dark:bg-dark-850 font-bold border-t-2 border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100">
+          <tr>
+            <td class="py-3 px-4" colspan="2">{{ (languageService.currentLang$ | async) === 'hi' ? 'कुल योग (Total District Jaipur)' : 'Total (District Jaipur)' }}</td>
+            <td class="py-3 px-4 text-center text-slate-900 dark:text-white">{{ totalBlockSanctioned }}</td>
+            <td class="py-3 px-4 text-center text-emerald-600">{{ totalBlockCompleted }}</td>
+            <td class="py-3 px-4 text-center text-rose-600">{{ totalBlockIncomplete }}</td>
+            <td class="py-3 px-4 text-right">0%</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 5. SCHEME & MLA CONSTITUENCY WORK REGISTER (ENTERPRISE MASTER TABLE)       -->
+  <!-- ========================================================================= -->
+  <div class="bg-white dark:bg-dark-900 rounded-xl border border-slate-200/80 dark:border-dark-800 shadow-xs overflow-hidden transition-colors">
+    
+    <!-- Table Toolbar: Search, Filters & PDF/Excel Download Buttons -->
+    <div class="p-4 bg-slate-50 dark:bg-dark-850 border-b border-slate-200/80 dark:border-dark-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <h3 class="text-sm font-extrabold text-[#0B2240] dark:text-white font-devanagari">
+          {{ (languageService.currentLang$ | async) === 'hi'
+            ? 'योजना का विवरण - विधानसभा क्षेत्रवार कार्य एवं वित्तीय विवरण'
+            : 'Scheme Details - Assembly Constituency-wise Works & Financial Register' }}
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'समस्त 12 विधायक क्षेत्र (जयपुर जिला)' : 'All 12 MLA Constituencies (Jaipur District)' }}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
+        <!-- Live Search Input -->
+        <div class="relative w-full sm:w-60">
+          <input [(ngModel)]="searchMla" type="text"
+            [placeholder]="(languageService.currentLang$ | async) === 'hi' ? 'विधायक या क्षेत्र खोजें...' : 'Search MLA or Constituency...'"
+            class="w-full h-9 pl-8 pr-3 rounded-lg bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 text-xs font-semibold text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#0B2240] outline-none transition-all" />
+          <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+
+        <!-- Export Buttons -->
+        <button class="h-9 px-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span>Excel</span>
+        </button>
+
+        <button class="h-9 px-3.5 rounded-lg bg-[#0B2240] hover:bg-[#0F3460] text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          <span>PDF Print</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Master Enterprise Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead>
+          <tr class="bg-[#0B2240] text-white uppercase font-bold text-[10px] border-b border-[#1A3860]">
+            <th class="py-3.5 px-3">#</th>
+            <th class="py-3.5 px-3">{{ (languageService.currentLang$ | async) === 'hi' ? 'विधायक का नाम' : 'MLA Name' }}</th>
+            <th class="py-3.5 px-3">{{ (languageService.currentLang$ | async) === 'hi' ? 'विधानसभा क्षेत्र' : 'Constituency' }}</th>
+            <th class="py-3.5 px-3 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रस्तावित' : 'Proposed' }}</th>
+            <th class="py-3.5 px-3 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृत कार्य' : 'Sanct. Works' }}</th>
+            <th class="py-3.5 px-3 text-center">{{ (languageService.currentLang$ | async) === 'hi' ? 'पूर्ण कार्य' : 'Comp. Works' }}</th>
+            <th class="py-3.5 px-3 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'उपलब्ध राशि' : 'Available Amt' }}</th>
+            <th class="py-3.5 px-3 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृत राशि' : 'Sanctioned Amt' }}</th>
+            <th class="py-3.5 px-3 text-right">{{ (languageService.currentLang$ | async) === 'hi' ? 'बचत राशि (लाख)' : 'Balance Amt (Lakhs)' }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-dark-800">
+          <tr *ngFor="let mla of filteredMlaRows" class="hover:bg-slate-50 dark:hover:bg-dark-800/60 transition-colors">
+            <td class="py-3 px-3 font-mono text-slate-400">{{ mla.sno }}</td>
+            <td class="py-3 px-3 font-bold text-[#0B2240] dark:text-white font-devanagari">
+              {{ (languageService.currentLang$ | async) === 'hi' ? mla.mlaNameHi : mla.mlaName }}
+            </td>
+            <td class="py-3 px-3">
+              <span class="inline-block px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-[11px]">
+                {{ (languageService.currentLang$ | async) === 'hi' ? mla.constituencyHi : mla.constituency }}
+              </span>
+            </td>
+            <td class="py-3 px-3 text-center font-bold text-slate-700 dark:text-slate-300">{{ mla.proposed }}</td>
+            <td class="py-3 px-3 text-center font-bold text-slate-800 dark:text-slate-200">{{ mla.sanctionedWorks }}</td>
+            <td class="py-3 px-3 text-center font-bold text-emerald-600">{{ mla.completedWorks }}</td>
+            <td class="py-3 px-3 text-right font-mono font-bold text-slate-600 dark:text-slate-400">₹{{ mla.availableAmt | number:'1.2-2' }}</td>
+            <td class="py-3 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100">₹{{ mla.sanctionedAmt | number:'1.2-2' }}</td>
+            <td class="py-3 px-3 text-right font-mono font-black text-emerald-600">₹{{ mla.balanceAmt | number:'1.2-2' }}</td>
+          </tr>
+          <!-- Zero Search Results State -->
+          <tr *ngIf="filteredMlaRows.length === 0">
+            <td colspan="9" class="py-12 text-center text-slate-400 font-medium">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'कोई रिकॉर्ड नहीं मिला।' : 'No records found matching your search.' }}
+            </td>
+          </tr>
+        </tbody>
+        <!-- Grand Total Summary Row -->
+        <tfoot class="bg-slate-100 dark:bg-dark-800 font-black border-t-2 border-slate-300 dark:border-dark-700 text-slate-900 dark:text-white">
+          <tr>
+            <td class="py-3.5 px-3" colspan="3">{{ (languageService.currentLang$ | async) === 'hi' ? 'कुल योग (Grand Total District Jaipur)' : 'Grand Total (District Jaipur)' }}</td>
+            <td class="py-3.5 px-3 text-center">{{ totalMlaProposed }}</td>
+            <td class="py-3.5 px-3 text-center">{{ totalMlaSanctionedWorks }}</td>
+            <td class="py-3.5 px-3 text-center text-emerald-600">{{ totalMlaCompletedWorks }}</td>
+            <td class="py-3.5 px-3 text-right font-mono">₹{{ totalMlaAvailableAmt | number:'1.2-2' }}</td>
+            <td class="py-3.5 px-3 text-right font-mono">₹{{ totalMlaSanctionedAmt | number:'1.2-2' }}</td>
+            <td class="py-3.5 px-3 text-right font-mono text-emerald-600">₹{{ totalMlaBalanceAmt | number:'1.2-2' }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  </div>
+
+</div>

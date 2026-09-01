@@ -1,0 +1,8 @@
+{
+  "/iwmsapi": {
+    "target": "http://10.130.3.10",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

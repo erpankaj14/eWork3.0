@@ -1,0 +1,148 @@
+<div class="space-y-6 pb-12 animate-fadeIn">
+
+  <!-- ========================================================================= -->
+  <!-- PAGE HEADER BANNER                                                       -->
+  <!-- ========================================================================= -->
+  <div class="bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/15 dark:from-[#0B2240] dark:via-[#0F3460] dark:to-[#0B2240] rounded-2xl p-6 text-[#0B2240] dark:text-white shadow-md border border-amber-300/70 dark:border-slate-700/60 relative overflow-hidden transition-all duration-300">
+    <div class="absolute -right-6 -bottom-8 w-48 h-48 bg-[#E15B25]/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+      <div>
+        <div class="flex items-center gap-2 text-[#E15B25] dark:text-amber-300 text-xs font-bold uppercase tracking-wider mb-1">
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृति (Sanction)' : 'Sanction' }}</span>
+          <span>/</span>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रस्तावित कार्य' : 'Proposed Work' }}</span>
+          <span>/</span>
+          <span class="text-[#0B2240] dark:text-white underline font-extrabold">{{ (languageService.currentLang$ | async) === 'hi' ? 'रिवर्ट अनुरोध सूची' : 'Revert Request List' }}</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black font-devanagari tracking-tight text-[#0B2240] dark:text-white">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'विधायक अनुशंसा रिवर्ट अनुरोध सूची' : 'MLA Recommendation Revert Request List' }}
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 font-medium">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'माननीय विधायकों द्वारा अनुशंसित प्रस्तावों में संशोधन या रिवर्ट अनुरोध की निगरानी' : 'Track and manage revert requests submitted for MLA recommended work proposals.' }}
+        </p>
+      </div>
+
+      <!-- District Badge -->
+      <div class="bg-white/80 dark:bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-amber-300 dark:border-white/20 text-right flex-shrink-0 shadow-xs">
+        <p class="text-[10px] text-[#E15B25] dark:text-amber-300 uppercase tracking-widest font-extrabold">Revert Tracking</p>
+        <p class="text-sm font-black text-[#0B2240] dark:text-white uppercase tracking-wide">JAIPUR</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- FILTER & SEARCH TOOLBAR                                                  -->
+  <!-- ========================================================================= -->
+  <div class="bg-white dark:bg-dark-900 rounded-2xl p-5 border border-slate-200/80 dark:border-dark-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
+    
+    <!-- Status Filter Pills -->
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-extrabold text-[#0B2240] dark:text-slate-200 uppercase font-devanagari">Revert Status:</span>
+      <div class="flex items-center gap-1 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl border border-slate-200 dark:border-dark-750">
+        <button type="button" (click)="statusFilter = 'All'"
+          [ngClass]="statusFilter === 'All' ? 'bg-gradient-to-r from-[#E15B25] to-orange-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+          class="px-3 py-1 rounded-lg text-xs transition-all cursor-pointer">All</button>
+        <button type="button" (click)="statusFilter = 'Completed'"
+          [ngClass]="statusFilter === 'Completed' ? 'bg-emerald-700 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+          class="px-3 py-1 rounded-lg text-xs transition-all cursor-pointer">Completed (पूर्ण)</button>
+        <button type="button" (click)="statusFilter = 'Pending Review'"
+          [ngClass]="statusFilter === 'Pending Review' ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+          class="px-3 py-1 rounded-lg text-xs transition-all cursor-pointer">Pending Review</button>
+      </div>
+    </div>
+
+    <!-- Search input -->
+    <div class="relative">
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Search work, panchayat, approval no..."
+        class="bg-slate-50 dark:bg-dark-850 border border-slate-300 dark:border-dark-750 rounded-xl pl-8 pr-4 py-1.5 text-xs text-slate-800 dark:text-white w-72 focus:outline-none focus:border-[#E15B25]" />
+      <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- REVERT REQUEST TRACKING DATA TABLE (MATCHING SCREENSHOT 4)                -->
+  <!-- ========================================================================= -->
+  <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/80 dark:border-dark-800 shadow-sm overflow-hidden">
+    
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-slate-100/90 dark:bg-dark-800 text-[#0B2240] dark:text-slate-200 font-black uppercase tracking-wider border-b border-slate-200 dark:border-dark-750">
+            <th class="p-3.5 w-12 text-center">S.No.</th>
+            <th class="p-3.5 min-w-[240px]">Work Name (कार्य का नाम)</th>
+            <th class="p-3.5">Block / Panchayat</th>
+            <th class="p-3.5">Receipt Date</th>
+            <th class="p-3.5 text-center">Convergence</th>
+            <th class="p-3.5 text-right">Proposed Amount</th>
+            <th class="p-3.5">Approval No / Work Id</th>
+            <th class="p-3.5 text-center">Recommendation Via</th>
+            <th class="p-3.5 text-center">Revert Requested</th>
+            <th class="p-3.5 text-center">Revert Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
+          <tr *ngFor="let rec of filteredRecords" class="hover:bg-amber-50/40 dark:hover:bg-white/5 transition-colors">
+            
+            <td class="p-3.5 text-center font-bold text-slate-500">{{ rec.sno }}</td>
+
+            <td class="p-3.5">
+              <p class="font-bold text-[#0B2240] dark:text-white font-devanagari leading-snug">
+                {{ rec.workNameHi }}
+              </p>
+              <p class="text-[10px] text-slate-400 mt-0.5">{{ rec.workName }}</p>
+            </td>
+
+            <td class="p-3.5 font-devanagari">
+              <p class="font-bold text-slate-700 dark:text-slate-200">{{ rec.block }}</p>
+              <p class="text-[11px] text-slate-400">{{ rec.panchayat }} · {{ rec.village }}</p>
+            </td>
+
+            <td class="p-3.5 font-mono text-slate-600 dark:text-slate-300">{{ rec.receiptDate }}</td>
+
+            <td class="p-3.5 text-center">
+              <span [ngClass]="rec.convergence === 'Yes' ? 'bg-amber-100 text-amber-800 font-bold' : 'bg-slate-100 text-slate-600'"
+                class="px-2 py-0.5 rounded text-[10px]">
+                {{ rec.convergence }}
+              </span>
+            </td>
+
+            <td class="p-3.5 text-right font-mono font-black text-[#0B2240] dark:text-amber-300">
+              ₹{{ rec.proposedAmountLacs.toFixed(2) }} L
+            </td>
+
+            <td class="p-3.5 font-mono">
+              <p class="font-bold text-slate-700 dark:text-slate-200">{{ rec.approvalNo }}</p>
+              <p class="text-[11px] text-[#E15B25] font-bold">{{ rec.workId }}</p>
+            </td>
+
+            <td class="p-3.5 text-center">
+              <span [ngClass]="rec.recommVia === 'Mobile' ? 'bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300'"
+                class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase">
+                {{ rec.recommVia }}
+              </span>
+            </td>
+
+            <td class="p-3.5 text-center">
+              <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300 text-[10px] font-black">
+                {{ rec.revertRequested }}
+              </span>
+            </td>
+
+            <td class="p-3.5 text-center">
+              <span [ngClass]="rec.revertStatus === 'Completed' ? 'revert-badge-completed' : 'revert-badge-pending'">
+                {{ rec.revertStatus }}
+              </span>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,201 @@
+<!-- Floating Accessibility Button -->
+<button 
+  (click)="togglePanel()"
+  class="fixed top-1/2 right-0 -translate-y-1/2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white p-3 rounded-l-2xl shadow-[0_0_20px_rgba(124,58,237,0.4)] z-[60] flex items-center justify-center transition-all duration-300 group"
+  title="Accessibility Tools"
+>
+  <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 1.5c-4.69 0-8.5 3.81-8.5 8.5s3.81 8.5 8.5 8.5 8.5-3.81 8.5-8.5-3.81-8.5-8.5-8.5zm0 2.5c1.1 0 2 .9 2 2 0 1.11-.89 2-2 2-1.11 0-2-.89-2-2 0-1.1.89-2 2-2zm-2.5 5h5c.83 0 1.5.67 1.5 1.5v3h-1.5v4.5c0 .55-.45 1-1 1s-1-.45-1-1V15.5h-1V19c0 .55-.45 1-1 1s-1-.45-1-1v-4.5H8v-3c0-.83.67-1.5 1.5-1.5z"/>
+  </svg>
+</button>
+
+<!-- Slide-out Panel Overlay -->
+<div *ngIf="isOpen" (click)="togglePanel()" class="fixed inset-0 z-[65] bg-transparent"></div>
+
+<!-- Slide-out Panel -->
+<div id="access-panel"
+  class="fixed top-4 right-4 bottom-4 w-[400px] bg-[#f8fafc] dark:bg-dark-900 rounded-2xl shadow-2xl z-[70] transition-transform duration-300 border border-slate-200 dark:border-dark-700 flex flex-col overflow-hidden"
+  [ngClass]="isOpen ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0'"
+  style="max-width: calc(100vw - 32px);"
+>
+  <!-- Header -->
+  <div class="h-14 flex items-center justify-between px-5 bg-[#7C3AED] text-white">
+    <div class="flex items-center gap-3">
+      <h2 class="text-sm font-semibold">Accessibility options</h2>
+      <!-- <span class="bg-white/20 text-xs px-2 py-0.5 rounded-full">Ctrl+F2</span> -->
+    </div>
+    <button (click)="togglePanel()" class="p-1 rounded-lg hover:bg-white/20 transition-colors">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+    </button>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="flex-1 overflow-y-auto p-5 custom-scrollbar" *ngIf="state$ | async as state">
+    <div class="grid grid-cols-3 gap-3">
+      
+      <!-- 1. Bigger Text -->
+      <button (click)="cycleBiggerText()" class="access-btn group" [class.active]="state.textSize > 0">
+        <div class="access-icon-container">
+          <span class="text-2xl font-serif font-bold">T↑</span>
+          <svg *ngIf="state.textSize > 0" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Bigger Text</span>
+        <div class="access-indicators">
+          <div class="indicator-dash" [class.active-dash]="state.textSize >= 1"></div>
+          <div class="indicator-dash" [class.active-dash]="state.textSize >= 2"></div>
+          <div class="indicator-dash" [class.active-dash]="state.textSize >= 3"></div>
+        </div>
+      </button>
+
+      <!-- 2. Smaller Text -->
+      <button (click)="cycleSmallerText()" class="access-btn group" [class.active]="state.textSize < 0">
+        <div class="access-icon-container">
+          <span class="text-2xl font-serif font-bold">T↓</span>
+          <svg *ngIf="state.textSize < 0" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Smaller Text</span>
+        <div class="access-indicators">
+          <div class="indicator-dash" [class.active-dash]="state.textSize <= -1"></div>
+          <div class="indicator-dash" [class.active-dash]="state.textSize <= -2"></div>
+          <div class="indicator-dash" [class.active-dash]="state.textSize <= -3"></div>
+        </div>
+      </button>
+
+      <!-- 3. Text Spacing -->
+      <button (click)="access.cycleTextSpacing()" class="access-btn group" [class.active]="state.textSpacing > 0">
+        <div class="access-icon-container">
+          <span class="text-2xl font-serif font-bold tracking-[0.2em]">A↔</span>
+          <svg *ngIf="state.textSpacing > 0" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Text Spacing</span>
+        <div class="access-indicators">
+          <div class="indicator-dash" [class.active-dash]="state.textSpacing >= 1"></div>
+          <div class="indicator-dash" [class.active-dash]="state.textSpacing >= 2"></div>
+          <div class="indicator-dash" [class.active-dash]="state.textSpacing >= 3"></div>
+        </div>
+      </button>
+
+      <!-- 4. Line Height -->
+      <button (click)="access.cycleLineHeight()" class="access-btn group" [class.active]="state.lineHeight > 0">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16M8 4v16m8-16v16" /></svg>
+          <svg *ngIf="state.lineHeight > 0" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Line Height</span>
+        <div class="access-indicators">
+          <div class="indicator-dash" [class.active-dash]="state.lineHeight >= 1"></div>
+          <div class="indicator-dash" [class.active-dash]="state.lineHeight >= 2"></div>
+          <div class="indicator-dash" [class.active-dash]="state.lineHeight >= 3"></div>
+        </div>
+      </button>
+
+      <!-- 5. Dyslexia Friendly -->
+      <button (click)="access.toggleDyslexia()" class="access-btn group" [class.active]="state.dyslexia">
+        <div class="access-icon-container">
+          <span class="text-3xl font-bold font-serif">Df</span>
+          <svg *ngIf="state.dyslexia" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Dyslexia Friendly</span>
+      </button>
+
+      <!-- 6. ADHD Mode -->
+      <button (click)="access.toggleAdhd()" class="access-btn group" [class.active]="state.adhd">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v4" /></svg>
+          <svg *ngIf="state.adhd" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">ADHD Mode</span>
+      </button>
+
+      <!-- 7. Saturation -->
+      <button (click)="access.cycleSaturation()" class="access-btn group" [class.active]="state.saturation > 0">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+          <svg *ngIf="state.saturation > 0" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">{{ state.saturation === 1 ? 'High Saturation' : state.saturation === 2 ? 'Low Saturation' : state.saturation === 3 ? 'Desaturate' : 'Saturation' }}</span>
+        <div class="access-indicators">
+          <div class="indicator-dash" [class.active-dash]="state.saturation >= 1"></div>
+          <div class="indicator-dash" [class.active-dash]="state.saturation >= 2"></div>
+          <div class="indicator-dash" [class.active-dash]="state.saturation >= 3"></div>
+        </div>
+      </button>
+
+      <!-- 8. Light-Dark -->
+      <button (click)="access.toggleDarkTheme()" class="access-btn group" [class.active]="state.darkTheme">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+          <svg *ngIf="state.darkTheme" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Light-Dark</span>
+      </button>
+
+      <!-- 9. Invert Colors -->
+      <button (click)="access.toggleInvertColors()" class="access-btn group" [class.active]="state.invertColors">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" stroke="currentColor" stroke-width="2" fill-opacity="0.5"/></svg>
+          <svg *ngIf="state.invertColors" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Invert Colors</span>
+      </button>
+
+      <!-- 10. Highlight Links -->
+      <button (click)="access.toggleHighlightLinks()" class="access-btn group" [class.active]="state.highlightLinks">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+          <svg *ngIf="state.highlightLinks" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Highlight Links</span>
+      </button>
+
+      <!-- 11. Text To Speech -->
+      <button (click)="access.toggleVoiceMode()" class="access-btn group" [class.active]="state.voiceMode">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+          <svg *ngIf="state.voiceMode" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Text To Speech</span>
+      </button>
+
+      <!-- 12. Cursor -->
+      <button (click)="access.cycleCursor()" class="access-btn group" [class.active]="state.cursor > 0">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
+          <svg *ngIf="state.cursor > 0" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Cursor</span>
+        <div class="access-indicators">
+          <div class="indicator-dash" [class.active-dash]="state.cursor >= 1"></div>
+          <div class="indicator-dash" [class.active-dash]="state.cursor >= 2"></div>
+        </div>
+      </button>
+
+      <!-- 13. Pause Animation -->
+      <button (click)="access.togglePauseAnim()" class="access-btn group" [class.active]="state.pauseAnim">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <svg *ngIf="state.pauseAnim" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Pause Animation</span>
+      </button>
+
+      <!-- 14. Hide Images -->
+      <button (click)="access.toggleHideImages()" class="access-btn group" [class.active]="state.hideImages">
+        <div class="access-icon-container">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2"/></svg>
+          <svg *ngIf="state.hideImages" class="access-check" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="access-label">Hide Images</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="h-16 flex items-center justify-between px-5 bg-white dark:bg-dark-900 border-t border-slate-200 dark:border-dark-700">
+    <button (click)="access.resetAll()" class="flex-1 py-2.5 rounded-xl bg-[#F3E8FF] hover:bg-[#E9D5FF] text-[#7C3AED] font-semibold text-sm flex items-center justify-center gap-2 transition-colors">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+      Reset All Settings
+    </button>
+  </div>
+</div>

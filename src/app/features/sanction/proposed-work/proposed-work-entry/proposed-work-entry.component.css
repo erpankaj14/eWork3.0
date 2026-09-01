@@ -1,0 +1,20 @@
+/* Saffron glow and focus styles for institutional wizard inputs */
+.wizard-input {
+  @apply w-full bg-white dark:bg-dark-850 border border-slate-200 dark:border-dark-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#E15B25]/20 focus:border-[#E15B25] transition-all;
+}
+
+.wizard-label {
+  @apply block text-xs font-extrabold text-[#0B2240] dark:text-slate-200 uppercase tracking-wider mb-1.5 font-devanagari;
+}
+
+/* Custom scrollbar for listbox columns */
+.listbox-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+.listbox-scroll::-webkit-scrollbar-thumb {
+  background: rgba(225, 91, 37, 0.25);
+  border-radius: 4px;
+}
+.listbox-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(225, 91, 37, 0.5);
+}

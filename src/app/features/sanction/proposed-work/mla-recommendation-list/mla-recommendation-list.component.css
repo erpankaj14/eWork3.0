@@ -1,0 +1,7 @@
+/* Sticky first and second column for wide data tables */
+.sticky-sno {
+  @apply sticky left-0 z-20 bg-white dark:bg-dark-900 border-r border-slate-200 dark:border-dark-700;
+}
+.sticky-mla {
+  @apply sticky left-12 z-20 bg-white dark:bg-dark-900 border-r border-slate-200 dark:border-dark-700;
+}

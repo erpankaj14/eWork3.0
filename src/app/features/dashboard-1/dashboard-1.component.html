@@ -1,0 +1,440 @@
+<div class="space-y-8 pb-12 font-sans">
+
+  <!-- 1. OFFICIAL HERO BANNER (Light Theme - Tricolor soft gradient) -->
+  <div
+    class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-50 via-white to-emerald-50/80 dark:from-dark-900 dark:via-dark-950 dark:to-dark-900 text-slate-800 dark:text-white p-8 md:p-10 shadow-sm border border-slate-200/80 dark:border-dark-800">
+    <div
+      class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgwLDEwMiwyMDQsMC4wMykiLz48L3N2Zz4=')] pointer-events-none">
+    </div>
+    <div
+      class="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-[350px] h-[350px] bg-gradient-to-br from-accent-300/10 to-primary-400/10 blur-[80px] rounded-full pointer-events-none">
+    </div>
+
+    <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="space-y-3 text-center md:text-left">
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-500/10 dark:bg-accent-500/25 border border-accent-500/20 text-accent-700 dark:text-accent-300 text-xs font-bold uppercase tracking-wider animate-pulse">
+          <span class="w-2 h-2 rounded-full bg-accent-500"></span>
+          {{ 'DASHBOARD1.TAG' | translate }}
+        </div>
+        <h1
+          class="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-[#0b2240] dark:text-white font-heading">
+          {{ 'DASHBOARD1.TITLE' | translate }} <br>
+          <span class="text-primary-600 dark:text-accent-400 font-sans font-medium text-base md:text-lg tracking-wide">
+            {{ 'DASHBOARD1.SUBTITLE' | translate }}
+          </span>
+        </h1>
+        <p class="text-slate-600 dark:text-slate-350 text-sm max-w-xl font-semibold">
+          {{ 'DASHBOARD1.DESC' | translate }}
+        </p>
+      </div>
+
+      <!-- Quick Action Button -->
+      <div class="flex-shrink-0">
+        <button
+          class="btn-shiny-saffron font-bold px-5 py-3 rounded-lg text-xs tracking-wider uppercase transition-all flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          {{ 'DASHBOARD1.EXPORT_PDF' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. INTERACTIVE FILTERS -->
+  <div class="premium-gov-card p-4 flex flex-col sm:flex-row items-center gap-4">
+    <div class="flex-shrink-0 flex items-center gap-2 w-full sm:w-auto">
+      <div
+        class="w-8 h-8 rounded-full bg-accent-50 dark:bg-accent-950/20 flex items-center justify-center text-accent-600 dark:text-accent-400">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+      </div>
+      <h3 class="text-xs font-black text-[#0b2240] dark:text-slate-300 uppercase tracking-widest">{{
+        'DASHBOARD1.FILTER_REPORT' | translate }}</h3>
+    </div>
+
+    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+      <!-- District -->
+      <div class="relative">
+        <select [(ngModel)]="selectedDistrict"
+          class="w-full bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-800 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-accent-500 cursor-pointer appearance-none">
+          <option *ngFor="let d of districts" [value]="d">{{ d === '--All--' ? ('DASHBOARD1.SELECT_DISTRICT' |
+            translate) : d }}</option>
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+          <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
+            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+          </svg>
+        </div>
+      </div>
+      <!-- Timeline -->
+      <div class="relative">
+        <select [(ngModel)]="selectedTimeline"
+          class="w-full bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-800 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-accent-500 cursor-pointer appearance-none">
+          <option *ngFor="let t of timelines" [value]="t">{{ t }}</option>
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+          <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
+            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-2 w-full sm:w-auto">
+      <button (click)="applyFilters()"
+        class="flex-1 sm:flex-none btn-shiny-saffron font-bold text-xs px-5 py-2.5 rounded-lg transition-colors">Apply</button>
+      <button (click)="selectedDistrict = '--All--'; selectedTimeline = 'This Month'; applyFilters()"
+        class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-750 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg transition-colors">Reset</button>
+    </div>
+  </div>
+
+  <!-- 3. Animated KPIs Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div *ngFor="let kpi of kpis"
+      class="premium-gov-card p-6 flex flex-col hover:-translate-y-1 transition-transform relative overflow-hidden group">
+      <!-- Glow background -->
+      <div
+        class="absolute -right-6 -top-6 w-24 h-24 rounded-full blur-[30px] opacity-50 group-hover:opacity-80 transition-opacity"
+        [ngClass]="kpi.bgClass"></div>
+
+      <!-- Icon Wrapper -->
+      <div
+        class="w-12 h-12 rounded-xl flex items-center justify-center mb-4 relative z-10 border border-slate-150 dark:border-dark-700 shadow-sm"
+        [ngClass]="[kpi.bgClass, kpi.colorClass]">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="kpi.icon" />
+        </svg>
+      </div>
+
+      <!-- Values -->
+      <div class="relative z-10">
+        <p class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{kpi.label}}
+        </p>
+        <h4 class="text-3xl font-black text-[#0b2240] dark:text-white mt-1 font-mono tracking-tight">
+          <span [appCountUp]="kpi.rawValue" [isDecimal]="kpi.isDecimal || false" [duration]="1500">0</span>
+        </h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. THREE-COLUMN BENTO BOX SECTION -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Column 1 & 2: Charts and progress details (Span 2) -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Bar Chart -->
+      <div class="premium-gov-card p-6 md:p-8 hover:-translate-y-1 transition-transform">
+        <div class="mb-6 flex justify-between items-center">
+          <div>
+            <h3 class="text-lg font-black text-[#0b2240] dark:text-white">{{ 'DASHBOARD1.MONTHLY_PROGRESS' | translate
+              }}</h3>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{{
+              'DASHBOARD1.SANCTIONS_VS_COMPLETED' | translate }}</p>
+          </div>
+          <div class="flex gap-2">
+            <span
+              class="text-[9px] px-2.5 py-1 bg-accent-500/10 text-accent-700 dark:text-accent-400 rounded-lg border border-accent-500/25 font-bold uppercase tracking-wider">{{
+              'DASHBOARD1.SANCTIONS' | translate }}</span>
+            <span
+              class="text-[9px] px-2.5 py-1 bg-primary-500/10 text-primary-700 dark:text-primary-400 rounded-lg border border-primary-500/25 font-bold uppercase tracking-wider">{{
+              'DASHBOARD1.COMPLETED' | translate }}</span>
+          </div>
+        </div>
+        <div class="h-[300px] w-full relative">
+          <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Scheme progress tracker -->
+      <div class="premium-gov-card p-6 md:p-8">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h3 class="text-lg font-black text-[#0b2240] dark:text-white">{{ 'DASHBOARD1.SCHEME_ALLOCATION' | translate
+              }}</h3>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{{
+              'DASHBOARD1.TARGET_VS_ACHIEVEMENT' | translate }}</p>
+          </div>
+          <span
+            class="px-3 py-1.5 bg-slate-100 dark:bg-dark-800 text-slate-500 dark:text-slate-400 rounded-xl text-xs font-extrabold uppercase">{{
+            'DASHBOARD1.LIVE_STATS' | translate }}</span>
+        </div>
+
+        <div class="space-y-5">
+          <div *ngFor="let s of schemes" class="space-y-2 group">
+            <div class="flex justify-between items-center text-sm">
+              <div class="flex items-center gap-2">
+                <span class="font-black text-slate-800 dark:text-slate-200 font-heading text-xs">{{ s.name }}</span>
+                <span class="text-[10px] font-devanagari text-slate-400 dark:text-slate-500 font-bold">({{ s.hindiName
+                  }})</span>
+              </div>
+              <div class="flex items-center gap-3 text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
+                <span>{{ 'DASHBOARD1.ALLOCATED' | translate }}{{ s.allocated }}{{ 'DASHBOARD1.CR' | translate }}</span>
+                <span class="text-slate-350 dark:text-dark-700">|</span>
+                <span class="text-[#0b2240] dark:text-white">{{ 'DASHBOARD1.SPENT' | translate }}{{ s.spent }}{{
+                  'DASHBOARD1.CR' | translate }}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] text-white"
+                  [ngClass]="s.percent > 80 ? 'bg-emerald-500' : 'bg-amber-500'">{{ s.percent }}%</span>
+              </div>
+            </div>
+            <div class="h-2 w-full bg-slate-100 dark:bg-dark-850 rounded-full overflow-hidden flex relative">
+              <div class="h-full rounded-full transition-all duration-[1500ms]" [ngClass]="s.colorClass"
+                [style.width.%]="s.percent"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Column 3: {{ 'DASHBOARD1.TELEMETRY_FEED' | translate }} (Right Side Bento Box) -->
+    <div class="space-y-6">
+
+      <!-- Doughnut Chart (Resource Distribution) -->
+      <div class="premium-gov-card p-6">
+        <h3 class="text-base font-black text-[#0b2240] dark:text-white mb-4">{{ 'DASHBOARD1.ALLOCATION_BY_SECTOR' |
+          translate }}</h3>
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <!-- Circular Chart wrapper -->
+          <div class="relative w-36 h-36 mx-auto sm:mx-0 flex-shrink-0">
+            <!-- Center Text Overlay -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span class="text-3xl font-black text-[#0b2240] dark:text-white">4</span>
+              <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{{
+                'DASHBOARD1.SECTORS' | translate }}</span>
+            </div>
+            <canvas baseChart [data]="doughnutChartData" [options]="doughnutChartOptions" [type]="'doughnut'">
+            </canvas>
+          </div>
+
+          <!-- Custom Legend -->
+          <div class="flex-1 grid grid-cols-1 gap-2 text-xs font-semibold w-full">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#0f4cba] flex-shrink-0"></span>
+              <span class="text-slate-600 dark:text-slate-350 truncate">{{ 'DASHBOARD1.PANCHAYAT_INFRA' | translate
+                }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#f97316] flex-shrink-0"></span>
+              <span class="text-slate-600 dark:text-slate-350 truncate">{{ 'DASHBOARD1.WATER_AGRI' | translate }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#a855f7] flex-shrink-0"></span>
+              <span class="text-slate-600 dark:text-slate-350 truncate">{{ 'DASHBOARD1.CONSTITUENCY_WORKS' | translate
+                }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#ec4899] flex-shrink-0"></span>
+              <span class="text-slate-600 dark:text-slate-350 truncate">{{ 'DASHBOARD1.SOCIAL_WELFARE' | translate
+                }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Telemetry / Logging Feed -->
+      <div class="premium-gov-card p-6 flex flex-col max-h-[380px] overflow-hidden">
+        <div class="mb-4 flex items-center justify-between">
+          <h3 class="text-base font-black text-[#0b2240] dark:text-white flex items-center gap-2">
+            <span class="flex h-2 w-2 relative">
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-500"></span>
+            </span>
+            {{ 'DASHBOARD1.TELEMETRY_FEED' | translate }}
+          </h3>
+          <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ 'DASHBOARD1.REALTIME' |
+            translate }}</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar text-xs">
+          <div *ngFor="let act of activityFeed"
+            class="flex gap-3 relative pb-2 border-l border-slate-100 dark:border-dark-800 pl-4 last:border-0 last:pb-0">
+            <!-- Bullet Point -->
+            <span class="absolute -left-1.5 top-1 h-3 w-3 rounded-full border-2 border-white dark:border-dark-900"
+              [ngClass]="act.badgeColor"></span>
+
+            <div class="space-y-1">
+              <div class="flex justify-between items-center w-full">
+                <span class="font-extrabold text-[#0b2240] dark:text-white font-heading">{{ act.district }} &middot;
+                  <span class="text-[10px] text-slate-400 font-normal">{{ act.action }}</span></span>
+                <span class="text-[9px] font-medium text-slate-400 font-mono">{{ act.time }}</span>
+              </div>
+              <p class="text-slate-600 dark:text-slate-350 leading-relaxed font-semibold">{{ act.details }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- 5. CRITICAL ALERTS & NOTICE BOARD (Unique Bottom Section) -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Critical Alert Box (Span 2) -->
+    <div
+      class="lg:col-span-2 bg-gradient-to-br from-red-500/10 to-orange-500/5 rounded-2xl border border-red-500/20 shadow-sm p-6 md:p-8 relative overflow-hidden group">
+      <div class="absolute -right-20 -top-20 w-44 h-44 bg-danger-500/10 rounded-full blur-3xl pointer-events-none">
+      </div>
+
+      <div class="relative z-10 flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-lg font-black text-red-650 dark:text-red-400 flex items-center gap-2 font-heading">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            {{ 'DASHBOARD1.CRITICAL_ALERTS' | translate }}
+          </h3>
+          <p class="text-[10px] font-bold text-red-400/80 uppercase tracking-widest mt-1">{{ 'DASHBOARD1.PENDING_ACTION'
+            | translate }}</p>
+        </div>
+        <span
+          class="px-2.5 py-1 bg-danger-500/20 text-danger-500 text-[10px] rounded-lg font-black uppercase tracking-wider border border-danger-500/30 animate-pulse">{{
+          'DASHBOARD1.ACTION_REQUIRED' | translate }}</span>
+      </div>
+
+      <div class="space-y-3 relative z-10">
+        <div *ngFor="let item of alerts"
+          class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white/70 dark:bg-dark-900/50 backdrop-blur border border-red-200/50 dark:border-dark-800 rounded-xl gap-2 hover:border-red-400/50 transition-colors">
+          <div class="flex items-start sm:items-center gap-3">
+            <span
+              class="px-2 py-0.5 bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400 rounded font-mono text-[10px] font-bold">{{
+              item.id }}</span>
+            <div class="space-y-0.5">
+              <p class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ item.message }}</p>
+              <p class="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">{{ item.scheme }}</p>
+            </div>
+          </div>
+          <span
+            class="text-[10px] font-mono text-slate-400 dark:text-slate-500 font-semibold self-end sm:self-center">{{
+            item.time }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department Notice Board -->
+    <div class="premium-gov-card p-6 flex flex-col justify-between">
+      <div>
+        <div class="mb-4">
+          <h3 class="text-base font-black text-[#0b2240] dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 4a2 2 0 00-2-2m-2 3h.01M5.5 8.5H12M5.5 12h5" />
+            </svg>
+            {{ 'DASHBOARD1.CIRCULARS' | translate }}
+          </h3>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{{
+            'DASHBOARD1.OFFICIAL_RELEASES' | translate }}</p>
+        </div>
+
+        <div class="space-y-3.5 text-xs font-semibold">
+          <div class="group cursor-pointer">
+            <h4
+              class="text-slate-800 dark:text-slate-200 hover:text-accent-500 transition-colors font-extrabold leading-snug">
+              {{ 'DASHBOARD1.CIRCULAR_1' | translate }}</h4>
+            <p class="text-[9px] text-slate-400 font-mono mt-1">Date: 02 July 2026</p>
+          </div>
+          <div class="w-full h-px bg-slate-100 dark:bg-dark-850"></div>
+          <div class="group cursor-pointer">
+            <h4
+              class="text-slate-800 dark:text-slate-200 hover:text-accent-500 transition-colors font-extrabold leading-snug">
+              {{ 'DASHBOARD1.CIRCULAR_2' | translate }}</h4>
+            <p class="text-[9px] text-slate-400 font-mono mt-1">Date: 28 June 2026</p>
+          </div>
+          <div class="w-full h-px bg-slate-100 dark:bg-dark-850"></div>
+          <div class="group cursor-pointer">
+            <h4
+              class="text-slate-800 dark:text-slate-200 hover:text-accent-500 transition-colors font-extrabold leading-snug">
+              {{ 'DASHBOARD1.CIRCULAR_3' | translate }}</h4>
+            <p class="text-[9px] text-slate-400 font-mono mt-1">Date: 15 June 2026</p>
+          </div>
+        </div>
+      </div>
+
+      <button
+        class="w-full mt-4 py-2 bg-slate-50 dark:bg-dark-850 text-[#0b2240] dark:text-white text-[11px] font-extrabold rounded-lg border border-slate-150 dark:border-dark-800 hover:bg-slate-100 dark:hover:bg-dark-800 transition-colors tracking-wide">
+        {{ 'DASHBOARD1.VIEW_ALL_DOCS' | translate }}
+      </button>
+    </div>
+
+  </div>
+
+  <!-- 6. RECENT APPROVALS TABLE -->
+  <div class="premium-gov-card p-0 overflow-hidden mt-8">
+    <div class="p-6 border-b border-slate-100 dark:border-dark-800 flex justify-between items-center">
+      <div>
+        <h3 class="text-lg font-black text-[#0b2240] dark:text-white">{{ 'DASHBOARD1.RECENT_SANCTIONS' | translate }}
+        </h3>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{{ 'DASHBOARD1.STATUS_RECENT' |
+          translate }}</p>
+      </div>
+      <button
+        class="px-4 py-2 bg-slate-50 dark:bg-dark-850 hover:bg-slate-100 dark:hover:bg-dark-800 border border-slate-150 dark:border-dark-800 text-slate-600 dark:text-slate-350 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5">
+        {{ 'DASHBOARD1.VIEW_ALL_SANC' | translate }}
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead class="bg-slate-50 dark:bg-dark-800/80">
+          <tr>
+            <th class="py-3 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{{
+              'DASHBOARD1.TABLE_PRJ_ID' | translate }}</th>
+            <th class="py-3 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{{ 'DASHBOARD1.TABLE_DESC'
+              | translate }}</th>
+            <th class="py-3 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{{ 'DASHBOARD1.TABLE_DEPT'
+              | translate }}</th>
+            <th class="py-3 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{{ 'DASHBOARD1.TABLE_COST'
+              | translate }}</th>
+            <th class="py-3 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{{
+              'DASHBOARD1.TABLE_STATUS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50 dark:divide-dark-800/50">
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-dark-800/50 transition-colors">
+            <td class="py-4 px-6 font-mono text-xs text-slate-600 dark:text-slate-400">#PRJ-8012</td>
+            <td class="py-4 px-6 font-bold text-slate-800 dark:text-slate-200">Rural Highway Extension (Bassi-Chaksu)
+            </td>
+            <td class="py-4 px-6 text-slate-500 font-semibold">Public Works</td>
+            <td class="py-4 px-6 font-mono font-bold text-slate-600 dark:text-slate-400">₹45.20 Lacs</td>
+            <td class="py-4 px-6"><span
+                class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border border-emerald-500/20 rounded-lg text-[10px] font-black uppercase tracking-wider">Approved</span>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-dark-800/50 transition-colors">
+            <td class="py-4 px-6 font-mono text-xs text-slate-600 dark:text-slate-400">#PRJ-8013</td>
+            <td class="py-4 px-6 font-bold text-slate-800 dark:text-slate-200">District Community Health Subcenter</td>
+            <td class="py-4 px-6 text-slate-500 font-semibold">Health Dept</td>
+            <td class="py-4 px-6 font-mono font-bold text-slate-600 dark:text-slate-400">₹24.80 Lacs</td>
+            <td class="py-4 px-6"><span
+                class="px-2.5 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-450 border border-blue-500/20 rounded-lg text-[10px] font-black uppercase tracking-wider">Under
+                Review</span></td>
+          </tr>
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-dark-800/50 transition-colors">
+            <td class="py-4 px-6 font-mono text-xs text-slate-600 dark:text-slate-400">#PRJ-8014</td>
+            <td class="py-4 px-6 font-bold text-slate-800 dark:text-slate-200">Gram Panchayat Primary School Upgrade
+            </td>
+            <td class="py-4 px-6 text-slate-500 font-semibold">Education</td>
+            <td class="py-4 px-6 font-mono font-bold text-slate-600 dark:text-slate-400">₹12.00 Lacs</td>
+            <td class="py-4 px-6"><span
+                class="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-450 border border-amber-500/20 rounded-lg text-[10px] font-black uppercase tracking-wider">Pending
+                FS</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

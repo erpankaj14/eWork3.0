@@ -1,0 +1,302 @@
+<div class="space-y-6 pb-12 animate-fadeIn">
+
+  <!-- ========================================================================= -->
+  <!-- PAGE HEADER & BREADCRUMBS BANNER                                         -->
+  <!-- ========================================================================= -->
+  <div class="bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/15 dark:from-[#0B2240] dark:via-[#0F3460] dark:to-[#0B2240] rounded-2xl p-6 text-[#0B2240] dark:text-white shadow-md border border-amber-300/70 dark:border-slate-700/60 relative overflow-hidden transition-all duration-300">
+    <div class="absolute -right-6 -bottom-8 w-48 h-48 bg-[#E15B25]/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+      <div>
+        <div class="flex items-center gap-2 text-[#E15B25] dark:text-amber-300 text-xs font-bold uppercase tracking-wider mb-1">
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृति (Sanction)' : 'Sanction' }}</span>
+          <span>/</span>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रशासनिक स्वीकृति' : 'Administrative Sanction' }}</span>
+          <span>/</span>
+          <span class="text-[#0B2240] dark:text-white underline font-extrabold">{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रविष्टि (Entry)' : 'Entry' }}</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black font-devanagari tracking-tight text-[#0B2240] dark:text-white">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'प्रशासनिक स्वीकृति आदेश जारी करें (AS Entry)' : 'Issue Administrative Sanction Order (AS Entry)' }}
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 font-medium">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'अनुशंसित एवं स्वीकृत प्रस्तावों के लिए प्रशासनिक एवं वित्तीय अनुमोदन आदेश (AS Order) की प्रविष्टि' : 'Register Administrative Sanction (AS) orders and budget allocation for recommended work proposals.' }}
+        </p>
+      </div>
+
+      <!-- District Badge -->
+      <div class="bg-white/80 dark:bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-amber-300 dark:border-white/20 text-right flex-shrink-0 shadow-xs">
+        <p class="text-[10px] text-[#E15B25] dark:text-amber-300 uppercase tracking-widest font-extrabold">Issuing Authority</p>
+        <p class="text-sm font-black text-[#0B2240] dark:text-white uppercase tracking-wide">ZILA PARISHAD JAIPUR</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS TOAST NOTIFICATION -->
+  <div *ngIf="showSuccessToast"
+    class="fixed bottom-6 right-6 bg-emerald-700 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-bounce">
+    <div class="w-8 h-8 rounded-full bg-emerald-500/30 flex items-center justify-center text-white">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    <div>
+      <h4 class="text-sm font-black font-devanagari">प्रशासनिक स्वीकृति आदेश सफलतापूर्वक दर्ज!</h4>
+      <p class="text-xs text-emerald-100">Administrative Sanction order AS/2026-27/JAIP/0942 generated successfully.</p>
+    </div>
+  </div>
+
+  <form (ngSubmit)="onSubmitAS()" class="space-y-6">
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 1: SELECT APPROVED WORK PROPOSAL                                -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E15B25] to-amber-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+          01
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'अनुशंसित कार्य प्रस्ताव का चयन' : 'Select Approved Work Proposal' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'जिस कार्य के लिए प्रशासनिक स्वीकृति जारी करनी है उसे चुनें' : 'Choose the recommended work proposal to issue Administrative Sanction' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let prop of proposals"
+          (click)="onSelectProposal(prop)"
+          [ngClass]="selectedProposal.id === prop.id ? 'border-[#E15B25] bg-amber-50/50 dark:bg-dark-800 shadow-md ring-2 ring-[#E15B25]/20' : 'border-slate-200 dark:border-dark-750 bg-slate-50/60 dark:bg-dark-850 hover:border-amber-400'"
+          class="p-4 rounded-xl border transition-all cursor-pointer space-y-2 relative">
+          
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 font-mono font-extrabold text-[11px]">
+              {{ prop.id }}
+            </span>
+            <span class="text-xs font-mono font-black text-[#E15B25] dark:text-amber-300">
+              ₹{{ prop.estimatedCostLakhs.toFixed(2) }} L
+            </span>
+          </div>
+
+          <p class="text-xs font-bold text-[#0B2240] dark:text-white font-devanagari line-clamp-2">
+            {{ (languageService.currentLang$ | async) === 'hi' ? prop.workNameHi : prop.workName }}
+          </p>
+
+          <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-dark-750">
+            <span>{{ prop.panchayat }}</span>
+            <span class="font-semibold">{{ prop.sector }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 2: ADMINISTRATIVE SANCTION (AS) DETAILS                         -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E15B25] to-amber-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+          02
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'प्रशासनिक एवं वित्तीय स्वीकृति आदेश विवरण' : 'Administrative & Financial Sanction Order Details' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'आदेश क्रमांक, वित्तीय वर्ष एवं स्वीकृत राशि दर्ज करें' : 'Enter AS order number, date, accounting head, and budget limits' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रशासनिक स्वीकृति आदेश क्रमांक *' : 'AS Order Number *' }}</label>
+          <input type="text" [(ngModel)]="asOrderNo" name="asOrderNo" class="wizard-input font-mono font-bold" required />
+        </div>
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'आदेश जारी तिथि *' : 'AS Order Date *' }}</label>
+          <input type="date" [(ngModel)]="asOrderDate" name="asOrderDate" class="wizard-input font-medium" required />
+        </div>
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'वित्तीय वर्ष *' : 'Financial Year *' }}</label>
+          <select [(ngModel)]="financialYear" name="financialYear" class="wizard-input font-bold">
+            <option value="2026-27">2026-27 (वर्तमान वित्तीय वर्ष)</option>
+            <option value="2025-26">2025-26</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 bg-slate-50 dark:bg-dark-850 p-4 rounded-xl border border-slate-200 dark:border-dark-750">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृत प्रशासनिक राशि (लाख में) *' : 'Sanctioned Amount (Lakhs) *' }}</label>
+          <div class="relative">
+            <input type="number" [(ngModel)]="sanctionedAmountLakhs" name="sanctionedAmountLakhs" class="wizard-input font-mono font-black text-[#E15B25] pr-12" step="0.01" />
+            <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400">₹ Lakhs</span>
+          </div>
+        </div>
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कन्वर्जेंस राशि (यदि लागू हो)' : 'Convergence Amount (Lakhs)' }}</label>
+          <div class="relative">
+            <input type="number" [(ngModel)]="convergenceAmountLakhs" name="convergenceAmountLakhs" class="wizard-input font-mono font-bold pr-12" step="0.01" />
+            <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400">₹ Lakhs</span>
+          </div>
+        </div>
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'लेखा मद कोड (Account Head)' : 'Account Head Code *' }}</label>
+          <input type="text" [(ngModel)]="accountHeadCode" name="accountHeadCode" class="wizard-input font-mono font-bold" />
+        </div>
+      </div>
+
+      <div>
+        <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृतकर्ता प्राधिकारी (Issuing Authority)' : 'Issuing Authority *' }}</label>
+        <select [(ngModel)]="issuingAuthority" name="issuingAuthority" class="wizard-input font-bold text-[#0B2240] dark:text-white">
+          <option value="Chief Executive Officer (CEO), Zila Parishad Jaipur">Chief Executive Officer (CEO), Zila Parishad Jaipur</option>
+          <option value="Block Development Officer (BDO), Panchayat Samiti Amer">Block Development Officer (BDO), Panchayat Samiti Amer</option>
+          <option value="District Collector & District Program Coordinator, Jaipur">District Collector & District Program Coordinator, Jaipur</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 3: AGENCY & TECHNICAL SUPERVISION MAPPING                       -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E15B25] to-amber-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+          03
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'कार्यकारी एजेंसी एवं तकनीकी पर्यवेक्षण' : 'Executing Agency & Technical Supervision' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य क्रियान्वयन एजेंसी एवं अवधि निर्धारित करें' : 'Assign executing agency and supervision responsibilities' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कार्यकारी एजेंसी (Executing Agency)' : 'Executing Agency *' }}</label>
+          <select [(ngModel)]="executingAgency" name="executingAgency" class="wizard-input font-bold">
+            <option value="Gram Panchayat Amer">ग्राम पंचायत आमेर (Gram Panchayat Amer)</option>
+            <option value="Panchayat Samiti Amer">पंचायत समिति आमेर</option>
+            <option value="PWD Division II Jaipur">सार्वजनिक निर्माण विभाग (PWD Div-II)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'तकनीकी पर्यवेक्षक (Technical Supervisor)' : 'Technical Supervisor *' }}</label>
+          <select [(ngModel)]="technicalSupervisor" name="technicalSupervisor" class="wizard-input font-semibold">
+            <option value="Assistant Engineer (AEN) - Panchayati Raj">सहायक अभियंता (AEN) - पंचायती राज</option>
+            <option value="Junior Engineer (JEN) - GP Amer">कनिष्ठ अभियंता (JEN) - ग्राम पंचायत आमेर</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'क्या निविदा आवश्यक है? (Tender Required)' : 'Tender Required' }}</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl border border-slate-200 dark:border-dark-750">
+            <button type="button" (click)="isTenderRequired = 'Yes'"
+              [ngClass]="isTenderRequired === 'Yes' ? 'bg-gradient-to-r from-[#E15B25] to-orange-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+              class="py-1.5 rounded-lg text-xs font-devanagari transition-all cursor-pointer">हाँ (Yes - Tender)</button>
+            <button type="button" (click)="isTenderRequired = 'No'"
+              [ngClass]="isTenderRequired === 'No' ? 'bg-slate-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+              class="py-1.5 rounded-lg text-xs font-devanagari transition-all cursor-pointer">नहीं (No - Departmental)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 4: AS COPY TO ENDORSEMENT RECIPIENTS (MATCHING SCREENSHOT 2)    -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E15B25] to-amber-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+          04
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'आदेश प्रतिलिपि प्रेषण सूची (Copy To Endorsement)' : 'AS Copy To Endorsement List' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'जिन अधिकारियों/एजेंसियों को आदेश प्रतिलिपि भेजी जानी है उन्हें चुनें' : 'Select authorities to receive endorsed copy of the AS order' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div *ngFor="let rec of endorsementRecipients; let i = index"
+          (click)="toggleRecipient(i)"
+          [ngClass]="rec.checked ? 'border-[#E15B25] bg-amber-50/60 dark:bg-dark-850 font-bold' : 'border-slate-200 dark:border-dark-750 bg-slate-50/50 dark:bg-dark-800/60'"
+          class="p-3.5 rounded-xl border flex items-center gap-3 transition-all cursor-pointer">
+          <input type="checkbox" [checked]="rec.checked" (change)="toggleRecipient(i)"
+            class="w-4 h-4 rounded border-slate-300 text-[#E15B25] focus:ring-[#E15B25] cursor-pointer" />
+          <span class="text-xs text-[#0B2240] dark:text-slate-200 font-devanagari">
+            {{ rec.name }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 5: SIGNED ORDER FILE UPLOAD & SUBMISSION                         -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-[#0F7A3E] text-white flex items-center justify-center font-black text-sm">
+          05
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'हस्ताक्षरित प्रशासनिक स्वीकृति आदेश अपलोड' : 'Upload Signed AS Order File' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'सक्षम प्राधिकारी द्वारा हस्ताक्षरित पीडीएफ आदेश (अधिकतम 5 MB) अपलोड करें' : 'Attach digital or scanned AS order PDF signed by competent authority' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="border-2 border-dashed border-amber-300 dark:border-amber-500/40 rounded-xl p-4 bg-amber-50/40 dark:bg-dark-850 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h4 class="text-xs font-black text-[#0B2240] dark:text-white font-devanagari">
+              {{ asOrderFile }}
+            </h4>
+            <p class="text-[10px] font-extrabold text-emerald-600 mt-0.5">Verified & Signed (Digital AS File - 1.2 MB)</p>
+          </div>
+        </div>
+        <button type="button" (click)="generateDraftOrder()"
+          class="px-3.5 py-1.5 rounded-lg bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 cursor-pointer shadow-2xs">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'आदेश ड्राफ्ट देखें' : 'View Order PDF' }}
+        </button>
+      </div>
+
+      <!-- STICKY BOTTOM SUBMISSION BAR -->
+      <div class="pt-2 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-dark-800">
+        <button type="reset"
+          class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-dark-750 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 cursor-pointer">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'रद्द करें (Cancel)' : 'Cancel' }}
+        </button>
+
+        <button type="submit"
+          class="px-8 py-2.5 rounded-xl btn-shiny-saffron text-white font-extrabold text-xs shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रशासनिक स्वीकृति आदेश जारी करें (Issue AS Order)' : 'Issue AS Order' }}</span>
+        </button>
+      </div>
+
+    </div>
+
+  </form>
+
+</div>

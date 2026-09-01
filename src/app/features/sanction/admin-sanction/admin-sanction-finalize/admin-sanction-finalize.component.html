@@ -1,0 +1,242 @@
+<div class="space-y-6 pb-12 animate-fadeIn">
+
+  <!-- ========================================================================= -->
+  <!-- PAGE HEADER BANNER                                                       -->
+  <!-- ========================================================================= -->
+  <div class="bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/15 dark:from-[#0B2240] dark:via-[#0F3460] dark:to-[#0B2240] rounded-2xl p-6 text-[#0B2240] dark:text-white shadow-md border border-amber-300/70 dark:border-slate-700/60 relative overflow-hidden transition-all duration-300">
+    <div class="absolute -right-6 -bottom-8 w-48 h-48 bg-[#E15B25]/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+      <div>
+        <div class="flex items-center gap-2 text-[#E15B25] dark:text-amber-300 text-xs font-bold uppercase tracking-wider mb-1">
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृति (Sanction)' : 'Sanction' }}</span>
+          <span>/</span>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रशासनिक स्वीकृति' : 'Administrative Sanction' }}</span>
+          <span>/</span>
+          <span class="text-[#0B2240] dark:text-white underline font-extrabold">{{ (languageService.currentLang$ | async) === 'hi' ? 'अंतिम स्वीकृति' : 'Finalize AS' }}</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black font-devanagari tracking-tight text-[#0B2240] dark:text-white">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'अंतिम प्रशासनिक स्वीकृति एवं आदेश प्रतिलिपि निर्गम (Finalize AS & Copy To)' : 'Finalize Administrative Sanction & Issue Endorsement Orders' }}
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 font-medium">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'प्रशासनिक स्वीकृति आदेश को अंतिम रूप देकर संबंधित कार्यकारी एवं तकनीकी एजेंसियों को प्रतिलिपि प्रेषित करें' : 'Finalize approved AS orders and issue endorsed copies to executing agencies and treasury authorities.' }}
+        </p>
+      </div>
+
+      <!-- District Badge -->
+      <div class="bg-white/80 dark:bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-amber-300 dark:border-white/20 text-right flex-shrink-0 shadow-xs">
+        <p class="text-[10px] text-[#E15B25] dark:text-amber-300 uppercase tracking-widest font-extrabold">Issuing Authority</p>
+        <p class="text-sm font-black text-[#0B2240] dark:text-white uppercase tracking-wide">{{ district }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS TOAST -->
+  <div *ngIf="showSuccessToast"
+    class="fixed bottom-6 right-6 bg-emerald-700 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-bounce">
+    <div class="w-8 h-8 rounded-full bg-emerald-500/30 flex items-center justify-center text-white">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    <div>
+      <h4 class="text-sm font-black font-devanagari">अंतिम प्रशासनिक स्वीकृति एवं प्रतिलिपि आदेश जारी!</h4>
+      <p class="text-xs text-emerald-100">AS order finalized and endorsed to selected authorities.</p>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 1. SEARCH CONSOLE CARD (MATCHING SCREENSHOT 2)                            -->
+  <!-- ========================================================================= -->
+  <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-dark-800">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E15B25] to-amber-600 text-white flex items-center justify-center shadow-xs">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'प्रशासनिक स्वीकृति आदेश खोजें (Search AS)' : 'Search Administrative Sanction Order' }}
+          </h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य आईडी या आदेश संख्या दर्ज कर अंतिम स्वीकृति जारी करें' : 'Enter Work Id to query AS orders and endorse authorities' }}
+          </p>
+        </div>
+      </div>
+      <span class="text-[10px] font-mono font-bold bg-slate-100 dark:bg-dark-800 px-2.5 py-1 rounded-md text-slate-500">
+        Form: ascopyto.aspx?sanc=a
+      </span>
+    </div>
+
+    <!-- The exact Work Id search row from Screenshot 2 -->
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+      <div class="flex-1">
+        <label class="block text-xs font-bold text-[#0B2240] dark:text-slate-300 uppercase mb-1 font-devanagari">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य आईडी (Work Id) *' : 'Work Id *' }}
+        </label>
+        <div class="relative">
+          <input type="text" [(ngModel)]="workIdQuery"
+            placeholder="e.g. WRK-2026-27-089 or AS order..."
+            class="w-full bg-slate-50 dark:bg-dark-850 border border-slate-300 dark:border-dark-750 rounded-xl pl-9 pr-4 py-2.5 text-sm font-mono font-bold text-[#0B2240] dark:text-white focus:outline-none focus:border-[#E15B25]" />
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:mt-5">
+        <button type="button" (click)="workIdQuery = ''"
+          class="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-dark-750 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-dark-800 transition-all cursor-pointer">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'रीसेट (Clear)' : 'Clear' }}
+        </button>
+
+        <button type="button"
+          class="px-6 py-2.5 rounded-xl btn-shiny-saffron text-white font-extrabold text-xs shadow-sm flex items-center gap-1.5 transition-all cursor-pointer">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'खोजें (Search)' : 'Search' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. ADMINISTRATIVE SANCTIONS ENDORSEMENT DIRECTORY TABLE                    -->
+  <!-- ========================================================================= -->
+  <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/80 dark:border-dark-800 shadow-sm overflow-hidden">
+    <div class="p-5 bg-slate-50/60 dark:bg-dark-850 border-b border-slate-200/80 dark:border-dark-800 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+        <h3 class="text-sm font-black text-[#0B2240] dark:text-white font-devanagari">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'अंतिम प्रशासनिक स्वीकृति निर्देशिका' : 'Finalize & Endorse AS Orders Registry' }}
+        </h3>
+      </div>
+      <span class="text-xs font-bold text-slate-500">
+        Showing {{ filteredRecords.length }} AS Order Records
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-100/80 dark:bg-dark-800 text-[#0B2240] dark:text-slate-200 text-xs font-extrabold uppercase tracking-wider border-b border-slate-200 dark:border-dark-750">
+            <th class="p-4">Work ID / AS No</th>
+            <th class="p-4">Work Name (कार्य का नाम)</th>
+            <th class="p-4">Gram Panchayat</th>
+            <th class="p-4 text-right">AS Amount</th>
+            <th class="p-4 text-center">Copy-To Count</th>
+            <th class="p-4 text-center">Status</th>
+            <th class="p-4 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-dark-800 text-xs">
+          <tr *ngFor="let rec of filteredRecords" class="hover:bg-amber-50/40 dark:hover:bg-white/5 transition-colors">
+            
+            <td class="p-4">
+              <p class="font-mono font-bold text-[#E15B25]">{{ rec.workId }}</p>
+              <p class="font-mono text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{{ rec.asOrderNo }}</p>
+              <p class="text-[10px] text-slate-400 mt-0.5">{{ rec.asDate }}</p>
+            </td>
+
+            <td class="p-4 max-w-xs">
+              <p class="font-bold text-[#0B2240] dark:text-white font-devanagari leading-snug line-clamp-2">
+                {{ (languageService.currentLang$ | async) === 'hi' ? rec.workNameHi : rec.workName }}
+              </p>
+              <p class="text-[10px] text-slate-400 mt-1 line-clamp-1">
+                {{ (languageService.currentLang$ | async) === 'hi' ? rec.workName : rec.workNameHi }}
+              </p>
+            </td>
+
+            <td class="p-4 font-devanagari font-bold text-slate-700 dark:text-slate-200">
+              {{ rec.panchayat }}
+            </td>
+
+            <td class="p-4 text-right font-mono font-black text-[#0B2240] dark:text-amber-300">
+              ₹{{ rec.amountLakhs.toFixed(2) }} L
+            </td>
+
+            <td class="p-4 text-center">
+              <span class="px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 font-extrabold text-[11px]">
+                {{ rec.copyToCount }} Authorities
+              </span>
+            </td>
+
+            <td class="p-4 text-center">
+              <span [ngClass]="{
+                  'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300': rec.status === 'Finalized & Issued',
+                  'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300': rec.status === 'Pending Copy-To',
+                  'bg-slate-100 text-slate-800 dark:bg-dark-750 dark:text-slate-300': rec.status === 'Draft AS'
+                }"
+                class="px-2.5 py-1 rounded-full text-[10px] font-extrabold">
+                {{ rec.status }}
+              </span>
+            </td>
+
+            <td class="p-4 text-center">
+              <button (click)="openFinalizeModal(rec)"
+                class="px-3.5 py-1.5 rounded-lg btn-shiny-saffron text-white text-xs font-bold transition-all cursor-pointer shadow-xs inline-flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रतिलिपि जारी करें (Copy To)' : 'Finalize & Copy To' }}</span>
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FINALIZE & COPY TO ENDORSEMENT MODAL -->
+  <div *ngIf="selectedRecord" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fadeIn">
+    <div class="bg-white dark:bg-dark-900 rounded-2xl max-w-2xl w-full p-6 border border-slate-200 dark:border-dark-750 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-dark-800">
+        <div>
+          <h3 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            अंतिम स्वीकृति एवं आदेश प्रतिलिपि प्रेषण (Copy To Authorities)
+          </h3>
+          <p class="text-xs text-slate-500 font-mono">AS Order No: {{ selectedRecord.asOrderNo }} (₹{{ selectedRecord.amountLakhs }} Lakhs)</p>
+        </div>
+        <button (click)="closeModal()" class="text-slate-400 hover:text-rose-500 cursor-pointer">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <h4 class="text-xs font-extrabold text-[#0B2240] dark:text-slate-200 uppercase tracking-wider font-devanagari">
+          निम्नलिखित प्राधिकारियों को प्रतिलिपि (Endorse Copy To):
+        </h4>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div *ngFor="let rec of endorsementRecipients; let i = index"
+            (click)="toggleRecipient(i)"
+            [ngClass]="rec.checked ? 'border-[#E15B25] bg-amber-50/60 dark:bg-dark-850 font-bold' : 'border-slate-200 dark:border-dark-750 bg-slate-50/50 dark:bg-dark-800/60'"
+            class="p-3.5 rounded-xl border flex items-center gap-3 transition-all cursor-pointer">
+            <input type="checkbox" [checked]="rec.checked" (change)="toggleRecipient(i)"
+              class="w-4 h-4 rounded border-slate-300 text-[#E15B25] focus:ring-[#E15B25] cursor-pointer" />
+            <span class="text-xs text-[#0B2240] dark:text-slate-200 font-devanagari">
+              {{ (languageService.currentLang$ | async) === 'hi' ? rec.nameHi : rec.name }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-dark-800">
+        <button (click)="closeModal()" class="px-4 py-2.5 rounded-lg border border-slate-300 text-xs font-bold cursor-pointer">रद्द करें (Cancel)</button>
+        <button (click)="confirmFinalizeAndIssue()" class="px-6 py-2.5 rounded-lg btn-shiny-saffron text-xs font-extrabold shadow-sm cursor-pointer flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>अंतिम स्वीकृति एवं प्रतिलिपि जारी करें (Issue Final AS Order)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

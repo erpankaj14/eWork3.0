@@ -1,0 +1,358 @@
+<div class="space-y-10 pb-12 animate-fadeIn font-sans">
+
+  <!-- ========================================================================= -->
+  <!-- 1. INTERACTIVE 3-SLIDE SPOTLIGHT COMMAND CENTER CAROUSEL                  -->
+  <!-- ========================================================================= -->
+  <div
+    class="relative overflow-hidden rounded-3xl bg-gradient-to-br text-white shadow-2xl border border-slate-700/60 dark:border-dark-750 transition-all duration-500"
+    [ngClass]="slides[currentSlide].bgGradient" (mouseenter)="isSliderPaused = true"
+    (mouseleave)="isSliderPaused = false">
+
+    <!-- Subtle Ambient Glow Effects -->
+    <div
+      class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-gradient-to-br from-[#E15B25]/25 to-amber-500/15 blur-3xl pointer-events-none">
+    </div>
+    <div
+      class="absolute -left-20 -top-20 w-72 h-72 rounded-full bg-gradient-to-tr from-emerald-500/20 to-blue-500/15 blur-3xl pointer-events-none">
+    </div>
+
+    <!-- Main Carousel Slide Viewport -->
+    <div class="relative z-10 p-6 sm:p-8 lg:p-10 max-w-5xl mx-auto space-y-6">
+
+      <!-- Top Strip: Badge + FY Active + Slide Counter -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div
+          class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-amber-300 font-extrabold text-xs tracking-wide uppercase shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-[#E15B25] animate-ping"></span>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? slides[currentSlide].badgeHi :
+            slides[currentSlide].badgeEn }}</span>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <div
+            class="flex items-center gap-2 font-mono text-xs text-slate-200 bg-black/35 px-3 py-1 rounded-lg border border-white/10 shadow-inner">
+            <span>FY 2026-27</span>
+            <span class="text-amber-400 font-bold">ONLINE</span>
+          </div>
+
+          <div
+            class="hidden sm:flex items-center gap-1 font-mono text-xs bg-white/10 px-2.5 py-1 rounded-lg border border-white/15">
+            <span class="text-white font-extrabold">{{ currentSlide + 1 }}</span>
+            <span class="text-slate-400">/</span>
+            <span class="text-slate-300">{{ slides.length }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Headline & Subtitle (Animate on slide change) -->
+      <div class="space-y-3 min-h-[105px] sm:min-h-[90px] flex flex-col justify-center">
+        <h1
+          class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight font-devanagari leading-snug text-white drop-shadow-sm">
+          {{ (languageService.currentLang$ | async) === 'hi' ? slides[currentSlide].titleHi :
+          slides[currentSlide].titleEn }}
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-200 font-medium max-w-3xl leading-relaxed">
+          {{ (languageService.currentLang$ | async) === 'hi' ? slides[currentSlide].subtitleHi :
+          slides[currentSlide].subtitleEn }}
+        </p>
+      </div>
+
+      <!-- Quick KPI Stat Summary Pills -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 max-w-2xl">
+        <div class="bg-black/30 backdrop-blur-md rounded-xl p-2.5 sm:p-3 border border-white/15 shadow-inner">
+          <p class="text-base sm:text-lg font-black text-amber-300 font-mono leading-none">{{ slides[currentSlide].stat1
+            }}</p>
+          <p class="text-[10px] sm:text-xs font-semibold text-slate-300 mt-1 truncate">{{
+            slides[currentSlide].stat1Label }}</p>
+        </div>
+        <div class="bg-black/30 backdrop-blur-md rounded-xl p-2.5 sm:p-3 border border-white/15 shadow-inner">
+          <p class="text-base sm:text-lg font-black text-emerald-300 font-mono leading-none">{{
+            slides[currentSlide].stat2 }}</p>
+          <p class="text-[10px] sm:text-xs font-semibold text-slate-300 mt-1 truncate">{{
+            slides[currentSlide].stat2Label }}</p>
+        </div>
+        <div class="bg-black/30 backdrop-blur-md rounded-xl p-2.5 sm:p-3 border border-white/15 shadow-inner">
+          <p class="text-base sm:text-lg font-black text-cyan-300 font-mono leading-none">{{ slides[currentSlide].stat3
+            }}</p>
+          <p class="text-[10px] sm:text-xs font-semibold text-slate-300 mt-1 truncate">{{
+            slides[currentSlide].stat3Label }}</p>
+        </div>
+      </div>
+
+      <!-- Slide Action Button & Manual Slider Controls Strip -->
+      <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/15">
+
+        <!-- Interactive Slide Action -->
+        <button (click)="onSlideAction(slides[currentSlide])"
+          class="btn-shiny-saffron px-5 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm shadow-lg transition-all flex items-center gap-2 cursor-pointer">
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? slides[currentSlide].actionHi :
+            slides[currentSlide].actionEn }}</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+
+        <!-- Prev / Next Arrows & Interactive Dot Indicators -->
+        <div class="flex items-center gap-3">
+
+          <!-- Prev Arrow -->
+          <button (click)="prevSlide()"
+            class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 text-white flex items-center justify-center border border-white/20 transition-all cursor-pointer shadow-sm">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <!-- 3 Dynamic Dots -->
+          <div class="flex items-center gap-1.5 bg-black/30 px-3 py-2 rounded-xl border border-white/15">
+            <button *ngFor="let s of slides; let idx = index" (click)="goToSlide(idx)"
+              class="h-2 rounded-full transition-all duration-300 cursor-pointer"
+              [ngClass]="currentSlide === idx ? 'w-6 bg-[#E15B25]' : 'w-2 bg-white/40 hover:bg-white/70'"></button>
+          </div>
+
+          <!-- Next Arrow -->
+          <button (click)="nextSlide()"
+            class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 text-white flex items-center justify-center border border-white/20 transition-all cursor-pointer shadow-sm">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. CORE DEPARTMENTAL ADMINISTRATIVE PORTALS (DYNAMIC API MODULES)         -->
+  <!-- ========================================================================= -->
+  <div class="space-y-5 pt-4">
+
+    <!-- Section Header Strip -->
+    <div
+      class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b-2 border-slate-200 dark:border-dark-750">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0B2240] to-[#0F3460] text-white flex items-center justify-center shadow-md">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
+          </svg>
+        </div>
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#0B2240] dark:text-amber-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'विभागीय प्रशासनिक एवं मास्टर निर्देशिका' :
+            'Departmental Enterprise Modules' }}
+          </span>
+          <h2 class="text-lg sm:text-xl font-extrabold text-[#0B2240] dark:text-white font-devanagari tracking-tight">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'मुख्य विभागीय मॉड्यूल (Department Core Modules)' : 'Department Core Modules' }}
+          </h2>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+        <!-- Search Input -->
+        <div class="relative w-full sm:w-80 md:w-96 flex-shrink-0">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input type="text" [(ngModel)]="searchQuery"
+            [placeholder]="(languageService.currentLang$ | async) === 'hi' ? 'पोर्टल खोजें (उदा: AS, TS, MB)...' : 'Search portals (e.g., AS, TS, MB)...'"
+            class="w-full pl-10 pr-10 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 hover:bg-slate-100 dark:hover:bg-dark-800 focus:bg-white dark:focus:bg-dark-900 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-xs sm:text-sm font-semibold border border-slate-200 dark:border-dark-750 focus:border-[#E15B25] focus:ring-4 focus:ring-[#E15B25]/10 focus:outline-none transition-all shadow-xs" />
+          <button *ngIf="searchQuery" (click)="searchQuery = ''"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-350 cursor-pointer">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Badge -->
+        <div
+          class="flex items-center justify-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-dark-800 px-3.5 py-2.5 rounded-xl border border-slate-200/80 dark:border-dark-700 whitespace-nowrap">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          <span>{{ filteredPortals.length }} {{ (languageService.currentLang$ | async) === 'hi' ? 'पोर्टल उपलब्ध' :
+            'Portals Available' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9 Core Portals Grid (3 columns on large screens) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <div *ngFor="let portal of filteredPortals" (click)="navigateToPortal(portal.path)"
+        [ngClass]="getThemeClass(portal.id)" class="group card-premium bg-white dark:bg-[#0F172A] cursor-pointer">
+
+        <!-- Dynamic Hover Background Gradient -->
+        <div class="card-bg-gradient"></div>
+
+        <!-- Decorative Watermark Grid -->
+        <div class="card-watermark-grid"></div>
+
+        <!-- Sleek Top Gradient Ribbon -->
+        <div class="card-ribbon"></div>
+
+        <!-- Card Content Body -->
+        <div class="p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <!-- Top Row: Dynamic SVG Icon + Status Pill (NO numbers) -->
+            <div class="flex items-center justify-between gap-2 mb-4">
+              <!-- Rounded Icon container -->
+              <div class="card-icon-wrapper">
+                <ng-container [ngSwitch]="portal.iconType">
+                  <!-- master -->
+                  <svg *ngSwitchCase="'master'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                  </svg>
+                  <!-- sanction -->
+                  <svg *ngSwitchCase="'sanction'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <!-- reports -->
+                  <svg *ngSwitchCase="'reports'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 17v-2m3 2v-4m3 2v-6m-9 9h12a2 2 0 002-2V9a2 2 0 00-2-2h-3l-2.586-2.586A1 1 0 0010.414 4H7a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <!-- monitoring -->
+                  <svg *ngSwitchCase="'monitoring'" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                  </svg>
+                  <!-- transaction -->
+                  <svg *ngSwitchCase="'transaction'" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                  <!-- uccc -->
+                  <svg *ngSwitchCase="'uccc'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                  <!-- admin -->
+                  <svg *ngSwitchCase="'admin'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <!-- mpk -->
+                  <svg *ngSwitchCase="'mpk'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  <!-- help -->
+                  <svg *ngSwitchCase="'help'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <!-- default fallback -->
+                  <svg *ngSwitchDefault class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </ng-container>
+              </div>
+
+              <!-- Status Tag Pill -->
+              <span *ngIf="portal.badgeEn || portal.badgeHi" class="card-status-pill">
+                <span class="status-dot-pulse"></span>
+                <span>{{ (languageService.currentLang$ | async) === 'hi' ? portal.badgeHi : portal.badgeEn }}</span>
+              </span>
+            </div>
+
+            <!-- Title -->
+            <h3 class="card-title text-[15px] sm:text-base font-extrabold font-devanagari leading-snug">
+              {{ (languageService.currentLang$ | async) === 'hi' ? portal.titleHi : portal.titleEn }}
+            </h3>
+
+            <!-- Description -->
+            <p class="mt-2 text-xs font-medium card-desc leading-relaxed line-clamp-2">
+              {{ (languageService.currentLang$ | async) === 'hi' ? portal.descHi : portal.descEn }}
+            </p>
+
+            <!-- Optional Sub-tags -->
+            <div *ngIf="portal.tags" class="flex flex-wrap gap-1.5 mt-3">
+              <span *ngFor="let tag of portal.tags"
+                class="px-2.5 py-0.5 rounded-lg text-[10px] font-bold card-tag transition-colors">
+                # {{ (languageService.currentLang$ | async) === 'hi' ? tag.hi : tag.en }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Bottom Footer Line inside the card (NO numbers) -->
+          <div class="mt-5 pt-3.5 border-t card-footer-divider flex items-center justify-between">
+            <span class="text-xs font-bold card-footer-label tracking-wider uppercase font-mono">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'क्रम संख्या: ' : 'ORDER NO: ' }}{{
+              portal.subItemsCount }}
+            </span>
+
+            <!-- Action Pill that lights up on hover -->
+            <span class="card-action-btn">
+              <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रवेश करें' : 'Open Portal' }}</span>
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 4. OFFICIAL DEPARTMENTAL ASSISTANCE & HELPDESK FOOTER STRIP               -->
+  <!-- ========================================================================= -->
+  <div
+    class="mt-8 p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 dark:from-dark-850 dark:to-dark-800 border border-amber-300/40 dark:border-dark-750 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-[#E15B25] text-white flex items-center justify-center shadow-sm flex-shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </div>
+      <div>
+        <p class="font-bold text-slate-800 dark:text-white font-devanagari">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'किसी भी मॉड्यूल या कार्य चरण में सहायता की आवश्यकता है?'
+          : 'Need technical assistance with any module or work stage?' }}
+        </p>
+        <p class="text-slate-500 dark:text-slate-400 mt-0.5">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'ई-वर्क 2.0 हेल्पडेस्क या यूजर मैनुअल से परामर्श करें।' :
+          'Consult the e-Work 2.0 Helpdesk or check Standard Operating Procedures (SOP).' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center sm:justify-end gap-2.5 w-full sm:w-auto flex-shrink-0">
+      <a routerLink="/portal/help/user-manual"
+        class="w-full sm:w-auto px-4 py-2 rounded-xl bg-white dark:bg-dark-900 hover:bg-slate-50 text-slate-800 dark:text-white font-bold border border-slate-200 dark:border-dark-700 shadow-2xs transition-colors flex items-center justify-center gap-1.5">
+        <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'यूजर मैनुअल' : 'User Manual' }}</span>
+      </a>
+      <a routerLink="/portal/problem/ticket-support"
+        class="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#0B2240] hover:bg-[#163660] text-white font-bold transition-colors shadow-2xs flex items-center justify-center gap-1.5">
+        <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'सहायता टिकट (Helpdesk)' : 'Support Ticket' }}</span>
+      </a>
+    </div>
+  </div>
+
+</div>

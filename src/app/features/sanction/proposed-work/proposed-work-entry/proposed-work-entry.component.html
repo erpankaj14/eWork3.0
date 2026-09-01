@@ -1,0 +1,661 @@
+<div class="space-y-6 pb-12 animate-fadeIn">
+
+  <!-- ========================================================================= -->
+  <!-- PAGE HEADER & BREADCRUMBS BANNER                                         -->
+  <!-- ========================================================================= -->
+  <div class="bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/15 dark:from-[#0B2240] dark:via-[#0F3460] dark:to-[#0B2240] rounded-2xl p-6 text-[#0B2240] dark:text-white shadow-md border border-amber-300/70 dark:border-slate-700/60 relative overflow-hidden transition-all duration-300">
+    <!-- Background Emblem Glow -->
+    <div class="absolute -right-6 -bottom-8 w-48 h-48 bg-[#E15B25]/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+      <div>
+        <div class="flex items-center gap-2 text-[#E15B25] dark:text-amber-300 text-xs font-bold uppercase tracking-wider mb-1">
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृति (Sanction)' : 'Sanction' }}</span>
+          <span>/</span>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रस्तावित कार्य' : 'Proposed Work' }}</span>
+          <span>/</span>
+          <span class="text-[#0B2240] dark:text-white underline font-extrabold">{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रविष्टि (Entry)' : 'Entry' }}</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black font-devanagari tracking-tight text-[#0B2240] dark:text-white">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'स्वीकृत / अनुशंसित कार्यों का विवरण (प्रविष्टि)' : 'Details of Approved / Recommended Works' }}
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 font-medium">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'माननीय विधायक एवं सांसद अनुशंसा के आधार पर नए एवं मरम्मत कार्यों का पंजीकरण' : 'Register new and maintenance works based on MP/MLA recommendations and annual plans.' }}
+        </p>
+      </div>
+
+      <!-- District & User Badge -->
+      <div class="bg-white/80 dark:bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-amber-300 dark:border-white/20 text-right flex-shrink-0 shadow-xs">
+        <p class="text-[10px] text-[#E15B25] dark:text-amber-300 uppercase tracking-widest font-extrabold">Active District</p>
+        <p class="text-sm font-black text-[#0B2240] dark:text-white uppercase tracking-wide">{{ district }}</p>
+        <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">User: <strong class="text-[#0B2240] dark:text-white">JAIPUR (BDO)</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS TOAST NOTIFICATION -->
+  <div *ngIf="showSuccessToast"
+    class="fixed bottom-6 right-6 bg-emerald-700 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-bounce">
+    <div class="w-8 h-8 rounded-full bg-emerald-500/30 flex items-center justify-center text-white">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    <div>
+      <h4 class="text-sm font-black font-devanagari">प्रस्ताव सफलतापूर्वक दर्ज किया गया!</h4>
+      <p class="text-xs text-emerald-100">Work proposal submitted successfully with ID: REC/2026-27/JAIP/1042</p>
+    </div>
+  </div>
+
+  <!-- MAIN WIZARD FORM CONTAINER -->
+  <form (ngSubmit)="onSubmit()" class="space-y-6">
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 1: WORK BASIC CLASSIFICATION & IDENTIFICATION                   -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E15B25] to-amber-600 dark:from-amber-400 dark:to-amber-500 text-white dark:text-[#0B2240] flex items-center justify-center font-black text-sm shadow-sm">
+          01
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य का मूल वर्गीकरण एवं पहचान' : 'Work Basic Classification & Identification' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'क्षेत्र (Sector), वित्तीय वर्ष एवं कार्य का प्रकार चुनें' : 'Select area sector, financial year, and work classification' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <!-- Sector Toggle -->
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'क्षेत्र (Sector) *' : 'Sector *' }}</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl border border-slate-200 dark:border-dark-750">
+            <button type="button" (click)="sector = 'Rural'"
+              [ngClass]="sector === 'Rural' ? 'bg-gradient-to-r from-[#E15B25] to-orange-600 text-white shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-[#E15B25]'"
+              class="py-2 rounded-lg text-xs transition-all font-devanagari cursor-pointer">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'ग्रामीण (Rural)' : 'Rural' }}
+            </button>
+            <button type="button" (click)="sector = 'Urban'"
+              [ngClass]="sector === 'Urban' ? 'bg-gradient-to-r from-[#E15B25] to-orange-600 text-white shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-[#E15B25]'"
+              class="py-2 rounded-lg text-xs transition-all font-devanagari cursor-pointer">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'शहरी (Urban)' : 'Urban' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Financial Year -->
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'वित्तीय वर्ष (Financial Year) *' : 'Financial Year *' }}</label>
+          <select [(ngModel)]="financialYear" name="financialYear" class="wizard-input font-bold text-[#0B2240] dark:text-amber-300">
+            <option value="2026-27">2026-27 (वर्तमान वित्तीय वर्ष)</option>
+            <option value="2025-26">2025-26</option>
+            <option value="2024-25">2024-25</option>
+          </select>
+        </div>
+
+        <!-- Work Type Toggle -->
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य का प्रकार (Work Type) *' : 'Work Type *' }}</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl border border-slate-200 dark:border-dark-750">
+            <button type="button" (click)="workType = 'New Work'"
+              [ngClass]="workType === 'New Work' ? 'bg-[#E15B25] text-white shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400'"
+              class="py-2 rounded-lg text-xs transition-all font-devanagari cursor-pointer">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'नया कार्य (New Work)' : 'New Work' }}
+            </button>
+            <button type="button" (click)="workType = 'Maintenance Work'"
+              [ngClass]="workType === 'Maintenance Work' ? 'bg-[#E15B25] text-white shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400'"
+              class="py-2 rounded-lg text-xs transition-all font-devanagari cursor-pointer">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'मरम्मत (Maintenance)' : 'Maintenance Work' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Work Name -->
+        <div>
+          <label class="wizard-label">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य का नाम (Name of the Work) *' : 'Name of the Work *' }}
+            <span class="text-rose-600 ml-0.5">*</span>
+          </label>
+          <input type="text" [(ngModel)]="workName" name="workName"
+            placeholder="उदा. ग्राम पंचायत आमेर में मुख्य सड़क से स्कूल तक सीसी ब्लॉक निर्माण कार्य..."
+            class="wizard-input font-devanagari text-base font-semibold" required />
+          <p class="text-[11px] text-slate-400 mt-1">हिंदी (देवनागरी) या अंग्रेजी में कार्य का स्पष्ट विवरण लिखें।</p>
+        </div>
+
+        <!-- Work Approval/Recommendation Number -->
+        <div>
+          <label class="wizard-label">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'अनुमोदन / अनुशंसा संख्या (Work Approval / Recommendation No.) *' : 'Work Approval/Recommendation Number *' }}
+            <span class="text-rose-600 ml-0.5">*</span>
+          </label>
+          <input type="text" [(ngModel)]="workApprovalNo" name="workApprovalNo"
+            placeholder="REC/2026-27/JAIP/..." class="wizard-input font-mono font-bold" required />
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 2: SHREE YOJANA & CONVERGENCE POLICY WARNING                    -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-[#E15B25] text-white flex items-center justify-center font-black text-sm">
+          02
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'श्री योजना एवं कन्वर्जेंस नीति विवरण' : 'Shree Yojana & Convergence Policy Details' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'योजना से संबंधित कन्वर्जेंस एवं प्राथमिकता का निर्धारण' : 'Determine priority order and convergence applicability' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-center">
+        <!-- Shree Yojana Checkbox -->
+        <div class="flex items-center gap-3 bg-slate-50 dark:bg-dark-850 p-3.5 rounded-xl border border-slate-200 dark:border-dark-750">
+          <input type="checkbox" [(ngModel)]="shreeYojana" name="shreeYojana" id="shreeYojana"
+            class="w-5 h-5 rounded border-slate-300 text-[#E15B25] focus:ring-[#E15B25] cursor-pointer" />
+          <label for="shreeYojana" class="text-xs font-bold text-[#0B2240] dark:text-slate-200 font-devanagari cursor-pointer">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य श्री योजना (Shree Yojana) से संबंधित है' : 'Work Related to Shree Yojana' }}
+          </label>
+        </div>
+
+        <!-- Campaigning Scheme -->
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'अभियान योजना (Campaigning Scheme)' : 'Campaigning Scheme' }}</label>
+          <select [(ngModel)]="campaigningScheme" name="campaigningScheme" class="wizard-input">
+            <option value="--Select--">-- चयन करें (Select) --</option>
+            <option value="Viksit Rajasthan Abhiyan">Viksit Rajasthan Abhiyan 2026</option>
+            <option value="Jal Jeevan Mission Convergence">Jal Jeevan Mission Convergence</option>
+            <option value="Swachh Bharat Rural Phase-2">Swachh Bharat Rural Phase-II</option>
+          </select>
+        </div>
+
+        <!-- Work Priority & Convergence Toggle -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य प्राथमिकता (Priority)' : 'Work Priority As Per Plan' }}</label>
+            <input type="number" [(ngModel)]="workPriority" name="workPriority" class="wizard-input text-center font-bold" min="1" />
+          </div>
+          <div>
+            <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कन्वर्जेंस (Convergence)' : 'Convergence' }}</label>
+            <div class="grid grid-cols-2 gap-1 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl border border-slate-200 dark:border-dark-750">
+              <button type="button" (click)="convergence = 'Yes'"
+                [ngClass]="convergence === 'Yes' ? 'bg-amber-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+                class="py-1.5 rounded-lg text-xs transition-all cursor-pointer">Yes</button>
+              <button type="button" (click)="convergence = 'No'"
+                [ngClass]="convergence === 'No' ? 'bg-slate-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+                class="py-1.5 rounded-lg text-xs transition-all cursor-pointer">No</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RED / SAFFRON WARNING POLICY ALERT CARD -->
+      <div class="bg-gradient-to-r from-rose-50 via-amber-50 to-rose-50 dark:from-rose-950/40 dark:via-amber-950/30 dark:to-rose-950/40 p-4 rounded-xl border-l-4 border-[#E15B25] border border-rose-200 dark:border-rose-900/40 flex items-start gap-3 shadow-2xs">
+        <div class="w-8 h-8 rounded-full bg-[#E15B25]/20 text-[#E15B25] flex items-center justify-center flex-shrink-0 mt-0.5">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div>
+          <h4 class="text-xs font-black text-rose-900 dark:text-rose-300 font-devanagari uppercase tracking-wide">
+            महत्वपूर्ण नीतिगत निर्देश (Critical Policy Notice):
+          </h4>
+          <p class="text-xs font-bold text-rose-800 dark:text-rose-200 mt-1 font-devanagari leading-relaxed">
+            कृपया Convergence राशि को किसी भी RD scheme के साथ Public Contribution एवं Own Fund की राशि में शामिल न करें क्योंकि convergence Scheme की राशि की मॉनिटरिंग IWMS software द्वारा नहीं की जानी है।
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 3: LOCATION & ADMINISTRATIVE PANCHAYAT MAPPING                 -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E15B25] to-amber-600 dark:from-amber-400 dark:to-amber-500 text-white dark:text-[#0B2240] flex items-center justify-center font-black text-sm shadow-sm">
+          03
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'स्थान एवं प्रशासनिक पंचायत मैपिंग' : 'Location & Administrative Panchayat Mapping' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'ब्लॉक, ग्राम पंचायत एवं राजस्व गाँव का चयन करें' : 'Select Block, Gram Panchayat, and Revenue Village' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Dates and Work Related To -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'अनुमोदन तिथि (Approval Date) *' : 'Work Approval Date *' }}</label>
+          <input type="date" [(ngModel)]="approvalDate" name="approvalDate" class="wizard-input font-medium" />
+        </div>
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'प्राप्ति तिथि (Receipt Date) *' : 'Date of Receipt *' }}</label>
+          <input type="date" [(ngModel)]="receiptDate" name="receiptDate" class="wizard-input font-medium" />
+        </div>
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'जिला (District)' : 'District' }}</label>
+          <input type="text" [value]="district" readonly class="wizard-input bg-slate-100 dark:bg-dark-800 font-extrabold text-[#0B2240] dark:text-white cursor-not-allowed" />
+        </div>
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य किससे संबंधित (Work Related to)' : 'Work Related to' }}</label>
+          <select [(ngModel)]="workRelatedTo" name="workRelatedTo" class="wizard-input font-bold">
+            <option value="Village">गाँव (Village)</option>
+            <option value="Panchayat">पंचायत (Gram Panchayat)</option>
+            <option value="Block">ब्लॉक (Panchayat Samiti)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 3-COLUMN MODERN INTERACTIVE SELECTOR CARDS (REPLACING UGLY LISTBOXES) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <!-- Column 1: Block Selector -->
+        <div class="border border-slate-200 dark:border-dark-750 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-dark-850/50 flex flex-col h-60">
+          <div class="bg-slate-100 dark:bg-dark-800 px-3.5 py-2.5 border-b border-slate-200 dark:border-dark-750 flex items-center justify-between">
+            <span class="text-xs font-black text-[#0B2240] dark:text-white uppercase tracking-wider font-devanagari">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'ब्लॉक चुनें (Select Block)' : 'Select Block' }}
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-[#0B2240] text-amber-300 text-[10px] font-bold">{{ blocks.length }}</span>
+          </div>
+          <div class="flex-1 overflow-y-auto p-2 space-y-1 listbox-scroll">
+            <button type="button" *ngFor="let b of blocks" (click)="selectBlock(b)"
+              [ngClass]="selectedBlock === b ? 'bg-[#E15B25] text-white font-extrabold shadow-2xs' : 'hover:bg-slate-200/70 dark:hover:bg-dark-750 text-slate-700 dark:text-slate-200'"
+              class="w-full text-left px-3 py-2 rounded-lg text-xs font-devanagari transition-all flex items-center justify-between cursor-pointer">
+              <span>{{ b }}</span>
+              <svg *ngIf="selectedBlock === b" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Column 2: Panchayat Selector -->
+        <div class="border border-slate-200 dark:border-dark-750 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-dark-850/50 flex flex-col h-60">
+          <div class="bg-slate-100 dark:bg-dark-800 px-3.5 py-2.5 border-b border-slate-200 dark:border-dark-750 flex items-center justify-between">
+            <span class="text-xs font-black text-[#0B2240] dark:text-white uppercase tracking-wider font-devanagari">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'पंचायत चुनें (Select Panchayat)' : 'Select Panchayat' }}
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-[#0B2240] text-amber-300 text-[10px] font-bold">{{ panchayats.length }}</span>
+          </div>
+          <div class="flex-1 overflow-y-auto p-2 space-y-1 listbox-scroll">
+            <button type="button" *ngFor="let p of panchayats" (click)="selectPanchayat(p)"
+              [ngClass]="selectedPanchayat === p ? 'bg-[#E15B25] text-white font-extrabold shadow-2xs' : 'hover:bg-slate-200/70 dark:hover:bg-dark-750 text-slate-700 dark:text-slate-200'"
+              class="w-full text-left px-3 py-2 rounded-lg text-xs font-devanagari transition-all flex items-center justify-between cursor-pointer">
+              <span>{{ p }}</span>
+              <svg *ngIf="selectedPanchayat === p" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Column 3: Village Selector -->
+        <div class="border border-slate-200 dark:border-dark-750 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-dark-850/50 flex flex-col h-60">
+          <div class="bg-slate-100 dark:bg-dark-800 px-3.5 py-2.5 border-b border-slate-200 dark:border-dark-750 flex items-center justify-between">
+            <span class="text-xs font-black text-[#0B2240] dark:text-white uppercase tracking-wider font-devanagari">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'गाँव चुनें (Select Village)' : 'Select Village' }}
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-[#0B2240] text-amber-300 text-[10px] font-bold">{{ villages.length }}</span>
+          </div>
+          <div class="flex-1 overflow-y-auto p-2 space-y-1 listbox-scroll">
+            <button type="button" *ngFor="let v of villages" (click)="selectVillage(v)"
+              [ngClass]="selectedVillage === v ? 'bg-[#0F7A3E] text-white font-extrabold shadow-2xs' : 'hover:bg-slate-200/70 dark:hover:bg-dark-750 text-slate-700 dark:text-slate-200'"
+              class="w-full text-left px-3 py-2 rounded-lg text-xs font-devanagari transition-all flex items-center justify-between cursor-pointer">
+              <span>{{ v }}</span>
+              <svg *ngIf="selectedVillage === v" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Categories & Agencies Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य श्रेणी (Work Category) *' : 'Work Category *' }}</label>
+          <select [(ngModel)]="workCategory" name="workCategory" class="wizard-input font-medium">
+            <option value="CC Road & Drainage">सीसी सड़क एवं नाली निर्माण (CC Road & Drainage)</option>
+            <option value="Drinking Water & Tube-well">पेयजल एवं ट्यूबवेल (Drinking Water)</option>
+            <option value="Panchayat Building & Hall">पंचायत भवन एवं सामुदायिक हॉल</option>
+            <option value="School Infrastructure">विद्यालय कक्ष एवं चारदीवारी</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'उप-श्रेणी (Work Sub Category) *' : 'Work Sub Category *' }}</label>
+          <select [(ngModel)]="workSubCategory" name="workSubCategory" class="wizard-input font-medium">
+            <option value="Panchayat Interlocking Road">इंटरलाकिंग ब्लॉक सड़क (Interlocking Road)</option>
+            <option value="Reinforced CC Road">आरसीसी पक्की सड़क (RCC Road)</option>
+            <option value="Open Drainage Canal">खुली नाली निर्माण (Drainage Canal)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'अपेक्षित पूर्णता अवधि (Expected Time) *' : 'Expected Time of Completion *' }}</label>
+          <div class="relative">
+            <input type="number" [(ngModel)]="expectedTimeMonths" name="expectedTimeMonths" class="wizard-input pr-20 font-bold" min="1" max="60" />
+            <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400">Months (माह)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Executing Department & Agencies -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कार्यकारी विभाग (Executing Department) *' : 'Executing Department *' }}</label>
+          <select [(ngModel)]="executingDepartment" name="executingDepartment" class="wizard-input font-bold text-[#0B2240] dark:text-white">
+            <option value="Panchayati Raj Department">पंचायती राज विभाग (Panchayati Raj)</option>
+            <option value="Public Works Department (PWD)">सार्वजनिक निर्माण विभाग (PWD)</option>
+            <option value="Public Health Engineering Department (PHED)">जन स्वास्थ्य अभियांत्रिकी (PHED)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कार्यकारी एजेंसी (Executing Agency) *' : 'Executing Agency *' }}</label>
+          <select [(ngModel)]="executingAgency" name="executingAgency" class="wizard-input font-bold">
+            <option value="Zila Parishad Jaipur">जिला परिषद जयपुर (Zila Parishad)</option>
+            <option value="Nagar Nigam Jaipur Heritage">नगर निगम जयपुर (Heritage)</option>
+            <option value="Gram Panchayat Amer">ग्राम पंचायत आमेर</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'ब्लॉकवार एजेंसी (Blockwise Agency)' : 'Select Blockwise Agency' }}</label>
+          <select [(ngModel)]="blockwiseAgency" name="blockwiseAgency" class="wizard-input">
+            <option value="Panchayat Samiti Amer">पंचायत समिति आमेर (Panchayat Samiti Amer)</option>
+            <option value="Panchayat Samiti Chaksu">पंचायत समिति चाकसू</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 4: BENEFICIARY & HONORABLE MLA/MP RECOMMENDATION DETAILS         -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E15B25] to-amber-600 dark:from-amber-400 dark:to-amber-500 text-white dark:text-[#0B2240] flex items-center justify-center font-black text-sm shadow-sm">
+          04
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'लाभार्थी एवं माननीय विधायक अनुशंसा विवरण' : 'Beneficiary & Honorable MP/MLA Recommendation Details' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'विधायक निधि (MLA-LAD) एवं लाभार्थी वर्ग का चयन करें' : 'Choose beneficiary category and recommendation source' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Beneficiary Selection Pills -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'लाभार्थी का प्रकार (Select Beneficiary) *' : 'Select Beneficiary *' }}</label>
+          <div class="grid grid-cols-3 gap-2 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl border border-slate-200 dark:border-dark-750">
+            <button type="button" (click)="beneficiary = 'Group'"
+              [ngClass]="beneficiary === 'Group' ? 'bg-gradient-to-r from-[#E15B25] to-orange-600 text-white shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400'"
+              class="py-2 rounded-lg text-xs transition-all font-devanagari cursor-pointer">Group (समूह)</button>
+            <button type="button" (click)="beneficiary = 'Individual'"
+              [ngClass]="beneficiary === 'Individual' ? 'bg-gradient-to-r from-[#E15B25] to-orange-600 text-white shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400'"
+              class="py-2 rounded-lg text-xs transition-all font-devanagari cursor-pointer">Individual (व्यक्तिगत)</button>
+            <button type="button" (click)="beneficiary = 'Community'"
+              [ngClass]="beneficiary === 'Community' ? 'bg-gradient-to-r from-[#E15B25] to-orange-600 text-white shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400'"
+              class="py-2 rounded-lg text-xs transition-all font-devanagari cursor-pointer">Community (सामुदायिक)</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'लाभार्थी वर्ग (Beneficiary Type)' : 'Beneficiary Type' }}</label>
+          <div class="flex flex-wrap items-center gap-2">
+            <span *ngFor="let cat of ['SC', 'ST', 'OBC', 'General', 'SBC', 'Others', 'Minority']"
+              (click)="beneficiaryType = cat"
+              [ngClass]="beneficiaryType === cat ? 'bg-[#E15B25] text-white font-extrabold shadow-2xs border-[#E15B25]' : 'bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-dark-750 hover:border-[#E15B25]'"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer border transition-all">
+              {{ cat }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BPL / APL & Scheme Department -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-50 dark:bg-dark-850 p-4 rounded-xl border border-slate-200 dark:border-dark-750">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'राशन श्रेणी (Whether BPL / APL)' : 'Whether BPL / APL' }}</label>
+          <div class="flex items-center gap-4 text-xs font-bold font-devanagari">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" [(ngModel)]="bplCategory" name="bplCategory" value="BPL" class="text-[#E15B25]" />
+              <span>BPL (बीपीएल)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" [(ngModel)]="bplCategory" name="bplCategory" value="APL" class="text-[#E15B25]" />
+              <span>APL (एपीएल)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" [(ngModel)]="bplCategory" name="bplCategory" value="State BPL" class="text-[#E15B25]" />
+              <span>State BPL (राज्य बीपीएल)</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'योजना विभाग (Scheme Department)' : 'Scheme Department' }}</label>
+          <div class="flex items-center gap-4 text-xs font-bold font-devanagari">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" [(ngModel)]="schemeDepartment" name="schemeDepartment" value="Rural Development" class="text-[#E15B25]" />
+              <span>Rural Development (ग्रामीण विकास)</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" [(ngModel)]="schemeDepartment" name="schemeDepartment" value="Panchayati Raj Department" class="text-[#E15B25]" />
+              <span>Panchayati Raj Department</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hon'ble MP & MLA Details Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'माननीय सांसद सदन (Honorable MP)' : 'Name Of Honourable MP' }}</label>
+          <div class="grid grid-cols-2 gap-1 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl border border-slate-200 dark:border-dark-750">
+            <button type="button" (click)="mpType = 'Lok sabha'"
+              [ngClass]="mpType === 'Lok sabha' ? 'bg-gradient-to-r from-[#E15B25] to-orange-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+              class="py-1.5 rounded-lg text-xs font-devanagari transition-all cursor-pointer">लोकसभा (Lok Sabha)</button>
+            <button type="button" (click)="mpType = 'Rajya sabha'"
+              [ngClass]="mpType === 'Rajya sabha' ? 'bg-gradient-to-r from-[#E15B25] to-orange-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+              class="py-1.5 rounded-lg text-xs font-devanagari transition-all cursor-pointer">राज्यसभा (Rajya Sabha)</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'विधानसभा क्षेत्र (Assembly Constituency) *' : 'Assembly Constituency *' }}</label>
+          <select [(ngModel)]="assembly" name="assembly" class="wizard-input font-bold text-[#0B2240] dark:text-amber-300">
+            <option value="16 - आदर्श नगर (Adarsh Nagar)">16 - आदर्श नगर (Adarsh Nagar)</option>
+            <option value="17 - सिविल लाइन्स (Civil Lines)">17 - सिविल लाइन्स (Civil Lines)</option>
+            <option value="18 - किशनपोल (Kishanpole)">18 - किशनपोल (Kishanpole)</option>
+            <option value="19 - हवामहल (Hawamahal)">19 - हवामहल (Hawamahal)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'माननीय विधायक का नाम (Honorable MLA Name) *' : 'Name of Honourable MLA *' }}</label>
+          <input type="text" [(ngModel)]="mlaName" name="mlaName" class="wizard-input font-extrabold text-[#0B2240] dark:text-white" required />
+        </div>
+      </div>
+
+      <!-- MLA Contact Numbers -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'विधायक फोन नंबर (MLA Phone Number)' : 'Reference Phone Number of Hon. MLA' }}</label>
+          <input type="text" [(ngModel)]="mlaPhone" name="mlaPhone" placeholder="0141-222xxxx" class="wizard-input font-mono" />
+        </div>
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'विधायक मोबाइल (MLA Mobile Number)' : 'Reference Mobile Number of Hon. MLA' }}</label>
+          <input type="text" [(ngModel)]="mlaMobile" name="mlaMobile" placeholder="98290xxxxx" class="wizard-input font-mono font-bold" />
+        </div>
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'अनुशंसितकर्ता (Recommend By)' : 'Recommend By' }}</label>
+          <input type="text" [(ngModel)]="recommendBy" name="recommendBy" class="wizard-input font-medium" />
+        </div>
+      </div>
+
+      <!-- Signatory & Work Outcome Textarea -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'हस्ताक्षरकर्ता का नाम एवं पद (Signatory Name & Desig.) *' : 'Name & Designation Signatory *' }}</label>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" [(ngModel)]="nameSignatory" name="nameSignatory" placeholder="Sh. Rajesh Meena" class="wizard-input font-bold" required />
+            <input type="text" [(ngModel)]="designationSignatory" name="designationSignatory" placeholder="BDO" class="wizard-input" required />
+          </div>
+        </div>
+
+        <div>
+          <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'वार्षिक कार्य योजना (Annual Work Plan) *' : 'Annual Work Plan *' }}</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-dark-800 p-1 rounded-xl border border-slate-200 dark:border-dark-750">
+            <button type="button" (click)="annualWorkPlan = 'Yes'"
+              [ngClass]="annualWorkPlan === 'Yes' ? 'bg-[#0F7A3E] text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+              class="py-2 rounded-lg text-xs transition-all font-devanagari cursor-pointer">हाँ (Yes - Included)</button>
+            <button type="button" (click)="annualWorkPlan = 'No'"
+              [ngClass]="annualWorkPlan === 'No' ? 'bg-slate-600 text-white font-bold' : 'text-slate-600 dark:text-slate-400'"
+              class="py-2 rounded-lg text-xs transition-all font-devanagari cursor-pointer">नहीं (No)</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="wizard-label">{{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य का परिणाम (Work Outcome)' : 'Work Outcome' }}</label>
+        <textarea [(ngModel)]="workOutcome" name="workOutcome" rows="3"
+          placeholder="कार्य पूर्ण होने पर संभावित सामाजिक/आर्थिक लाभ का वर्णन करें..."
+          class="wizard-input font-devanagari text-sm"></textarea>
+      </div>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 5: REQUIRED DOCUMENT & FORM-5 ATTACHMENTS                       -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-6 border border-slate-200/80 dark:border-dark-800 shadow-sm space-y-5">
+      <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-8 h-8 rounded-lg bg-[#0F7A3E] text-white flex items-center justify-center font-black text-sm">
+          05
+        </div>
+        <div>
+          <h2 class="text-base font-black text-[#0B2240] dark:text-white font-devanagari">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'आवश्यक दस्तावेज एवं प्रपत्र अपलोड' : 'Required Document & Form-5 Attachments' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'विधायक अनुशंसा पत्र एवं राजस्व रिकॉर्ड (अधिकतम 3 MB PDF) अपलोड करें' : 'Upload MLA recommendation letter and revenue record PDF (max 3 MB)' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        
+        <!-- File Card 1: MLA Recommendation Letter -->
+        <div class="border-2 border-dashed border-amber-300 dark:border-amber-500/40 rounded-xl p-4 bg-amber-50/40 dark:bg-dark-850 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="text-xs font-black text-[#0B2240] dark:text-white font-devanagari">
+                {{ (languageService.currentLang$ | async) === 'hi' ? 'विधायक अनुशंसा पत्र (Recommendation File)' : 'Recommendation File (PDF max 3 MB)' }}
+              </h4>
+              <p class="text-[10px] font-extrabold text-rose-600 mt-0.5">(Mandatory for MLALAD / MPLAD)</p>
+              <p class="text-xs font-mono font-bold text-[#E15B25] mt-1">{{ recommendationFile }}</p>
+            </div>
+          </div>
+          <button type="button" class="px-3 py-1.5 rounded-lg bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 cursor-pointer shadow-2xs">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'बदलें (Change)' : 'Choose File' }}
+          </button>
+        </div>
+
+        <!-- File Card 2: Revenue Record File -->
+        <div class="border-2 border-dashed border-slate-300 dark:border-dark-700 rounded-xl p-4 bg-slate-50/50 dark:bg-dark-850 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-600 dark:text-slate-300 flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="text-xs font-black text-[#0B2240] dark:text-white font-devanagari">
+                {{ (languageService.currentLang$ | async) === 'hi' ? 'राजस्व रिकॉर्ड फाइल (Revenue Record File)' : 'Revenue Record File (PDF max 3 MB)' }}
+              </h4>
+              <p class="text-[10px] text-slate-400 mt-0.5">जमाबंदी, खसरा या नजरी नक्शा की प्रति</p>
+              <p class="text-xs font-mono font-bold text-slate-600 dark:text-slate-300 mt-1">{{ revenueFile }}</p>
+            </div>
+          </div>
+          <button type="button" class="px-3 py-1.5 rounded-lg bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 cursor-pointer shadow-2xs">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'अपलोड करें (Upload)' : 'Choose File' }}
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Form 5 Received Toggle -->
+      <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750">
+        <span class="text-xs font-black text-[#0B2240] dark:text-white font-devanagari">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'क्या प्रपत्र 5 प्राप्त कर लिया गया है? (Is Form 5 Received?)' : 'क्या प्रपत्र 5 प्राप्त कर लिया गया है?' }}
+        </span>
+        <div class="grid grid-cols-2 gap-1 bg-white dark:bg-dark-800 p-1 rounded-xl border border-slate-200 dark:border-dark-700">
+          <button type="button" (click)="form5Received = 'Yes'"
+            [ngClass]="form5Received === 'Yes' ? 'bg-[#0F7A3E] text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'"
+            class="px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer">हाँ (Yes)</button>
+          <button type="button" (click)="form5Received = 'No'"
+            [ngClass]="form5Received === 'No' ? 'bg-slate-600 text-white font-bold' : 'text-slate-600 dark:text-slate-400'"
+            class="px-4 py-1.5 rounded-lg text-xs transition-all cursor-pointer">नहीं (No)</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- BOTTOM SAFFRON STICKY ACTION BAR                                        -->
+    <!-- ======================================================================= -->
+    <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200/80 dark:border-dark-800 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 font-devanagari">
+        <span>* चिन्हित सभी फ़ील्ड अनिवार्य हैं (All asterisk fields are mandatory).</span>
+      </div>
+      
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+        <button type="button" (click)="onReset()"
+          class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-dark-750 hover:bg-slate-100 dark:hover:bg-dark-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition-all cursor-pointer">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'रीसेट करें (Reset)' : 'Reset Form' }}
+        </button>
+
+        <button type="button"
+          class="px-5 py-2.5 rounded-xl bg-amber-500/15 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 border border-amber-500/30 font-bold text-xs transition-all cursor-pointer">
+          {{ (languageService.currentLang$ | async) === 'hi' ? 'ड्राफ्ट सहेजें' : 'Save as Draft' }}
+        </button>
+
+        <button type="submit"
+          class="px-7 py-2.5 rounded-xl btn-shiny-saffron font-extrabold text-sm shadow-md transition-all cursor-pointer flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'प्रस्ताव सुरक्षित करें (Submit Proposal)' : 'Submit Proposal' }}</span>
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>

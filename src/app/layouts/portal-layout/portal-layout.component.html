@@ -1,0 +1,507 @@
+<div
+  class="h-screen flex flex-col bg-[#F8FAFC] dark:bg-dark-950 text-slate-800 dark:text-slate-100 transition-colors duration-300 font-sans selection:bg-accent-500/20 relative overflow-hidden">
+
+  <!-- ========================================================================= -->
+  <!-- 1. OFFICIAL GOVT OF RAJASTHAN HEADER BAND (LIGHT & CLEAN)                 -->
+  <!-- ========================================================================= -->
+  <header
+    class="bg-white dark:bg-dark-900 border-b border-slate-200/80 dark:border-dark-800 shadow-xs relative z-[60] transition-colors flex-shrink-0">
+    <!-- Top Tricolor Accent Line (Saffron - White - Green) -->
+    <div class="h-1.5 w-full bg-gradient-to-r from-[#E15B25] via-amber-400 to-[#0F7A3E]"></div>
+
+    <div
+      class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-row items-center justify-between gap-2.5 sm:gap-4">
+      <!-- Left: Rajasthan Emblem & Official Department Titles -->
+      <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+        <img src="/rajasthan-emblem.png" alt="Govt of Rajasthan Emblem"
+          class="w-8 h-10 sm:w-11 sm:h-14 object-contain dark:invert dark:brightness-200 drop-shadow-xs flex-shrink-0" />
+        <div class="min-w-0">
+          <h1
+            class="text-xs sm:text-lg font-extrabold text-[#0B2240] dark:text-white tracking-tight leading-tight sm:leading-snug font-devanagari truncate">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'ग्रामीण विकास एवं पंचायती राज विभाग' : 'Rural
+            Development and Panchayati Raj Department' }}
+          </h1>
+          <h2 class="text-[9px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase truncate">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'राजस्थान सरकार (Government of Rajasthan)' :
+            'Government of Rajasthan' }}
+          </h2>
+        </div>
+      </div>
+
+      <!-- Right: e-Work System Branding & Version Badge -->
+      <div class="flex items-center gap-2 sm:gap-3.5 flex-shrink-0">
+        <div class="text-right hidden sm:block">
+          <div class="flex items-center justify-end gap-2">
+            <span class="text-xl font-black tracking-tight text-[#0B2240] dark:text-white font-heading">e-Work <span
+                class="text-[#E15B25]">3.0</span></span>
+            <span
+              class="px-2.5 py-0.5 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold uppercase tracking-wider border border-amber-500/30">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'सक्रिय संस्करण v3.0.01' : 'v3.0.01' }}
+            </span>
+          </div>
+          <p class="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-tight">
+            {{ (languageService.currentLang$ | async) === 'hi' ? 'एकीकृत कार्य एवं वित्त निगरानी प्रणाली' : 'Integrated
+            Work Monitoring & Financial Management System' }}
+          </p>
+        </div>
+        <img src="/ework-logo.png" alt="e-Work System"
+          class="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl shadow-xs border border-slate-200 dark:border-dark-750 object-cover bg-white flex-shrink-0" />
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. USER SESSION & INSTITUTIONAL ACTION BAR                                -->
+  <!-- ========================================================================= -->
+  <div
+    class="bg-gradient-to-r from-amber-50/90 via-orange-50/70 to-amber-50/90 dark:from-[#0B2240] dark:via-[#0F3460] dark:to-[#0B2240] text-slate-700 dark:text-slate-200 text-xs py-1.5 sm:py-2 px-3 sm:px-6 lg:px-8 border-b border-amber-200/70 dark:border-[#1A3860] shadow-xs relative z-[50] transition-colors">
+    <div class="max-w-7xl mx-auto flex flex-row items-center justify-between gap-1.5 sm:gap-2.5">
+
+      <!-- Left: Active User Session Status -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+        <span
+          class="inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-0.5 rounded-full bg-emerald-100/80 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-400/40 text-emerald-800 dark:text-emerald-300 font-bold text-[10px] sm:text-[11px] flex-shrink-0">
+          <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="hidden min-[480px]:inline">{{ (languageService.currentLang$ | async) === 'hi' ? 'सक्रिय सत्र (Online)' : 'Active Session' }}</span>
+          <span class="min-[480px]:hidden">Online</span>
+        </span>
+
+        <span class="font-medium text-slate-700 dark:text-slate-200 text-[10px] sm:text-xs truncate">
+          <span class="hidden sm:inline">{{ (languageService.currentLang$ | async) === 'hi' ? 'लॉग इन:' : 'Logged in as:' }}</span>
+          <strong class="text-[#E15B25] dark:text-amber-300 font-extrabold tracking-wide uppercase">{{ user?.username || 'jaipur' }}</strong>
+          <span class="text-slate-400 mx-1 sm:mx-1.5">|</span>
+          <span class="hidden sm:inline">{{ (languageService.currentLang$ | async) === 'hi' ? 'जिला:' : 'District:' }}</span>
+          <strong class="text-[#0B2240] dark:text-emerald-300 font-extrabold tracking-wide uppercase">{{ (languageService.currentLang$ | async) === 'hi' ? (user?.districtHi || 'जयपुर') : (user?.district || 'JAIPUR') }}</strong>
+        </span>
+      </div>
+
+      <!-- Right: Action Links & Controls -->
+      <div class="flex items-center gap-1.5 sm:gap-3 font-semibold text-[11px] flex-shrink-0">
+        <!-- Language Selector -->
+        <div
+          class="flex items-center bg-white dark:bg-white/10 rounded-lg p-0.5 border border-slate-200 dark:border-white/15 shadow-2xs">
+          <button (click)="languageService.setLanguage('hi')"
+            [ngClass]="(languageService.currentLang$ | async) === 'hi' ? 'bg-[#E15B25] text-white font-extrabold shadow-2xs' : 'text-slate-600 dark:text-slate-300 hover:text-[#E15B25] dark:hover:text-white'"
+            class="px-1.5 sm:px-2.5 py-0.5 rounded text-[10px] sm:text-xs transition-all font-devanagari cursor-pointer">हिन्दी</button>
+          <button (click)="languageService.setLanguage('en')"
+            [ngClass]="(languageService.currentLang$ | async) === 'en' ? 'bg-[#E15B25] text-white font-extrabold shadow-2xs' : 'text-slate-600 dark:text-slate-300 hover:text-[#E15B25] dark:hover:text-white'"
+            class="px-1.5 sm:px-2.5 py-0.5 rounded text-[10px] sm:text-xs transition-all cursor-pointer">English</button>
+        </div>
+
+        <!-- Theme Switcher -->
+        <button (click)="toggleTheme()"
+          class="p-1 sm:p-1.5 rounded-lg bg-white dark:bg-white/10 hover:bg-slate-100 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 hover:text-[#E15B25] dark:hover:text-white border border-slate-200 dark:border-white/15 transition-all shadow-2xs cursor-pointer"
+          title="Toggle Theme">
+          <svg *ngIf="isDarkMode" class="w-3.5 h-3.5 text-amber-300" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.364 17.636l-.707.707M16.364 17.636l.707.707M7.636 5.636l.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <svg *ngIf="!isDarkMode" class="w-3.5 h-3.5 text-slate-700" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+
+        <span class="text-slate-300 dark:text-slate-500 hidden sm:inline">|</span>
+
+        <!-- ═══ USER PROFILE DROPDOWN MENU ═══ -->
+        <div class="relative profile-dropdown-container">
+          <!-- Dropdown Trigger Button -->
+          <button (click)="toggleProfileDropdown($event)"
+            class="flex items-center gap-1.5 sm:gap-2.5 px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-slate-50 dark:bg-dark-850 hover:bg-slate-100 dark:hover:bg-dark-800 border border-[#0B2240] dark:border-amber-400/40 transition-all shadow-xs cursor-pointer">
+            <!-- Profile Avatar Badge -->
+            <div
+              class="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex-shrink-0 bg-[#E15B25] text-white flex items-center justify-center text-[9px] sm:text-[10.5px] font-extrabold shadow-sm">
+              {{ (user?.username || 'J') | slice:0:1 | uppercase }}
+            </div>
+            <!-- Username display -->
+            <span class="text-[10px] sm:text-xs font-black text-[#0B2240] dark:text-white uppercase tracking-wider hidden min-[480px]:inline max-w-[80px] sm:max-w-none truncate">
+              {{ user?.username || 'jaipur' }}
+            </span>
+            <!-- Caret indicator -->
+            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Floating Menu Panel -->
+          <div *ngIf="showProfileDropdown"
+            class="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white dark:bg-[#0F172A] rounded-2xl shadow-2xl border border-slate-200/80 dark:border-dark-750 p-4 sm:p-5 z-[100] animate-fadeIn">
+
+            <!-- User Title/Role Header -->
+            <div class="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-white/5">
+              <div
+                class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex-shrink-0 bg-[#E15B25] text-white flex items-center justify-center text-base sm:text-lg font-black shadow-md">
+                {{ (user?.username || 'J') | slice:0:1 | uppercase }}
+              </div>
+              <div class="text-left min-w-0">
+                <h4 class="text-xs font-extrabold text-slate-800 dark:text-white uppercase tracking-tight truncate">
+                  {{ user?.username || 'jaipur' }}
+                </h4>
+                <span
+                  class="inline-flex items-center px-2 py-0.5 mt-1 rounded-md bg-amber-500/10 dark:bg-amber-500/20 text-[#E15B25] dark:text-amber-300 text-[9px] font-black uppercase tracking-wider border border-amber-500/20">
+                  Block Development Officer
+                </span>
+              </div>
+            </div>
+
+            <!-- Profile Parameters List -->
+            <div class="py-3 space-y-2.5 text-left text-xs font-semibold text-slate-600 dark:text-slate-300">
+              <!-- Parameter 1: SSO ID -->
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400 dark:text-slate-500">SSO ID:</span>
+                <span class="font-mono text-slate-800 dark:text-white uppercase font-bold">{{ user?.username || 'jaipur'
+                  }}</span>
+              </div>
+              <!-- Parameter 2: District -->
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400 dark:text-slate-500">{{ (languageService.currentLang$ | async) === 'hi' ?
+                  'जिला:' : 'District:' }}</span>
+                <span class="text-[#E15B25] dark:text-amber-300 font-extrabold">{{ (languageService.currentLang$ |
+                  async) === 'hi' ? (user?.districtHi || 'जयपुर') : (user?.district || 'JAIPUR') }}</span>
+              </div>
+              <!-- Parameter 3: Department -->
+              <div class="flex flex-col gap-0.5">
+                <span class="text-slate-400 dark:text-slate-500">Department:</span>
+                <span class="text-[11px] leading-relaxed text-slate-800 dark:text-white font-devanagari">ग्रामीण विकास
+                  एवं पंचायती राज विभाग</span>
+              </div>
+              <!-- Parameter 4: System Access -->
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400 dark:text-slate-500">System Role:</span>
+                <span
+                  class="text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider text-[10px]">AUTHORIZED</span>
+              </div>
+            </div>
+
+            <!-- Action buttons inside dropdown -->
+            <div class="pt-3 border-t border-slate-100 dark:border-white/5 flex flex-col gap-2">
+              <button (click)="onLogout()"
+                class="w-full py-2 sm:py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'लॉगआउट (Logout)' : 'Logout' }}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. SMART PORTAL NAVIGATION & MODULE SWITCHING STRIP                       -->
+  <!-- ========================================================================= -->
+  <nav
+    class="bg-white dark:bg-dark-900 border-b border-slate-200/80 dark:border-dark-800 text-slate-800 dark:text-white shadow-xs relative z-40 transition-colors">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-1.5 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-3">
+
+      <!-- Left Side: Hub Indicator OR Back-to-Hub & Module Badge -->
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+
+        <!-- CASE 1: ON CENTRAL HUB PAGE (/portal/hub) -->
+        <div *ngIf="isHubPage" class="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+          <span class="w-2 h-2 rounded-full bg-[#E15B25] animate-pulse flex-shrink-0"></span>
+          <span class="text-xs sm:text-sm font-extrabold text-[#0B2240] dark:text-white font-devanagari tracking-tight truncate">
+            <span class="sm:hidden">{{ (languageService.currentLang$ | async) === 'hi' ? 'ई-वर्क 3.0 : पोर्टल हब' : 'e-Work 3.0 : Portal Hub' }}</span>
+            <span class="hidden sm:inline">{{ (languageService.currentLang$ | async) === 'hi' ? 'ई-वर्क 3.0 : एकीकृत कार्य एवं वित्तीय निगरानी पोर्टल हब' : 'e-Work 3.0 : Integrated Work & Financial Monitoring Portal Hub' }}</span>
+          </span>
+          <span
+            class="hidden md:inline-block px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/20 text-[#E15B25] dark:text-amber-300 font-extrabold text-[10px] border border-amber-300/40 flex-shrink-0">
+            {{ (languageService.currentLang$ | async) === 'hi' ? '16 कार्य चरण + 9 प्रशासनिक पोर्टल' : '16 Stages + 9
+            Portals' }}
+          </span>
+        </div>
+
+        <!-- CASE 2: INSIDE A MODULE (/portal/work-monitoring, /portal/sanction/..., etc.) -->
+        <div *ngIf="!isHubPage" class="flex items-center gap-1.5 sm:gap-2.5 flex-wrap min-w-0">
+
+          <!-- Back to Portal Hub Button -->
+          <button (click)="backToHub()"
+            class="btn-shiny-saffron px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl font-extrabold text-[11px] sm:text-xs transition-all shadow-xs flex items-center gap-1 sm:gap-1.5 cursor-pointer flex-shrink-0">
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'सभी पोर्टल' : 'All Modules' }}</span>
+          </button>
+
+          <span class="text-slate-300 dark:text-slate-600 hidden min-[480px]:inline">/</span>
+
+          <!-- Active Module Name Pill -->
+          <div *ngIf="activeSidebarMenu"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-50/80 dark:bg-white/10 text-[#0B2240] dark:text-white border border-amber-200/60 dark:border-white/15 font-extrabold text-[11px] sm:text-xs truncate max-w-[130px] sm:max-w-none">
+            <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#E15B25] flex-shrink-0"></span>
+            <span class="font-devanagari truncate">{{ (languageService.currentLang$ | async) === 'hi' ? activeSidebarMenu.labelHi
+              : activeSidebarMenu.label }}</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right Side: Sidebar Toggle (when inside module), Quick Switcher & What is new -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 font-semibold text-xs flex-shrink-0">
+
+        <!-- Sidebar Toggle (Only visible inside a module) -->
+        <button *ngIf="!isHubPage" (click)="toggleSidebar()"
+          class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-750 text-slate-700 dark:text-slate-300 text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 sm:gap-1.5 border border-slate-200 dark:border-dark-700 cursor-pointer">
+          <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#E15B25]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+          </svg>
+          <span class="hidden sm:inline">{{ isSidebarOpen ? ((languageService.currentLang$ | async) === 'hi' ? 'साइडबार
+            छिपाएं' : 'Hide Sidebar') : ((languageService.currentLang$ | async) === 'hi' ? 'साइडबार दिखाएं' : 'Show
+            Sidebar') }}</span>
+        </button>
+
+        <!-- Quick Module Switcher Button (Only visible inside a module) -->
+        <div *ngIf="!isHubPage" class="relative">
+          <button (click)="toggleSwitcher()"
+            class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-dark-850 dark:hover:bg-dark-800 text-slate-700 dark:text-slate-200 text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 border border-slate-200/80 dark:border-dark-750 cursor-pointer">
+            <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'मॉड्यूल' : 'Switch' }}</span>
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Switcher Menu -->
+          <div *ngIf="isSwitcherOpen"
+            class="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-dark-900 shadow-xl border border-slate-200 dark:border-dark-750 p-2 z-50 space-y-1 animate-fadeIn">
+            <div
+              class="px-3 py-1.5 text-[10px] font-extrabold uppercase text-slate-400 border-b border-slate-100 dark:border-dark-800">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'उपलब्ध पोर्टल चुनें' : 'Select Portal' }}
+            </div>
+            <div *ngFor="let m of menus" (click)="switchPortal(m)"
+              class="px-3 py-2 rounded-xl hover:bg-amber-50 dark:hover:bg-dark-800 text-xs font-bold text-[#0B2240] dark:text-slate-200 hover:text-[#E15B25] dark:hover:text-amber-300 transition-colors cursor-pointer flex items-center justify-between">
+              <span>{{ (languageService.currentLang$ | async) === 'hi' ? m.labelHi : m.label }}</span>
+              <span class="text-[10px] text-slate-400 font-mono">{{ m.items.length }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- What is new pill -->
+        <a href="javascript:void(0)"
+          class="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center gap-1 sm:gap-1.5 bg-emerald-50 dark:bg-emerald-600/30 hover:bg-emerald-100 dark:hover:bg-emerald-600/40 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-400/30 shadow-2xs">
+          <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 dark:bg-amber-300 animate-ping"></span>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'नया क्या है' : 'What is new' }}</span>
+        </a>
+
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- 4. MAIN WORKSPACE CONTAINER (SIDEBAR ONLY RENDERED WHEN INSIDE A MODULE) -->
+  <!-- ========================================================================= -->
+  <div class="flex-1 flex relative overflow-hidden">
+
+    <!-- Mobile Overlay Backdrop (ONLY Visible on small screens inside a module when sidebar is open) -->
+    <div *ngIf="!isHubPage && isSidebarOpen" (click)="toggleSidebar()"
+      class="fixed inset-0 bg-slate-950/40 backdrop-blur-2xs z-25 md:hidden"></div>
+
+    <!-- Left Module Sidebar (ONLY Visible when NOT on Hub Page and sidebar open) -->
+    <aside *ngIf="!isHubPage && isSidebarOpen && activeSidebarMenu"
+      class="fixed md:relative inset-y-0 left-0 z-30 w-72 sm:w-80 flex-shrink-0 h-full bg-white dark:bg-dark-900 border-r border-slate-200/80 dark:border-dark-800 flex flex-col justify-between transition-all shadow-2xl md:shadow-sm overflow-hidden">
+
+      <!-- Top Saffron/Green Accent Stripe -->
+      <div class="flex-shrink-0">
+        <div class="h-1.5 w-full bg-gradient-to-r from-[#E15B25] via-amber-400 to-[#0F7A3E]"></div>
+
+        <!-- Sidebar Header: Active Module Title -->
+        <div
+          class="p-4 bg-gradient-to-br from-slate-50 via-white to-amber-50/40 dark:from-dark-850 dark:to-dark-900 border-b border-slate-200/80 dark:border-dark-800 flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E15B25] to-amber-600 text-white flex items-center justify-center shadow-md flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+          <div>
+            <span
+              class="inline-block px-2 py-0.5 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-extrabold text-[10px] uppercase tracking-wider mb-0.5">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'सक्रिय पोर्टल मेनू' : 'Active Module Menu' }}
+            </span>
+            <h3 class="text-sm font-extrabold text-[#0B2240] dark:text-white font-devanagari leading-snug">
+              {{ (languageService.currentLang$ | async) === 'hi' ? activeSidebarMenu.labelHi : activeSidebarMenu.label
+              }}
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Body: Module-Specific Submenus Only (Scrolls inside remaining sidebar space) -->
+      <div class="flex-1 p-3.5 space-y-2 overflow-y-auto custom-scrollbar">
+
+        <div *ngFor="let item of activeSidebarMenu.items; let i = index" class="space-y-1.5">
+
+          <!-- Parent Menu Card -->
+          <div (click)="toggleSubmenuExpand(item, $event)"
+            class="group relative bg-white dark:bg-dark-850 hover:bg-gradient-to-r hover:from-amber-50 hover:to-white dark:hover:from-white/10 dark:hover:to-dark-850 p-3 rounded-xl border border-slate-200/80 dark:border-dark-750 hover:border-[#E15B25]/60 transition-all cursor-pointer flex items-center justify-between gap-3"
+            [ngClass]="{
+              'border-[#E15B25]/70 dark:border-amber-400/60 bg-amber-50/70 dark:bg-dark-800 shadow-xs font-bold': item.expanded || isItemActive(item),
+              'bg-gradient-to-r from-[#0B2240] to-[#163660] text-white border-none shadow-md': isChildActive(item) && (!item.children || item.children.length === 0)
+            }">
+
+            <!-- Left Saffron/Navy Indicator -->
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl transition-colors"
+              [ngClass]="item.expanded || isItemActive(item) ? 'bg-[#E15B25]' : 'bg-transparent group-hover:bg-[#E15B25]'">
+            </div>
+
+            <div class="flex items-center gap-2.5 pl-1.5 min-w-0">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
+                [ngClass]="item.expanded || isItemActive(item) ? 'bg-[#E15B25] text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-[#0B2240] dark:text-slate-300 group-hover:text-[#E15B25]'">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div class="truncate">
+                <h4 class="text-xs font-extrabold font-devanagari transition-colors truncate"
+                  [ngClass]="item.expanded || isItemActive(item) ? 'text-[#E15B25] dark:text-amber-300' : 'text-[#0B2240] dark:text-white group-hover:text-[#E15B25]'">
+                  {{ (languageService.currentLang$ | async) === 'hi' ? item.titleHi : item.title }}
+                </h4>
+                <p class="text-[9px] font-semibold text-slate-400 mt-0.5 truncate">
+                  {{ (languageService.currentLang$ | async) === 'hi' ? item.title : item.titleHi }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Badge / Arrow -->
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              <span *ngIf="item.badge"
+                class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
+                {{ item.badge }}
+              </span>
+              <svg *ngIf="item.children && item.children.length > 0"
+                class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"
+                [ngClass]="{'rotate-180 text-[#E15B25]': item.expanded}" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+              <svg *ngIf="!item.children || item.children.length === 0"
+                class="w-3.5 h-3.5 text-slate-400 group-hover:text-[#E15B25] transition-transform group-hover:translate-x-0.5"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Nested Subchildren Accordion (With Executive Refined Active Highlighting) -->
+          <div *ngIf="item.expanded && item.children && item.children.length > 0"
+            class="ml-3 pl-3 border-l-2 border-[#E15B25]/40 space-y-2 py-1.5 animate-fadeIn">
+
+            <div *ngFor="let child of item.children" (click)="onSubmenuClick(child)"
+              class="group/child flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer relative overflow-hidden"
+              [ngClass]="isChildActive(child)
+                ? 'bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent dark:from-amber-500/20 dark:via-amber-500/10 border-l-4 border-l-[#E15B25] border-y border-r border-slate-200/80 dark:border-dark-750 shadow-xs pl-3'
+                : 'bg-slate-50/90 dark:bg-dark-800/80 hover:bg-white dark:hover:bg-dark-800 border border-slate-200/80 dark:border-dark-750 hover:border-[#E15B25]/40 text-slate-700 dark:text-slate-300'">
+
+              <div class="flex items-center gap-2.5 min-w-0">
+                <!-- Refined Pulsing Dot Indicator -->
+                <span class="w-2 h-2 rounded-full transition-transform flex-shrink-0"
+                  [ngClass]="isChildActive(child)
+                    ? 'bg-[#E15B25] dark:bg-amber-400 shadow-2xs ring-4 ring-amber-500/20 animate-pulse'
+                    : 'bg-slate-300 dark:bg-dark-700 group-hover/child:bg-[#E15B25] group-hover/child:scale-125'"></span>
+
+                <div class="truncate">
+                  <h5 class="text-xs font-black font-devanagari transition-colors truncate"
+                    [ngClass]="isChildActive(child)
+                      ? 'text-[#E15B25] dark:text-amber-300 tracking-wide'
+                      : 'text-[#0B2240] dark:text-slate-100 group-hover/child:text-[#E15B25] dark:group-hover/child:text-amber-300 font-bold'">
+                    {{ (languageService.currentLang$ | async) === 'hi' ? child.titleHi : child.title }}
+                  </h5>
+                  <p class="text-[9px] mt-0.5 truncate font-semibold"
+                    [ngClass]="isChildActive(child) ? 'text-slate-600 dark:text-slate-300 font-bold' : 'text-slate-400'">
+                    {{ (languageService.currentLang$ | async) === 'hi' ? child.title : child.titleHi }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Active Submenu Badge & Horizontal Bounce Arrow -->
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <span *ngIf="isChildActive(child)"
+                  class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-amber-500/15 text-[#E15B25] dark:text-amber-300 border border-amber-500/30">
+                  {{ (languageService.currentLang$ | async) === 'hi' ? 'सक्रिय' : 'Active' }}
+                </span>
+
+                <svg *ngIf="isChildActive(child)"
+                  class="w-4 h-4 text-[#E15B25] dark:text-amber-300 animate-bounce-horizontal" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+                <svg *ngIf="!isChildActive(child)"
+                  class="w-3.5 h-3.5 text-slate-400 group-hover/child:text-[#E15B25] transition-transform group-hover/child:translate-x-0.5"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Sidebar Footer: Permanently Anchored at Bottom of Sidebar -->
+      <div class="flex-shrink-0 p-3.5 bg-slate-50 dark:bg-dark-850 border-t border-slate-200/80 dark:border-dark-800">
+        <button (click)="backToHub()"
+          class="btn-shiny-saffron w-full py-2.5 px-3 rounded-xl font-extrabold text-xs transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          <span>{{ (languageService.currentLang$ | async) === 'hi' ? 'सभी 16 चरण एवं पोर्टल (Portal Hub)' : 'All 16
+            Stages & Portals' }}</span>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- Main Content Area (<router-outlet>) - Independent Scrollable Viewport -->
+    <main class="flex-1 h-full overflow-y-auto custom-scrollbar relative z-10 flex flex-col justify-between">
+      <div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full flex-1">
+        <router-outlet></router-outlet>
+      </div>
+
+      <!-- Institutional Government Portal Footer -->
+      <footer
+        class="bg-white dark:bg-dark-900 border-t border-slate-200/80 dark:border-dark-800 py-4 px-4 sm:px-6 lg:px-8 text-xs text-slate-500 dark:text-slate-400 transition-colors mt-auto w-full flex-shrink-0">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div>
+            <p class="font-bold text-slate-700 dark:text-slate-300 font-devanagari">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'ग्रामीण विकास एवं पंचायती राज विभाग, राजस्थान सरकार'
+              : 'Rural Development & Panchayati Raj Department, Govt. of Rajasthan' }}
+            </p>
+            <p class="text-[11px] text-slate-400 mt-0.5">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'ई-वर्क एकीकृत कार्य एवं वित्तीय निगरानी प्रणाली
+              (संस्करण 2.0)' : 'e-Work Integrated Work & Financial Monitoring System (Version 2.0)' }}
+            </p>
+          </div>
+          <div class="flex items-center gap-4 text-[11px] font-medium text-slate-600 dark:text-slate-400">
+            <a href="https://rajasthan.gov.in" target="_blank"
+              class="hover:underline text-[#0B2240] dark:text-slate-300 font-semibold">Rajasthan Portal</a>
+            <span>&middot;</span>
+            <a href="https://india.gov.in" target="_blank"
+              class="hover:underline text-[#0B2240] dark:text-slate-300 font-semibold">National Portal</a>
+            <span>&middot;</span>
+            <span class="font-mono bg-slate-100 dark:bg-dark-800 px-2.5 py-1 rounded-lg text-slate-600 font-bold">System
+              Verified: 2026-27</span>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+  </div>
+
+</div>
