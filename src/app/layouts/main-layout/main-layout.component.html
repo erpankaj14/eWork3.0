@@ -1,0 +1,149 @@
+<div
+  class="min-h-screen flex relative text-slate-800 dark:text-slate-100 overflow-hidden transition-colors duration-300">
+
+  <!-- Sidebar Overlay for Mobile -->
+  <div *ngIf="isSidebarOpen" (click)="toggleSidebar()"
+    class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden"></div>
+
+  <!-- Modern Sidebar -->
+  <aside [ngClass]="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+    class="fixed inset-y-0 left-0 w-64 backdrop-blur-2xl border-r border-slate-200/50 dark:border-dark-800/80 shadow-2xl transition-transform duration-300 z-50 flex flex-col transition-colors"
+    style="background-color: var(--bg-sidebar); color: var(--text-sidebar)">
+    <!-- Sidebar Header (Logo) -->
+    <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200/50 dark:border-dark-800/50">
+      <div class="flex items-center gap-3">
+        <img src="/ework-logo.png" alt="e-Work Logo"
+          class="w-10 h-10 object-cover rounded-xl shadow-md border border-slate-200 dark:border-dark-700 hover:scale-105 transition-transform" />
+        <div class="flex flex-col">
+          <span
+            class="font-black text-xl tracking-tight bg-gradient-to-r from-primary-600 via-accent-500 to-primary-500 bg-[length:200%_auto] animate-gradient bg-clip-text text-transparent">e-Work</span>
+          <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">Integrated
+            System</span>
+        </div>
+      </div>
+      <!-- Close button for mobile -->
+      <button (click)="toggleSidebar()"
+        class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-dark-800 dark:hover:text-slate-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
+      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-3">Main Menu</div>
+
+      <div class="relative w-full">
+        <!-- Sliding Pill Background -->
+        <!-- Fixed height of 44px + 6px margin bottom = 50px offset -->
+        <div class="absolute top-0 left-0 right-0 h-[44px] rounded-xl bg-gradient-to-br from-primary-900 via-primary-800 to-accent-900 shadow-[0_8px_15px_rgba(0,0,0,0.1)] shadow-primary-900/30 transition-transform duration-500"
+             style="transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);"
+             [style.transform]="'translateY(' + (activeIndex * 50) + 'px)'"></div>
+
+        <a *ngFor="let item of navItems; let i = index"
+          [routerLink]="item.path"
+          class="relative z-10 mb-[6px] h-[44px] flex items-center gap-3 px-4 rounded-xl text-sm font-medium transition-all duration-300 border border-transparent"
+          [ngStyle]="activeIndex === i ? {'color': '#ffffff'} : {}"
+          [ngClass]="activeIndex === i ? 'active-nav-link font-black drop-shadow-md opacity-100' : 'text-slate-600 dark:text-slate-400 opacity-70 hover:opacity-100'">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" [ngStyle]="activeIndex === i ? {'color': '#ffffff'} : {}">
+            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.icon" />
+          </svg>
+          <span class="leading-none mt-0.5">{{ item.label }}</span>
+        </a>
+      </div>
+
+      <div class="my-6"></div>
+      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-3">System</div>
+
+      <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 cursor-not-allowed">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        Settings <span class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-dark-800 text-[8px] ml-auto">PRO</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="p-4 border-t border-slate-200/50 dark:border-dark-800/50">
+      <div
+        class="flex items-center gap-3 px-2 py-2 rounded-xl bg-slate-50 dark:bg-dark-800/50 border border-slate-100 dark:border-dark-700">
+        <div class="w-2 h-2 rounded-full bg-emerald-500 ml-1"></div>
+        <div class="text-[10px] font-semibold text-slate-600 dark:text-slate-300">System Online</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div [ngClass]="isSidebarOpen && !isMobile ? 'lg:ml-64' : 'ml-0'"
+    class="flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-300">
+
+    <!-- Top Header -->
+    <header
+      class="h-16 backdrop-blur-xl border-b border-slate-200/50 dark:border-dark-800/80 flex items-center justify-between px-4 sm:px-6 lg:px-8 z-20 transition-all duration-300 sticky top-0 shadow-sm transition-colors"
+      style="background-color: var(--bg-header)">
+
+      <!-- Left: Sidebar Toggle & Branding -->
+      <div class="flex items-center gap-4">
+        <button (click)="toggleSidebar()"
+          class="p-2.5 -ml-2 rounded-xl bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200 dark:bg-dark-800 dark:text-slate-300 dark:hover:bg-dark-700 dark:hover:text-white transition-all shadow-sm border border-slate-200/50 dark:border-dark-700/50">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+          </svg>
+        </button>
+
+        <div class="flex items-center gap-3">
+          <img src="/rajasthan-emblem.png" alt="Govt of Rajasthan"
+            class="w-8 h-10 object-contain dark:invert dark:brightness-200 drop-shadow-sm hidden sm:block" />
+          <div class="hidden sm:block">
+            <h1 class="text-sm font-bold text-slate-900 dark:text-white tracking-tight leading-tight header-title">
+              ग्रामीण विकास एवं पंचायती राज विभाग</h1>
+            <h2
+              class="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide leading-tight header-subtitle">
+              Rural Development and Panchayati Raj Dept.</h2>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Tools -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Theme Switcher -->
+        <button (click)="toggleTheme()"
+          class="theme-toggle-btn p-2.5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 border border-slate-300 shadow-sm dark:bg-dark-700 dark:hover:bg-dark-600 dark:text-slate-200 dark:border-dark-600 transition-all flex items-center justify-center"
+          title="Toggle Theme">
+          <svg *ngIf="isDarkMode" class="theme-toggle-icon w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.364 17.636l-.707.707M16.364 17.636l.707.707M7.636 5.636l.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <svg *ngIf="!isDarkMode" class="theme-toggle-icon w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+
+        <div class="w-px h-6 bg-slate-200 dark:bg-dark-700 mx-1"></div>
+
+        <!-- SSO Login Link -->
+        <a href="https://sso.rajasthan.gov.in/signin" target="_blank"
+          class="sso-btn btn-gradient-primary !px-4 !py-2 !rounded-full !text-[11px] !font-bold uppercase tracking-wide">
+          <span class="hidden sm:inline">SSO Login</span>
+          <span class="sm:hidden">Login</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Scrollable Viewport -->
+    <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8">
+      <div class="max-w-7xl mx-auto" [@routeAnimations]="getRouteAnimationData()">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+
+  </div>
+
+  <app-accessibility-panel></app-accessibility-panel>
+</div>

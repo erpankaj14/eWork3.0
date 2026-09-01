@@ -2,11 +2,12 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "0fc0926c-d861-47b5-a60d-116d9878cf6c"
   },
   "newProjectRoot": "projects",
   "projects": {
-    "e-word-redesign": {
+    "e-work-redesign": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -16,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/e-word-redesign",
+            "outputPath": "dist/e-work-redesign",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -62,10 +63,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "e-word-redesign:build:production"
+              "buildTarget": "e-work-redesign:build:production"
             },
             "development": {
-              "buildTarget": "e-word-redesign:build:development"
+              "buildTarget": "e-work-redesign:build:development"
             }
           },
           "defaultConfiguration": "development"
