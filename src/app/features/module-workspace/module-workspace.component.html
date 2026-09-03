@@ -217,17 +217,22 @@
   <ng-container *ngIf="isAdminPage">
 
     <!-- A. Menu Creation Page -->
-    <div *ngIf="moduleKey === 'menu-creation'" class="space-y-6 animate-fadeIn">
+    <div *ngIf="moduleKey === 'menu-creation'" class="space-y-6 animate-fadeIn" [formGroup]="form">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Create Menu Form (Left side) -->
         <div class="lg:col-span-5 bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 p-5 shadow-xs">
-          <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-dark-800 mb-4">
-            <div class="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
+          <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-dark-800 mb-4 justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <h3 class="text-sm font-extrabold text-[#0B2240] dark:text-white font-devanagari">
+                {{ editingMenuId ? 'मेनू अपडेट करें (Update Menu)' : 'नया मेनू जोड़ें (Create New Menu)' }}
+              </h3>
             </div>
-            <h3 class="text-sm font-extrabold text-[#0B2240] dark:text-white font-devanagari">नया मेनू जोड़ें (Create New Menu)</h3>
+            <button *ngIf="editingMenuId" (click)="resetAndReload()" class="px-2 py-1 text-xs bg-slate-100 rounded text-slate-600 hover:bg-slate-200">Cancel</button>
           </div>
 
           <div class="space-y-4 text-left">
@@ -236,60 +241,78 @@
               <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Menu Type</label>
               <div class="grid grid-cols-2 gap-2 text-xs font-semibold">
                 <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-800 cursor-pointer hover:border-orange-500/50">
-                  <input type="radio" name="menuType" value="MainMenu" [(ngModel)]="menuType" class="text-orange-500 focus:ring-orange-500" />
+                  <input type="radio" formControlName="menuType" value="MainMenu" (change)="onMenuTypeChanged('MainMenu')" class="text-orange-500 focus:ring-orange-500" />
                   <span>Main Menu</span>
                 </label>
                 <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-800 cursor-pointer hover:border-orange-500/50">
-                  <input type="radio" name="menuType" value="ParentMenu" [(ngModel)]="menuType" class="text-orange-500 focus:ring-orange-500" />
+                  <input type="radio" formControlName="menuType" value="ParentMenu" (change)="onMenuTypeChanged('ParentMenu')" class="text-orange-500 focus:ring-orange-500" />
                   <span>Parent Menu</span>
                 </label>
                 <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-800 cursor-pointer hover:border-orange-500/50">
-                  <input type="radio" name="menuType" value="SubMenu" [(ngModel)]="menuType" class="text-orange-500 focus:ring-orange-500" />
+                  <input type="radio" formControlName="menuType" value="SubMenu" (change)="onMenuTypeChanged('SubMenu')" class="text-orange-500 focus:ring-orange-500" />
                   <span>Sub Menu</span>
                 </label>
                 <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-800 cursor-pointer hover:border-orange-500/50">
-                  <input type="radio" name="menuType" value="MlaMenu" [(ngModel)]="menuType" class="text-orange-500 focus:ring-orange-500" />
+                  <input type="radio" formControlName="menuType" value="MlaMenu" (change)="onMenuTypeChanged('MlaMenu')" class="text-orange-500 focus:ring-orange-500" />
                   <span>Mla Menu</span>
                 </label>
               </div>
             </div>
 
+            <!-- Main Menu Selector (visible for Parent & SubMenu) -->
+            <div *ngIf="form.controls.menuType.value === 'ParentMenu' || form.controls.menuType.value === 'SubMenu'" class="space-y-1">
+              <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Main Menu *</label>
+              <select formControlName="mainMenuId" (change)="onMainMenuChanged(form.controls.mainMenuId.value)" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500">
+                <option [ngValue]="null">-- Select Main Menu --</option>
+                <option *ngFor="let m of mainMenus" [value]="m.menuId">{{ m.menuNameE }}</option>
+              </select>
+            </div>
+
+            <!-- Parent Menu Selector (visible only for SubMenu) -->
+            <div *ngIf="form.controls.menuType.value === 'SubMenu'" class="space-y-1">
+              <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Parent Menu *</label>
+              <select formControlName="parentMenuId" (change)="onParentMenuChanged(form.controls.parentMenuId.value)" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500">
+                <option [ngValue]="null">-- Select Parent Menu --</option>
+                <option *ngFor="let p of parentMenus" [value]="p.menuId">{{ p.menuNameE }}</option>
+              </select>
+            </div>
+
             <!-- English Name -->
             <div class="space-y-1">
-              <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Menu Name (English)</label>
-              <input type="text" [(ngModel)]="menuNameEn" placeholder="Enter English Title"
+              <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Menu Name (English) *</label>
+              <input type="text" formControlName="menuNameE" placeholder="Enter English Title"
                 class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500" />
             </div>
 
             <!-- Hindi Name -->
             <div class="space-y-1">
               <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Menu Name (Hindi)</label>
-              <input type="text" [(ngModel)]="menuNameHi" placeholder="Enter Hindi Title"
+              <input type="text" formControlName="menuNameH" placeholder="Enter Hindi Title"
                 class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500 font-devanagari" />
             </div>
 
             <!-- Gujarati Name -->
             <div class="space-y-1">
               <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Menu Name (Gujarati)</label>
-              <input type="text" [(ngModel)]="menuNameGu" placeholder="Enter Gujarati Title"
+              <input type="text" formControlName="menuNameG" placeholder="Enter Gujarati Title"
                 class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500" />
             </div>
 
             <!-- Navigate Page -->
             <div class="space-y-1">
-              <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Navigate Page</label>
-              <input type="text" [(ngModel)]="navigatePage" placeholder="Enter # or Navigate URL (e.g. mb_entry.aspx)"
+              <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Navigate Page *</label>
+              <input type="text" formControlName="navigatePage" placeholder="Enter # or Navigate URL (e.g. mb_entry.aspx)"
                 class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500 font-mono" />
             </div>
 
             <!-- Is Mvc User & Is Estimate checkboxes -->
             <div class="flex items-center gap-6 pt-1">
               <label class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 cursor-pointer select-none">
-                <input type="checkbox" [(ngModel)]="isMvcUser" class="w-4 h-4 rounded text-orange-500 focus:ring-orange-500" />
+                <input type="checkbox" formControlName="isMvc" class="w-4 h-4 rounded text-orange-500 focus:ring-orange-500" />
                 <span>Is Mvc User</span>
               </label>
               <label class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 cursor-pointer select-none">
-                <input type="checkbox" [(ngModel)]="isEstimate" class="w-4 h-4 rounded text-orange-500 focus:ring-orange-500" />
+                <input type="checkbox" formControlName="isEstimate" class="w-4 h-4 rounded text-orange-500 focus:ring-orange-500" />
                 <span>Is Estimate</span>
               </label>
             </div>
@@ -298,16 +321,15 @@
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-1">
                 <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Menu Flag</label>
-                <select [(ngModel)]="menuFlag" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500">
-                  <option value="">--Select--</option>
-                  <option value="Active">Active</option>
-                  <option value="Hidden">Hidden</option>
+                <select formControlName="menuFlag" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500">
+                  <option [ngValue]="null">--Select--</option>
+                  <option *ngFor="let f of menuFlags" [value]="f.id">{{ f.menuFlagName }}</option>
                 </select>
               </div>
 
               <div class="space-y-1">
                 <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Icon Class</label>
-                <input type="text" [(ngModel)]="menuIcon" placeholder="e.g. fa-home"
+                <input type="text" formControlName="imgUrl" placeholder="e.g. fa-home"
                   class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500 font-mono" />
               </div>
             </div>
@@ -316,14 +338,14 @@
             <div class="space-y-1.5">
               <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-0.5">Icon Colour</label>
               <div class="flex items-center gap-3">
-                <input type="color" [(ngModel)]="menuIconColor" class="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer flex-shrink-0" />
-                <input type="text" [(ngModel)]="menuIconColor" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500 font-mono" />
+                <input type="color" formControlName="imgColor" class="w-10 h-10 rounded-xl bg-transparent border-0 cursor-pointer flex-shrink-0" />
+                <input type="text" formControlName="imgColor" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:border-orange-500 font-mono" />
               </div>
             </div>
 
             <!-- Create Button -->
-            <button class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white font-extrabold text-xs uppercase tracking-wider shadow-sm hover:shadow-md transition-all active:scale-[0.99] cursor-pointer">
-              Create Menu
+            <button (click)="saveMenu()" [disabled]="form.invalid" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white font-extrabold text-xs uppercase tracking-wider shadow-sm hover:shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ editingMenuId ? 'Update Menu' : 'Create Menu' }}
             </button>
 
           </div>
@@ -342,52 +364,24 @@
             </div>
 
             <!-- Selector Lists -->
-            <div class="grid grid-cols-3 gap-3">
-              <!-- List 1: Main Menu -->
-              <div class="space-y-2 text-left">
-                <label class="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Main Menu</label>
-                <div class="h-64 rounded-xl border border-slate-200 dark:border-dark-850 p-2 overflow-y-auto bg-slate-50/50 dark:bg-dark-950/40 space-y-1.5 custom-scrollbar text-xs font-semibold">
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-orange-500/30 text-orange-600 dark:text-amber-400">Home</div>
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Master</div>
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Reports</div>
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Administrator</div>
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Help</div>
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Upload</div>
+            <div class="text-left space-y-2">
+              <p class="text-xs text-slate-500 mb-2">Drag and drop items below to reorder them for the currently selected level:</p>
+              <div cdkDropList class="bg-slate-50 dark:bg-dark-950/40 border border-slate-200 dark:border-dark-850 rounded-xl p-2 max-h-96 overflow-y-auto space-y-1.5 custom-scrollbar text-xs font-semibold" (cdkDropListDropped)="drop($event)">
+                <div *ngFor="let item of orderRows" cdkDrag class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30 cursor-move flex items-center gap-2">
+                  <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                  <span class="text-slate-800 dark:text-slate-100">{{ item.menuNameE }} <span class="text-[10px] text-slate-400 ml-1">({{ item.menuId }})</span></span>
                 </div>
-              </div>
-
-              <!-- List 2: Controls & Mid Column -->
-              <div class="flex flex-col items-center justify-center gap-4">
-                <div class="flex flex-col gap-2">
-                  <button type="button" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#E15B25] hover:text-white dark:bg-dark-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shadow-sm border border-slate-200/80 dark:border-dark-700 font-bold transition-all cursor-pointer">▶</button>
-                  <button type="button" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#E15B25] hover:text-white dark:bg-dark-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shadow-sm border border-slate-200/80 dark:border-dark-700 font-bold transition-all cursor-pointer">◀</button>
-                </div>
-                <div class="flex flex-col gap-2">
-                  <button type="button" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#E15B25] hover:text-white dark:bg-dark-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shadow-sm border border-slate-200/80 dark:border-dark-700 font-bold transition-all cursor-pointer">▲</button>
-                  <button type="button" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#E15B25] hover:text-white dark:bg-dark-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shadow-sm border border-slate-200/80 dark:border-dark-700 font-bold transition-all cursor-pointer">▼</button>
-                </div>
-              </div>
-
-              <!-- List 3: Sub Menu / Order -->
-              <div class="space-y-2 text-left">
-                <label class="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sub Menu List</label>
-                <div class="h-64 rounded-xl border border-slate-200 dark:border-dark-850 p-2 overflow-y-auto bg-slate-50/50 dark:bg-dark-950/40 space-y-1.5 custom-scrollbar text-xs font-semibold">
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Menu Creation</div>
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Create User</div>
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Clear Session</div>
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Create Role</div>
-                  <div class="p-2 rounded-lg bg-white dark:bg-dark-850 shadow-2xs border border-slate-200/70 dark:border-dark-800 hover:border-orange-500/30">Change Password</div>
-                </div>
+                <div *ngIf="orderRows.length === 0" class="text-center p-4 text-slate-400">No items available to reorder for current selection.</div>
               </div>
             </div>
           </div>
 
           <!-- Actions footer inside card -->
           <div class="flex items-center justify-end gap-3 pt-5 border-t border-slate-100 dark:border-dark-800 mt-4">
-            <button class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-750 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-wider transition-colors cursor-pointer">
+            <button (click)="resetOrder()" class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-750 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-wider transition-colors cursor-pointer">
               Reset Order
             </button>
-            <button class="px-6 py-2 rounded-xl bg-[#E15B25] hover:bg-amber-600 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-sm cursor-pointer">
+            <button (click)="saveOrder()" [disabled]="orderRows.length === 0" class="px-6 py-2 rounded-xl bg-[#E15B25] hover:bg-amber-600 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-sm cursor-pointer disabled:opacity-50">
               Save Order
             </button>
           </div>
@@ -396,66 +390,54 @@
 
       <!-- Menus Data Table -->
       <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 shadow-xs overflow-hidden">
-        <div class="p-4 bg-slate-50/50 dark:bg-dark-850 border-b border-slate-200 dark:border-dark-750 text-left">
+        <div class="p-4 bg-slate-50/50 dark:bg-dark-850 border-b border-slate-200 dark:border-dark-750 text-left flex justify-between items-center">
           <h4 class="text-xs font-black text-[#0B2240] dark:text-white uppercase tracking-wider">सिस्टम मेनू सूची (System Menus Hierarchy)</h4>
+          <span class="text-[10px] font-bold text-slate-500 bg-slate-200 dark:bg-dark-800 px-2 py-1 rounded">Total: {{ gridRows.length }}</span>
         </div>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto max-h-96 custom-scrollbar">
           <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-100/60 dark:bg-dark-800 border-b border-slate-200 dark:border-dark-750 text-[11px] font-extrabold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
-                <th class="py-2.5 px-4 text-center">S.No</th>
-                <th class="py-2.5 px-4">Menu Name (E/H)</th>
-                <th class="py-2.5 px-4">Parent Menu</th>
-                <th class="py-2.5 px-4">Navigate Page</th>
+            <thead class="sticky top-0 bg-slate-100/90 dark:bg-dark-800/90 backdrop-blur-sm z-10 shadow-sm border-b border-slate-200 dark:border-dark-750">
+              <tr class="text-[11px] font-extrabold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
+                <th class="py-2.5 px-4 text-center w-12">No</th>
+                <th class="py-2.5 px-4 min-w-[200px]">Menu Name (E/H)</th>
+                <th class="py-2.5 px-4 min-w-[150px]">Parent Menu</th>
+                <th class="py-2.5 px-4 min-w-[150px]">Navigate Page</th>
                 <th class="py-2.5 px-4 text-center">MVC / Estimate</th>
                 <th class="py-2.5 px-4 text-center">Menu Flag</th>
                 <th class="py-2.5 px-4">Icon & Color</th>
-                <th class="py-2.5 px-4">MvcPath</th>
                 <th class="py-2.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-dark-800 text-xs font-semibold text-slate-700 dark:text-slate-300">
-              <tr class="hover:bg-amber-50/20 dark:hover:bg-dark-800/40">
-                <td class="py-3 px-4 text-center font-mono">1</td>
-                <td class="py-3 px-4 font-bold text-[#0B2240] dark:text-white">Home / होम</td>
-                <td class="py-3 px-4 text-slate-400 font-mono">--</td>
-                <td class="py-3 px-4 text-slate-500 font-mono font-mono">Dashboard_graph_amchart_new.aspx</td>
-                <td class="py-3 px-4 text-center"><span class="text-rose-500 font-mono">False / False</span></td>
-                <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase">Active</span></td>
-                <td class="py-3 px-4 flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-blue-500 inline-block"></span><span class="font-mono">home</span></td>
-                <td class="py-3 px-4 font-mono text-slate-400">ASPlanding/Index</td>
+              <tr *ngFor="let row of gridRows; let i = index" class="hover:bg-amber-50/20 dark:hover:bg-dark-800/40">
+                <td class="py-3 px-4 text-center font-mono">{{ row.orderNo }}</td>
+                <td class="py-3 px-4">
+                  <div class="font-bold text-[#0B2240] dark:text-white">{{ row.menuNameE }}</div>
+                  <div class="font-devanagari text-[10px] text-slate-500" *ngIf="row.menuNameH">{{ row.menuNameH }}</div>
+                </td>
+                <td class="py-3 px-4 text-slate-500 font-mono">{{ row.parentMenuName || '--' }}</td>
+                <td class="py-3 px-4 text-slate-500 font-mono truncate max-w-[200px]">{{ row.isMvc ? row.mvcPath : row.navigateUrl }}</td>
+                <td class="py-3 px-4 text-center">
+                  <span class="font-mono text-[10px]" [ngClass]="row.isMvc ? 'text-emerald-500' : 'text-slate-400'">{{ row.isMvc }}</span> /
+                  <span class="font-mono text-[10px]" [ngClass]="row.isEstimate ? 'text-emerald-500' : 'text-slate-400'">{{ row.isEstimate }}</span>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase" 
+                        [ngClass]="row.menuFlagName === 'Active' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'">
+                    {{ row.menuFlagName || 'None' }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 flex items-center gap-1.5">
+                  <span class="w-4 h-4 rounded-full inline-block" [style.backgroundColor]="row.imgColor || '#ccc'"></span>
+                  <span class="font-mono text-[10px] text-slate-400 truncate w-20">{{ row.imgUrl || '--' }}</span>
+                </td>
                 <td class="py-3 px-4 text-right space-x-2">
-                  <button class="text-blue-500 hover:text-blue-700 font-bold">Edit</button>
-                  <button class="text-rose-500 hover:text-rose-700 font-bold">Delete</button>
+                  <button (click)="editMenu(row.menuId)" class="text-blue-500 hover:text-blue-700 font-bold px-2 py-1 bg-blue-50 dark:bg-blue-900/20 rounded">Edit</button>
+                  <button (click)="deleteMenu(row.menuId)" class="text-rose-500 hover:text-rose-700 font-bold px-2 py-1 bg-rose-50 dark:bg-rose-900/20 rounded">Delete</button>
                 </td>
               </tr>
-              <tr class="hover:bg-amber-50/20 dark:hover:bg-dark-800/40">
-                <td class="py-3 px-4 text-center font-mono">2</td>
-                <td class="py-3 px-4 font-bold text-[#0B2240] dark:text-white">Master / मास्टर</td>
-                <td class="py-3 px-4 text-slate-400 font-mono">--</td>
-                <td class="py-3 px-4 text-slate-500 font-mono">#</td>
-                <td class="py-3 px-4 text-center"><span class="text-rose-500 font-mono">False / False</span></td>
-                <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase">Active</span></td>
-                <td class="py-3 px-4 flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-green-500 inline-block"></span><span class="font-mono">database</span></td>
-                <td class="py-3 px-4 font-mono text-slate-400 font-mono">ASPlanding/Index</td>
-                <td class="py-3 px-4 text-right space-x-2">
-                  <button class="text-blue-500 hover:text-blue-700 font-bold">Edit</button>
-                  <button class="text-rose-500 hover:text-rose-700 font-bold">Delete</button>
-                </td>
-              </tr>
-              <tr class="hover:bg-amber-50/20 dark:hover:bg-dark-800/40">
-                <td class="py-3 px-4 text-center font-mono">3</td>
-                <td class="py-3 px-4 font-bold text-[#0B2240] dark:text-white">Administrator / एडमिनिस्ट्रेटर</td>
-                <td class="py-3 px-4 text-slate-400 font-mono">--</td>
-                <td class="py-3 px-4 text-slate-500 font-mono">#</td>
-                <td class="py-3 px-4 text-center"><span class="text-rose-500 font-mono">False / False</span></td>
-                <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase">Active</span></td>
-                <td class="py-3 px-4 flex items-center gap-1.5"><span class="w-4 h-4 rounded-full bg-indigo-500 inline-block"></span><span class="font-mono">cogs</span></td>
-                <td class="py-3 px-4 font-mono text-slate-400 font-mono">ASPlanding/Index</td>
-                <td class="py-3 px-4 text-right space-x-2">
-                  <button class="text-blue-500 hover:text-blue-700 font-bold">Edit</button>
-                  <button class="text-rose-500 hover:text-rose-700 font-bold">Delete</button>
-                </td>
+              <tr *ngIf="gridRows.length === 0">
+                <td colspan="8" class="py-6 text-center text-slate-400">No menus found for this selection.</td>
               </tr>
             </tbody>
           </table>

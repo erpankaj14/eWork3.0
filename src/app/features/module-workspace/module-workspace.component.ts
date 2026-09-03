@@ -1,9 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ToastrService } from 'ngx-toastr';
+
 import { LanguageService } from '../../core/services/language.service';
 import { AuthService, UserSession } from '../../core/services/auth.service';
+import { MenuApiService } from '../../core/services/menu-api.service';
+import { 
+  MenuLevelName, MenuListItemDto, ParentMenuDto, 
+  MenuFlagDto, SaveMenuRequest, toMenuLevelName 
+} from '../../core/services/menu-api.models';
 
 interface ModuleRecord {
   id: string;
@@ -21,7 +31,7 @@ interface ModuleRecord {
 @Component({
   selector: 'app-module-workspace',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DragDropModule],
   templateUrl: './module-workspace.component.html',
   styleUrls: ['./module-workspace.component.css']
 })
@@ -86,11 +96,53 @@ export class ModuleWorkspaceComponent implements OnInit {
     }
   ];
 
+  // --- Menu API integration fields ---
+  mainMenus: ParentMenuDto[] = [];
+  parentMenus: MenuListItemDto[] = [];
+  menuFlags: MenuFlagDto[] = [];
+  gridRows: MenuListItemDto[] = [];
+  orderRows: MenuListItemDto[] = []; 
+  editingMenuId: number | null = null;
+  private fb = inject(FormBuilder);
+
+  form = this.fb.nonNullable.group({
+    menuType: this.fb.nonNullable.control<MenuLevelName>('MainMenu'),
+    mainMenuId: this.fb.control<number | null>(null),
+    parentMenuId: this.fb.control<number | null>(null),
+    menuNameE: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(49)]),
+    menuNameH: this.fb.control<string | null>(null, Validators.maxLength(49)),
+    menuNameG: this.fb.control<string | null>(null, Validators.maxLength(49)),
+    navigatePage: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(299)]),
+    isMvc: this.fb.nonNullable.control(false),
+    isEstimate: this.fb.nonNullable.control(false),
+    menuFlag: this.fb.control<number | null>(null),
+    imgUrl: this.fb.control<string | null>(null, Validators.maxLength(200)),
+    imgColor: this.fb.control<string | null>('#E15B25', Validators.maxLength(50))
+  });
+
+  // Form models for other administrator sub-pages
+  createLoginType: string = '';
+  createUsername: string = '';
+  createPassword: string = '';
+  createConfirmPassword: string = '';
+  oldPassword: string = '';
+  newPassword: string = '';
+  confirmNewPassword: string = '';
+  targetSsoId: string = '';
+  deactivateReason: string = '';
+  resetNewPassword: string = '';
+  mlaConstituency: string = '';
+  mlaName: string = '';
+  mlaSsoId: string = '';
+  switchSsoId: string = '';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     public languageService: LanguageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private menuApi: MenuApiService,
+    private toast: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -100,9 +152,221 @@ export class ModuleWorkspaceComponent implements OnInit {
 
     this.route.url.subscribe(() => {
       this.updateModuleMetadata(this.router.url);
+      if (this.moduleKey === 'menu-creation') {
+        this.loadInitialMenuData();
+      }
     });
+    
+    // Fallback for initial load
     this.updateModuleMetadata(this.router.url);
+    if (this.moduleKey === 'menu-creation') {
+      this.loadInitialMenuData();
+    }
   }
+
+  // --- Menu API Methods ---
+
+  private loadInitialMenuData(): void {
+    forkJoin({
+      mainMenus: this.menuApi.getParentMenus(),
+      flags: this.menuApi.getMenuFlags(),
+      grid: this.menuApi.getMenus(null, 'MainMenu')
+    }).subscribe({
+      next: ({ mainMenus, flags, grid }) => {
+        this.mainMenus = mainMenus.data;
+        this.menuFlags = flags.data;
+        this.gridRows = grid.data;
+        this.orderRows = [...grid.data];
+      },
+      error: error => this.showApiError(error)
+    });
+  }
+
+  onMenuTypeChanged(type: string): void {
+    const menuType = type as MenuLevelName;
+    this.form.patchValue({ mainMenuId: null, parentMenuId: null });
+    this.parentMenus = [];
+   
+    if (menuType === 'MainMenu' || menuType === 'MlaMenu') {
+      this.menuApi.getMenus(null, menuType).subscribe({
+        next: response => {
+          this.gridRows = response.data;
+          this.orderRows = [...response.data];
+        },
+        error: error => this.showApiError(error)
+      });
+    } else {
+      this.gridRows = [];
+      this.orderRows = [];
+    }
+  }
+   
+  onMainMenuChanged(mainMenuId: any): void {
+    const id = mainMenuId ? Number(mainMenuId) : null;
+    this.form.patchValue({ parentMenuId: null });
+    if (!id) {
+      this.parentMenus = [];
+      this.gridRows = [];
+      this.orderRows = [];
+      return;
+    }
+
+    this.menuApi.getMenus(id).subscribe({
+      next: response => {
+        this.parentMenus = response.data;
+        if (this.form.controls.menuType.value === 'ParentMenu') {
+          this.gridRows = response.data;
+          this.orderRows = [...response.data];
+        }
+      },
+      error: error => this.showApiError(error)
+    });
+  }
+   
+  onParentMenuChanged(parentMenuId: any): void {
+    const id = parentMenuId ? Number(parentMenuId) : null;
+    if (!id) {
+      this.gridRows = [];
+      this.orderRows = [];
+      return;
+    }
+
+    this.menuApi.getMenus(id).subscribe({
+      next: response => {
+        this.gridRows = response.data;
+        this.orderRows = [...response.data];
+      },
+      error: error => this.showApiError(error)
+    });
+  }
+
+  editMenu(menuId: number): void {
+    this.menuApi.getMenu(menuId).subscribe({
+      next: response => {
+        const item = response.data;
+        const menuType = toMenuLevelName(item.menuType);
+       
+        this.editingMenuId = item.menuId;
+        this.form.patchValue({ ...item, menuType });
+       
+        if (menuType === 'SubMenu' && item.mainMenuId) {
+          this.menuApi.getMenus(item.mainMenuId).subscribe({
+            next: parentResp => this.parentMenus = parentResp.data,
+            error: error => this.showApiError(error)
+          });
+        }
+      },
+      error: error => this.showApiError(error)
+    });
+  }
+
+  saveMenu(): void {
+    if (this.form.invalid) {
+      this.toast.error('Please fill all required fields correctly.');
+      return;
+    }
+
+    const body: SaveMenuRequest = this.form.getRawValue();
+    // Convert numeric strings back to numbers if needed
+    if (body.mainMenuId) body.mainMenuId = Number(body.mainMenuId);
+    if (body.parentMenuId) body.parentMenuId = Number(body.parentMenuId);
+    if (body.menuFlag) body.menuFlag = Number(body.menuFlag);
+
+    if (this.editingMenuId) {
+      this.menuApi.updateMenu(this.editingMenuId, body).subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.resetAndReload();
+        },
+        error: error => this.showApiError(error)
+      });
+    } else {
+      this.menuApi.createMenu(body).subscribe({
+        next: response => {
+          this.toast.success(response.message);
+          this.resetAndReload();
+        },
+        error: error => this.showApiError(error)
+      });
+    }
+  }
+
+  deleteMenu(menuId: number): void {
+    if (!confirm('Are you sure you want to delete this menu?')) return;
+    
+    this.menuApi.deleteMenu(menuId).subscribe({
+      next: response => {
+        this.toast.success(response.message);
+        this.reloadCurrentList();
+      },
+      error: error => {
+        if (error.status === 409) {
+          this.toast.warning(error.error?.message || 'Delete blocked by user rights.');
+          return;
+        }
+        this.showApiError(error);
+      }
+    });
+  }
+
+  drop(event: CdkDragDrop<MenuListItemDto[]>): void {
+    moveItemInArray(this.orderRows, event.previousIndex, event.currentIndex);
+  }
+   
+  saveOrder(): void {
+    const type = this.form.controls.menuType.value;
+    let parentId: number | null = null;
+    
+    if (type === 'ParentMenu') parentId = Number(this.form.controls.mainMenuId.value) || null;
+    else if (type === 'SubMenu') parentId = Number(this.form.controls.parentMenuId.value) || null;
+
+    this.menuApi.updateMenuOrder({
+      parentId,
+      menuIds: this.orderRows.map(x => x.menuId)
+    }).subscribe({
+      next: response => {
+        this.toast.success(response.message);
+        this.reloadCurrentList();
+      },
+      error: error => this.showApiError(error)
+    });
+  }
+
+  resetOrder(): void {
+    this.orderRows = [...this.gridRows];
+  }
+
+  resetAndReload(): void {
+    this.editingMenuId = null;
+    const currentType = this.form.controls.menuType.value;
+    const mainId = this.form.controls.mainMenuId.value;
+    const parentId = this.form.controls.parentMenuId.value;
+    
+    this.form.reset({ menuType: currentType, mainMenuId: mainId, parentMenuId: parentId, isMvc: false, isEstimate: false, imgColor: '#E15B25' });
+    this.reloadCurrentList();
+  }
+
+  reloadCurrentList(): void {
+    const type = this.form.controls.menuType.value;
+    if (type === 'MainMenu' || type === 'MlaMenu') {
+      this.onMenuTypeChanged(type);
+    } else if (type === 'ParentMenu') {
+      this.onMainMenuChanged(this.form.controls.mainMenuId.value);
+    } else if (type === 'SubMenu') {
+      this.onParentMenuChanged(this.form.controls.parentMenuId.value);
+    }
+  }
+
+  private showApiError(error: HttpErrorResponse): void {
+    const message = error.error?.message ?? 'Unable to complete the request.';
+    if (error.status === 401) {
+      this.authService.logout();
+      return;
+    }
+    this.toast.error(message);
+  }
+
+  // --- Utility / UI metadata methods ---
 
   private updateModuleMetadata(url: string): void {
     const lowerUrl = url.toLowerCase();
@@ -262,37 +526,6 @@ export class ModuleWorkspaceComponent implements OnInit {
       this.moduleDescHi = 'ग्रामीण विकास एवं पंचायती राज विभाग - एकीकृत कार्य प्रबंधन डैशबोर्ड';
     }
   }
-
-  // Form models for administrator sub-pages
-  menuType: string = 'MainMenu';
-  menuNameEn: string = '';
-  menuNameHi: string = '';
-  menuNameGu: string = '';
-  navigatePage: string = '';
-  isMvcUser: boolean = false;
-  isEstimate: boolean = false;
-  menuFlag: string = '';
-  menuIcon: string = '';
-  menuIconColor: string = '#E15B25';
-
-  createLoginType: string = '';
-  createUsername: string = '';
-  createPassword: string = '';
-  createConfirmPassword: string = '';
-
-  oldPassword: string = '';
-  newPassword: string = '';
-  confirmNewPassword: string = '';
-
-  targetSsoId: string = '';
-  deactivateReason: string = '';
-  resetNewPassword: string = '';
-
-  mlaConstituency: string = '';
-  mlaName: string = '';
-  mlaSsoId: string = '';
-
-  switchSsoId: string = '';
 
   get isAdminPage(): boolean {
     return this.router.url.includes('/admin/');

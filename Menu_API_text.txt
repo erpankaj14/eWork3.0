@@ -1,0 +1,636 @@
+E-WORK 3.0
+Menu API Front-End Integration Guide
+Angular consumption guide for menu creation, hierarchy, editing, deletion and ordering
+Document
+Value
+Audience
+Angular front-end development team
+Backend
+ASP.NET Core Web API with EF Core
+Controller route
+/api/IwmsWeb
+Authentication
+Bearer JWT; token must contain numeric UserType claim
+Version
+1.0 - 1 September 2026
+Implementation outcome: 
+Use MenuApiService as the single Angular access layer. Load lookup APIs on page initialization, send menuType as a string in create/update bodies, and always submit the complete sibling list when saving order.
+Contents
+1. Integration contract and authentication
+2. API endpoint summary
+3. TypeScript models
+4. Angular authentication interceptor and service
+5. Endpoint-by-endpoint consumption
+6. Angular page workflow
+7. Validation, errors and testing checklist
+1. Integration Contract and Authentication
+All endpoints are protected by [Authorize]. Every request must include the current JWT in the Authorization header. The API reads the UserType claim from the token for menu-right filtering and for menu creation/update metadata.
+Base URL
+https://<api-host>/api/IwmsWeb
+Keep the host in the Angular environment file and append only the controller route in the service. Do not hard-code development or production host names inside components.
+Required request header
+Authorization: Bearer <access-token>
+Content-Type: application/json
+Important: 
+UserType must be present in the JWT and convertible to int. Otherwise GetParentMenus, CreateMenu and UpdateMenu return HTTP 401.
+Response envelope
+The current controller uses two closely related response shapes. List endpoints return count at the top level; detail and mutation endpoints return message plus data.
+// List response
+{ "success": true, "count": 3, "data": [ ... ] }
+ 
+// Detail or action response
+{ "success": true, "message": "...", "data": { ... } }
+ 
+// Error response
+{ "success": false, "message": "..." }
+2. API Endpoint Summary
+Verb
+Relative endpoint
+Purpose
+Typical use
+GET
+GetParentMenus
+Root menus allowed for UserType
+Page load / main dropdown
+GET
+GetMenuFlags
+Menu-flag lookup
+Page load
+GET
+GetMenus
+Root/direct-child list
+Grid, dropdowns, ordering
+GET
+GetMenu/{menuId}
+Edit detail
+Edit
+POST
+CreateMenu
+Create any menu level
+Create
+PUT
+UpdateMenu/{menuId}
+Update menu/hierarchy
+Update
+DELETE
+DeleteMenu/{menuId}
+Delete unreferenced hierarchy
+Delete
+PUT
+UpdateMenuOrder
+Save exact sibling order
+Drag/drop Save
+Menu level rules
+menuType
+mainMenuId
+parentMenuId
+Stored hierarchy
+MainMenu
+null
+null
+Root; isMlaMp is null
+ParentMenu
+Required
+null
+Direct child of selected main menu
+SubMenu
+Required
+Required
+Child of parent menu under selected main menu
+MlaMenu
+null
+null
+Root; isMlaMp is Y
+3. TypeScript Models
+Create a menu-api.models.ts file. The GetMenu response may serialize menuType as a number unless the backend has a global JsonStringEnumConverter, so the detail model accepts both forms.
+export type MenuLevelName =
+  | 'MainMenu'
+  | 'ParentMenu'
+  | 'SubMenu'
+  | 'MlaMenu';
+ 
+export enum MenuLevelCode {
+  Unknown = 0,
+  MainMenu = 1,
+  ParentMenu = 2,
+  SubMenu = 3,
+  MlaMenu = 4
+}
+ 
+export interface ApiListResponse<T> {
+  success: boolean;
+  count: number;
+  data: T[];
+  message?: string;
+}
+ 
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+ 
+export interface ApiErrorResponse {
+  success: false;
+  message: string;
+}
+ 
+export interface ParentMenuDto {
+  menuId: number;
+  menuNameE: string | null;
+  menuNameG: string | null;
+  menuNameH: string | null;
+  navigateUrl: string | null;
+  parentId: number | null;
+  orderNo: number | null;
+  menuType: string | null;
+  imgUrl: string | null;
+  isMlaMp: string | null;
+  isMvc: boolean | null;
+  mvcPath: string | null;
+  isEstimate: boolean | null;
+  imgColor: string | null;
+  menuFlag: number | null;
+}
+ 
+export interface MenuFlagDto {
+  id: number;
+  menuFlagName: string;
+}
+ 
+export interface MenuListItemDto {
+  menuId: number;
+  parentId: number | null;
+  parentMenuName: string | null;
+  menuNameE: string | null;
+  menuNameH: string | null;
+  menuNameG: string | null;
+  navigateUrl: string | null;
+  mvcPath: string | null;
+  isMvc: boolean;
+  isEstimate: boolean;
+  menuFlag: number | null;
+  menuFlagName: string | null;
+  imgUrl: string | null;
+  imgColor: string | null;
+  orderNo: number | null;
+  isMlaMp: string | null;
+}
+ 
+export interface MenuDetailsDto {
+  menuId: number;
+  menuType: MenuLevelName | MenuLevelCode;
+  mainMenuId: number | null;
+  parentMenuId: number | null;
+  menuNameE: string;
+  menuNameH: string | null;
+  menuNameG: string | null;
+  navigatePage: string;
+  isMvc: boolean;
+  isEstimate: boolean;
+  menuFlag: number | null;
+  imgUrl: string | null;
+  imgColor: string | null;
+  orderNo: number | null;
+}
+ 
+export interface SaveMenuRequest {
+  menuType: MenuLevelName;
+  mainMenuId: number | null;
+  parentMenuId: number | null;
+  menuNameE: string;
+  menuNameH: string | null;
+  menuNameG: string | null;
+  navigatePage: string;
+  isMvc: boolean;
+  isEstimate: boolean;
+  menuFlag: number | null;
+  imgUrl: string | null;
+  imgColor: string | null;
+}
+ 
+export interface UpdateMenuOrderRequest {
+  parentId: number | null;
+  menuIds: number[];
+}
+ 
+export interface MenuIdResult { menuId: number; }
+export interface DeleteResult { deletedCount: number; }
+export interface OrderResult { updatedCount: number; }
+Normalize menuType returned by GetMenu
+export function toMenuLevelName(
+  value: MenuLevelName | MenuLevelCode
+): MenuLevelName {
+  if (typeof value === 'string') return value;
+ 
+  const map: Record<number, MenuLevelName> = {
+    1: 'MainMenu',
+    2: 'ParentMenu',
+    3: 'SubMenu',
+    4: 'MlaMenu'
+  };
+ 
+  return map[value] ?? 'MainMenu';
+}
+4. Angular Authentication and Service
+Environment configuration
+// environment.ts
+export const environment = {
+  production: false,
+  apiBaseUrl: 'https://<api-host>'
+};
+Bearer-token interceptor
+Adapt the storage key to the existing login implementation. Register this interceptor once at application bootstrap.
+import { HttpInterceptorFn } from '@angular/common/http';
+ 
+export const authInterceptor: HttpInterceptorFn = (request, next) => {
+  const token = sessionStorage.getItem('access_token')
+    ?? localStorage.getItem('access_token');
+ 
+  if (!token) return next(request);
+ 
+  return next(request.clone({
+    setHeaders: { Authorization: `Bearer ${token}` }
+  }));
+};
+ 
+// app.config.ts
+provideHttpClient(withInterceptors([authInterceptor]))
+Menu API service
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import {
+  ApiListResponse, ApiResponse, DeleteResult,
+  MenuDetailsDto, MenuFlagDto, MenuIdResult,
+  MenuLevelName, MenuListItemDto, OrderResult,
+  ParentMenuDto, SaveMenuRequest,
+  UpdateMenuOrderRequest
+} from './menu-api.models';
+ 
+@Injectable({ providedIn: 'root' })
+export class MenuApiService {
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl =
+    `${environment.apiBaseUrl}/api/IwmsWeb`;
+ 
+  getParentMenus(): Observable<ApiListResponse<ParentMenuDto>> {
+    return this.http.get<ApiListResponse<ParentMenuDto>>(
+      `${this.baseUrl}/GetParentMenus`
+    );
+  }
+ 
+  getMenuFlags(): Observable<ApiListResponse<MenuFlagDto>> {
+    return this.http.get<ApiListResponse<MenuFlagDto>>(
+      `${this.baseUrl}/GetMenuFlags`
+    );
+  }
+ 
+  getMenus(
+    parentId?: number | null,
+    menuType?: MenuLevelName
+  ): Observable<ApiListResponse<MenuListItemDto>> {
+    let params = new HttpParams();
+ 
+    if (parentId !== undefined && parentId !== null) {
+      params = params.set('parentId', parentId.toString());
+    }
+ 
+    if (menuType) {
+      params = params.set('menuType', menuType);
+    }
+ 
+    return this.http.get<ApiListResponse<MenuListItemDto>>(
+      `${this.baseUrl}/GetMenus`, { params }
+    );
+  }
+ 
+  getMenu(menuId: number): Observable<ApiResponse<MenuDetailsDto>> {
+    return this.http.get<ApiResponse<MenuDetailsDto>>(
+      `${this.baseUrl}/GetMenu/${menuId}`
+    );
+  }
+ 
+  createMenu(body: SaveMenuRequest): Observable<ApiResponse<MenuIdResult>> {
+    return this.http.post<ApiResponse<MenuIdResult>>(
+      `${this.baseUrl}/CreateMenu`, body
+    );
+  }
+ 
+  updateMenu(
+    menuId: number,
+    body: SaveMenuRequest
+  ): Observable<ApiResponse<MenuIdResult>> {
+    return this.http.put<ApiResponse<MenuIdResult>>(
+      `${this.baseUrl}/UpdateMenu/${menuId}`, body
+    );
+  }
+ 
+  deleteMenu(menuId: number): Observable<ApiResponse<DeleteResult>> {
+    return this.http.delete<ApiResponse<DeleteResult>>(
+      `${this.baseUrl}/DeleteMenu/${menuId}`
+    );
+  }
+ 
+  updateMenuOrder(
+    body: UpdateMenuOrderRequest
+  ): Observable<ApiResponse<OrderResult>> {
+    return this.http.put<ApiResponse<OrderResult>>(
+      `${this.baseUrl}/UpdateMenuOrder`, body
+    );
+  }
+}
+Do not send null as text: 
+For a root GetMenus request, omit parentId. Do not send parentId=null, parentId=undefined, or an empty string in the URL.
+5. Endpoint-by-Endpoint Consumption
+5.1 GetParentMenus
+Request: GET /api/IwmsWeb/GetParentMenus
+Returns only root menus whose MenuId is assigned to the numeric UserType claim through User_RightMaster. Use this endpoint for the selectable main-menu lookup.
+this.menuApi.getParentMenus().subscribe({
+  next: response => this.mainMenus = response.data,
+  error: error => this.showApiError(error)
+});
+HTTP 401: 
+The token is absent, expired, or its UserType claim is missing/non-numeric.
+5.2 GetMenuFlags
+Request: GET /api/IwmsWeb/GetMenuFlags
+this.menuApi.getMenuFlags().subscribe(
+  response => this.menuFlags = response.data
+);
+Bind id as the option value and menuFlagName as the visible label. The saved menuFlag value must be a number or null.
+5.3 GetMenus
+Request: GET /api/IwmsWeb/GetMenus
+Required result
+Service call
+Backend condition
+All root menus
+getMenus()
+ParentId IS NULL
+Main roots only
+getMenus(null, 'MainMenu')
+Root and isMlaMp is not Y
+MLA roots only
+getMenus(null, 'MlaMenu')
+Root and isMlaMp is Y
+Direct children
+getMenus(parentId)
+ParentId equals supplied ID
+Ordering rule: 
+Use unfiltered getMenus() before reordering roots. UpdateMenuOrder validates that every root ID is present, including MLA roots.
+5.4 GetMenu
+Request: GET /api/IwmsWeb/GetMenu/{menuId}
+this.menuApi.getMenu(menuId).subscribe(response => {
+  const item = response.data;
+  const menuType = toMenuLevelName(item.menuType);
+ 
+  this.editingMenuId = item.menuId;
+  this.form.patchValue({ ...item, menuType });
+ 
+  if (menuType === 'SubMenu' && item.mainMenuId) {
+    this.loadParentMenus(item.mainMenuId);
+  }
+});
+The API returns navigatePage from MvcPath when isMvc is true; otherwise it returns NavigateUrl. The form therefore always edits one navigatePage field.
+5.5 CreateMenu
+Request: POST /api/IwmsWeb/CreateMenu. Success status is HTTP 201.
+const body: SaveMenuRequest = {
+  menuType: 'SubMenu',
+  mainMenuId: 10,
+  parentMenuId: 24,
+  menuNameE: 'Progress Reports',
+  menuNameH: 'प्रगति रिपोर्ट',
+  menuNameG: null,
+  navigatePage: '/reports/progress',
+  isMvc: true,
+  isEstimate: false,
+  menuFlag: 2,
+  imgUrl: 'fa-solid fa-chart-line',
+  imgColor: '#2E74B5'
+};
+ 
+this.menuApi.createMenu(body).subscribe(response => {
+  this.toast.success(response.message);
+  this.resetAndReload();
+});
+5.6 UpdateMenu
+Request: PUT /api/IwmsWeb/UpdateMenu/{menuId}. Send the same SaveMenuRequest shape used for creation.
+this.menuApi.updateMenu(this.editingMenuId!, this.form.getRawValue())
+  .subscribe(response => {
+    this.toast.success(response.message);
+    this.resetAndReload();
+  });
+If the parent changes, the API automatically places the menu at the end of the new sibling group.
+5.7 DeleteMenu
+Request: DELETE /api/IwmsWeb/DeleteMenu/{menuId}. The API attempts to delete the selected menu and all descendants.
+this.menuApi.deleteMenu(menuId).subscribe({
+  next: response => {
+    this.toast.success(response.message);
+    this.reloadCurrentList();
+  },
+  error: error => {
+    if (error.status === 409) {
+      this.toast.warning(error.error?.message);
+      return;
+    }
+    this.showApiError(error);
+  }
+});
+HTTP 409: 
+Deletion is blocked when any User_RightMaster record references the selected menu or its descendants. Rights must be removed through the appropriate rights-management workflow first.
+5.8 UpdateMenuOrder
+Request: PUT /api/IwmsWeb/UpdateMenuOrder. menuIds must contain every direct child of parentId exactly once and in the required final order.
+// Root order: parentId is null and menuIds contains every root ID.
+this.menuApi.updateMenuOrder({
+  parentId: null,
+  menuIds: this.rootMenus.map(x => x.menuId)
+}).subscribe();
+ 
+// Child order: send every direct child of the selected parent.
+this.menuApi.updateMenuOrder({
+  parentId: selectedParentId,
+  menuIds: this.childMenus.map(x => x.menuId)
+}).subscribe();
+HTTP 400: 
+The request is rejected for an empty list, duplicate IDs, missing siblings, or IDs that do not belong to the supplied parentId.
+6. Angular Page Workflow
+6.1 Reactive form
+readonly form = this.fb.nonNullable.group({
+  menuType: this.fb.nonNullable.control<MenuLevelName>('MainMenu'),
+  mainMenuId: this.fb.control<number | null>(null),
+  parentMenuId: this.fb.control<number | null>(null),
+  menuNameE: this.fb.nonNullable.control('', [
+    Validators.required,
+    Validators.maxLength(49)
+  ]),
+  menuNameH: this.fb.control<string | null>(null, Validators.maxLength(49)),
+  menuNameG: this.fb.control<string | null>(null, Validators.maxLength(49)),
+  navigatePage: this.fb.nonNullable.control('', [
+    Validators.required,
+    Validators.maxLength(299)
+  ]),
+  isMvc: this.fb.nonNullable.control(false),
+  isEstimate: this.fb.nonNullable.control(false),
+  menuFlag: this.fb.control<number | null>(null),
+  imgUrl: this.fb.control<string | null>(null, Validators.maxLength(200)),
+  imgColor: this.fb.control<string | null>(null, Validators.maxLength(50))
+});
+6.2 Initial page load
+forkJoin({
+  mainMenus: this.menuApi.getParentMenus(),
+  flags: this.menuApi.getMenuFlags(),
+  grid: this.menuApi.getMenus(null, 'MainMenu')
+}).subscribe(({ mainMenus, flags, grid }) => {
+  this.mainMenus = mainMenus.data;
+  this.menuFlags = flags.data;
+  this.gridRows = grid.data;
+});
+6.3 Menu-type selection behavior
+Selected type
+Fields shown
+Grid reload
+MainMenu
+Hide main and parent selectors
+getMenus(null, 'MainMenu')
+ParentMenu
+Show main selector
+After main selection: getMenus(mainMenuId)
+SubMenu
+Show main and parent selectors
+After parent selection: getMenus(parentMenuId)
+MlaMenu
+Hide main and parent selectors
+getMenus(null, 'MlaMenu')
+6.4 Recommended selection handlers
+onMenuTypeChanged(type: MenuLevelName): void {
+  this.form.patchValue({ mainMenuId: null, parentMenuId: null });
+  this.parentMenus = [];
+ 
+  if (type === 'MainMenu' || type === 'MlaMenu') {
+    this.menuApi.getMenus(null, type).subscribe(
+      response => this.gridRows = response.data
+    );
+  }
+}
+ 
+onMainMenuChanged(mainMenuId: number): void {
+  this.form.patchValue({ parentMenuId: null });
+  this.menuApi.getMenus(mainMenuId).subscribe(response => {
+    this.parentMenus = response.data;
+ 
+    if (this.form.controls.menuType.value === 'ParentMenu') {
+      this.gridRows = response.data;
+    }
+  });
+}
+ 
+onParentMenuChanged(parentMenuId: number): void {
+  this.menuApi.getMenus(parentMenuId).subscribe(
+    response => this.gridRows = response.data
+  );
+}
+6.5 Drag/drop ordering
+drop(event: CdkDragDrop<MenuListItemDto[]>): void {
+  moveItemInArray(this.orderRows, event.previousIndex, event.currentIndex);
+}
+ 
+saveOrder(parentId: number | null): void {
+  this.menuApi.updateMenuOrder({
+    parentId,
+    menuIds: this.orderRows.map(x => x.menuId)
+  }).subscribe(response => this.toast.success(response.message));
+}
+Root drag/drop: 
+Load the root order list with getMenus() without menuType. A filtered MainMenu-only list is incomplete and will fail the backend sibling-set validation.
+7. Validation, Errors and Testing
+Field validation contract
+Field
+Required
+Rule
+menuType
+Yes
+MainMenu, ParentMenu, SubMenu or MlaMenu
+mainMenuId
+Conditional
+Required for ParentMenu and SubMenu
+parentMenuId
+Conditional
+Required only for SubMenu
+menuNameE
+Yes
+1-49 characters
+menuNameH
+No
+Maximum 49 characters
+menuNameG
+No
+Maximum 49 characters
+navigatePage
+Yes
+1-299 characters
+menuFlag
+No
+Integer MstMenuFlag.Id or null
+imgUrl
+No
+Maximum 200 characters
+imgColor
+No
+Maximum 50 characters
+HTTP status handling
+Status
+Meaning
+Front-end action
+200
+Successful read/update/delete/order
+Refresh affected list and show message
+201
+Menu created
+Reset form, refresh list and show success
+400
+Validation or hierarchy/order error
+Show backend message; keep form values
+401
+Missing/invalid authentication or UserType
+Clear session and redirect to login
+404
+Menu not found
+Refresh list; show informational message
+409
+Delete blocked by user rights
+Explain dependency; do not remove row
+500
+Unexpected backend/database failure
+Show generic error and log correlation details
+Central error helper
+private showApiError(error: HttpErrorResponse): void {
+  const message = error.error?.message ?? 'Unable to complete the request.';
+ 
+  if (error.status === 401) {
+    this.authService.logout();
+    return;
+  }
+ 
+  this.toast.error(message);
+}
+Front-end verification checklist
+Confirm every request includes Authorization: Bearer <token>.
+Confirm GetParentMenus reflects the token UserType rights.
+Confirm MenuFlag values are numeric, never flag-name strings.
+Create and edit one MainMenu, ParentMenu, SubMenu and MlaMenu record.
+Verify isMvc=true edits navigatePage through MvcPath and isMvc=false through NavigateUrl.
+Verify a missing conditional parent selection produces a readable HTTP 400 message.
+Verify HTTP 409 deletion leaves the row visible and shows the rights-dependency message.
+Verify root ordering uses every root ID and child ordering uses every sibling ID.
+Test token expiry and confirm HTTP 401 redirects to login.
+Reload the page after every mutation to confirm persisted hierarchy and OrderNo values.
+Recommended end-to-end test sequence
+Load the page and retrieve parent menus, flags and Main Menu grid.
+Create a Main Menu and verify it receives the last root OrderNo.
+Create a Parent Menu under that root, then a Sub Menu under the parent.
+Create an MLA Menu and verify it appears only in the MLA filter.
+Edit names, navigation mode, icon, color, flag and estimate status.
+Reorder roots using the complete root list, then reorder each child level.
+Assign a right to a menu and confirm deletion returns 409.
+Remove the right through the rights workflow and confirm hierarchical deletion succeeds.
+
