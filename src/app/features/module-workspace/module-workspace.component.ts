@@ -14,6 +14,8 @@ import {
   MenuLevelName, MenuListItemDto, ParentMenuDto, 
   MenuFlagDto, SaveMenuRequest, toMenuLevelName 
 } from '../../core/services/menu-api.models';
+import { RoleMasterApiService } from '../../core/services/role-master-api.service';
+import { LoginTypeDto, RoleMenuNodeDto } from '../../core/services/role-master-api.models';
 
 interface ModuleRecord {
   id: string;
@@ -104,6 +106,17 @@ export class ModuleWorkspaceComponent implements OnInit {
   orderRows: MenuListItemDto[] = []; 
   editingMenuId: number | null = null;
   private fb = inject(FormBuilder);
+  private roleApi = inject(RoleMasterApiService);
+
+  // --- Role Master API state ---
+  loginTypes: LoginTypeDto[] = [];
+  menuTree: RoleMenuNodeDto[] = [];
+  selectedMenuIds = new Set<number>();
+  private readonly nodeById = new Map<number, RoleMenuNodeDto>();
+  private readonly parentById = new Map<number, number>();
+  roleLoading = false;
+  roleSaving = false;
+  loginTypeControl = this.fb.control<number | null>(null);
 
   form = this.fb.nonNullable.group({
     menuType: this.fb.nonNullable.control<MenuLevelName>('MainMenu'),
@@ -154,6 +167,8 @@ export class ModuleWorkspaceComponent implements OnInit {
       this.updateModuleMetadata(this.router.url);
       if (this.moduleKey === 'menu-creation') {
         this.loadInitialMenuData();
+      } else if (this.moduleKey === 'create-role') {
+        this.loadRoleInitialData();
       }
     });
     
@@ -161,6 +176,8 @@ export class ModuleWorkspaceComponent implements OnInit {
     this.updateModuleMetadata(this.router.url);
     if (this.moduleKey === 'menu-creation') {
       this.loadInitialMenuData();
+    } else if (this.moduleKey === 'create-role') {
+      this.loadRoleInitialData();
     }
   }
 
@@ -364,6 +381,112 @@ export class ModuleWorkspaceComponent implements OnInit {
       return;
     }
     this.toast.error(message);
+  }
+
+  // --- Role Master API Methods ---
+  private loadRoleInitialData(): void {
+    if (this.loginTypes.length === 0) {
+      this.roleApi.getLoginTypes().subscribe({
+        next: response => this.loginTypes = response.data,
+        error: error => this.showApiError(error)
+      });
+    }
+  }
+
+  onLoginTypeChanged(loginTypeId: number | null): void {
+    if (!loginTypeId) {
+      this.menuTree = [];
+      this.selectedMenuIds.clear();
+      return;
+    }
+    this.roleLoading = true;
+    this.roleApi.getRoleMenuRights(loginTypeId).subscribe({
+      next: response => {
+        this.menuTree = response.data.menus;
+        this.selectedMenuIds = new Set(response.data.assignedMenuIds);
+        this.indexTree(this.menuTree);
+        this.roleLoading = false;
+      },
+      error: error => {
+        this.roleLoading = false;
+        this.showApiError(error);
+      }
+    });
+  }
+
+  private indexTree(nodes: RoleMenuNodeDto[]): void {
+    this.nodeById.clear();
+    this.parentById.clear();
+    const visit = (items: RoleMenuNodeDto[]): void => {
+      for (const node of items) {
+        this.nodeById.set(node.menuId, node);
+        if (node.parentId !== null) {
+          this.parentById.set(node.menuId, node.parentId);
+        }
+        visit(node.children);
+      }
+    };
+    visit(nodes);
+  }
+
+  onMenuCheckboxChanged(node: RoleMenuNodeDto, checked: boolean): void {
+    this.setNodeAndDescendants(node, checked);
+    if (checked) {
+      this.selectAncestors(node.parentId);
+    }
+  }
+
+  private setNodeAndDescendants(node: RoleMenuNodeDto, checked: boolean): void {
+    if (checked) {
+      this.selectedMenuIds.add(node.menuId);
+    } else {
+      this.selectedMenuIds.delete(node.menuId);
+    }
+    node.children.forEach(child => this.setNodeAndDescendants(child, checked));
+  }
+
+  private selectAncestors(parentId: number | null): void {
+    let currentId = parentId;
+    while (currentId !== null) {
+      this.selectedMenuIds.add(currentId);
+      currentId = this.parentById.get(currentId) ?? null;
+    }
+  }
+
+  selectAllRights(): void {
+    this.nodeById.forEach(node => this.selectedMenuIds.add(node.menuId));
+  }
+
+  clearAllRights(): void {
+    this.selectedMenuIds.clear();
+  }
+
+  trackByMenuId(_index: number, node: RoleMenuNodeDto): number {
+    return node.menuId;
+  }
+
+  saveRights(): void {
+    const loginTypeId = this.loginTypeControl.value;
+    if (loginTypeId === null) {
+      this.toast.warning('Select a login type.');
+      return;
+    }
+    const menuIds = Array.from(this.selectedMenuIds).sort((a, b) => a - b);
+    if (menuIds.length === 0 && !confirm('This will remove all menu rights. Continue?')) {
+      return;
+    }
+    this.roleSaving = true;
+    this.roleApi.saveRoleMenuRights({ loginTypeId, menuIds }).subscribe({
+      next: response => {
+        this.selectedMenuIds = new Set(response.data.assignedMenuIds);
+        this.roleSaving = false;
+        this.toast.success(response.message);
+      },
+      error: error => {
+        this.roleSaving = false;
+        this.showApiError(error);
+      }
+    });
   }
 
   // --- Utility / UI metadata methods ---

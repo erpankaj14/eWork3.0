@@ -612,104 +612,74 @@
         <!-- Role Dropdown -->
         <div class="flex items-center gap-2 flex-shrink-0">
           <span class="text-xs font-bold text-slate-500">Target Role:</span>
-          <select class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-bold focus:outline-none focus:border-orange-500">
-            <option>Super Admin</option>
-            <option selected>Block Development Officer (BDO)</option>
-            <option>Junior Engineer (JEN)</option>
-            <option>Assistant Engineer (AEN)</option>
-            <option>District Collector</option>
+          <select [formControl]="loginTypeControl" (change)="onLoginTypeChanged(loginTypeControl.value)" class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-bold focus:outline-none focus:border-orange-500">
+            <option [ngValue]="null">-- Select Login Type --</option>
+            <option *ngFor="let item of loginTypes" [ngValue]="item.loginTypeId">
+              {{ item.description }}
+            </option>
           </select>
         </div>
       </div>
 
-      <!-- Modules Permissions Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Modules Permissions Tree -->
+      <div *ngIf="loginTypeControl.value" class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 p-5 shadow-xs space-y-4">
         
-        <!-- Category 1: Master Directory -->
-        <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 p-5 shadow-xs space-y-4">
-          <h4 class="text-xs font-black text-[#0B2240] dark:text-amber-400 uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-dark-850">1. Master Management Directory</h4>
-          <div class="space-y-3">
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">View Scheme configuration & BSR Directory</span>
-              <input type="checkbox" checked class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Modify District & Block boundaries</span>
-              <input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Create Gram Panchayat Profiles</span>
-              <input type="checkbox" checked class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
+        <div class="flex justify-between items-center border-b border-slate-100 dark:border-dark-850 pb-3">
+          <h4 class="text-xs font-black text-[#0B2240] dark:text-amber-400 uppercase tracking-wider">System Menus Rights Hierarchy</h4>
+          
+          <div *ngIf="menuTree.length > 0" class="flex gap-2">
+             <button type="button" (click)="selectAllRights()" class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:hover:bg-orange-500/20 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">
+               Select All
+             </button>
+             <button type="button" (click)="clearAllRights()" class="px-3 py-1.5 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-dark-800 dark:text-slate-300 dark:hover:bg-dark-700 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">
+               Clear All
+             </button>
           </div>
         </div>
 
-        <!-- Category 2: Sanction Management -->
-        <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 p-5 shadow-xs space-y-4">
-          <h4 class="text-xs font-black text-[#0B2240] dark:text-amber-400 uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-dark-850">2. Sanction Management (AS / TS / FS)</h4>
-          <div class="space-y-3">
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Issue Administrative Sanctions (AS Orders)</span>
-              <input type="checkbox" checked class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Submit Technical Sanctions (TS Verification)</span>
-              <input type="checkbox" checked class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Authorize Financial Sanctions (FS eSign)</span>
-              <input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-          </div>
+        <div *ngIf="roleLoading" class="p-8 text-center text-slate-500">
+           Loading menu hierarchy...
         </div>
 
-        <!-- Category 3: Transaction MB -->
-        <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 p-5 shadow-xs space-y-4">
-          <h4 class="text-xs font-black text-[#0B2240] dark:text-amber-400 uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-dark-850">3. Measurement Book (MB) & Transaction</h4>
-          <div class="space-y-3">
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Add MB Digital Records Entries</span>
-              <input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Approve MB measurements for Billing</span>
-              <input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Trigger Fund Release Transactions</span>
-              <input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-          </div>
+        <div *ngIf="!roleLoading && menuTree.length > 0" class="overflow-x-auto">
+          <ng-container *ngTemplateOutlet="menuNodes; context: { $implicit: menuTree, level: 0 }"></ng-container>
+        </div>
+        
+        <div *ngIf="!roleLoading && menuTree.length === 0" class="p-8 text-center text-slate-500 text-sm font-medium">
+          No menus available for this login type.
         </div>
 
-        <!-- Category 4: System Administration -->
-        <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 p-5 shadow-xs space-y-4">
-          <h4 class="text-xs font-black text-[#0B2240] dark:text-amber-400 uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-dark-850">4. System Control panel</h4>
-          <div class="space-y-3">
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Modify login roles & permissions</span>
-              <input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Deactivate active SSO IDs</span>
-              <input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-dark-850 cursor-pointer">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Access system audit trail logs</span>
-              <input type="checkbox" checked class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
-            </label>
-          </div>
-        </div>
+        <ng-template #menuNodes let-nodes let-level="level">
+          <ul class="space-y-1.5" [ngClass]="{'pl-6 border-l-2 border-slate-100 dark:border-dark-800 ml-3 mt-1.5': level > 0}">
+            <li *ngFor="let node of nodes; trackBy: trackByMenuId" class="py-0.5">
+              <label class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-dark-850 cursor-pointer transition-colors w-fit pr-6">
+                <input
+                  type="checkbox"
+                  class="w-4 h-4 text-orange-500 rounded border-slate-300 focus:ring-orange-500"
+                  [checked]="selectedMenuIds.has(node.menuId)"
+                  (change)="onMenuCheckboxChanged(node, $any($event.target).checked)" />
+                <span class="text-xs font-bold" [ngClass]="level === 0 ? 'text-slate-800 dark:text-slate-100 text-sm' : 'text-slate-600 dark:text-slate-300'">
+                  {{ node.menuNameE }}
+                </span>
+              </label>
+         
+              <ng-container *ngIf="node.children.length > 0"
+                [ngTemplateOutlet]="menuNodes"
+                [ngTemplateOutletContext]="{ $implicit: node.children, level: level + 1 }">
+              </ng-container>
+            </li>
+          </ul>
+        </ng-template>
 
       </div>
 
       <!-- Action Bottom Bar -->
-      <div class="flex justify-end gap-3 pt-4">
-        <button class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-850 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-wider transition-colors cursor-pointer">
+      <div *ngIf="loginTypeControl.value" class="flex justify-end gap-3 pt-4">
+        <button (click)="clearAllRights()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-850 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-wider transition-colors cursor-pointer">
           Reset Rights
         </button>
-        <button class="px-7 py-2.5 rounded-xl bg-[#E15B25] hover:bg-amber-600 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-sm cursor-pointer">
-          Save Rights configuration
+        <button [disabled]="roleSaving" (click)="saveRights()" class="px-7 py-2.5 rounded-xl bg-[#E15B25] hover:bg-amber-600 disabled:opacity-50 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-sm cursor-pointer">
+          {{ roleSaving ? 'Saving...' : 'Save Rights configuration' }}
         </button>
       </div>
     </div>
