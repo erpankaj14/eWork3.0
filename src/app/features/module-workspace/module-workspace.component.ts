@@ -402,8 +402,12 @@ export class ModuleWorkspaceComponent implements OnInit {
     this.roleLoading = true;
     this.roleApi.getRoleMenuRights(loginTypeId).subscribe({
       next: response => {
-        this.menuTree = response.data.menus;
-        this.selectedMenuIds = new Set(response.data.assignedMenuIds);
+        console.warn('=== BACKEND API RESPONSE START ===');
+        console.log(JSON.stringify(response, null, 2));
+        console.warn('=== BACKEND API RESPONSE END ===');
+        
+        this.menuTree = response.data?.menus || [];
+        this.selectedMenuIds = new Set(response.data?.assignedMenuIds || []);
         this.indexTree(this.menuTree);
         this.roleLoading = false;
       },
@@ -422,6 +426,9 @@ export class ModuleWorkspaceComponent implements OnInit {
         this.nodeById.set(node.menuId, node);
         if (node.parentId !== null) {
           this.parentById.set(node.menuId, node.parentId);
+        }
+        if (node.isAssigned) {
+          this.selectedMenuIds.add(node.menuId);
         }
         visit(node.children);
       }
