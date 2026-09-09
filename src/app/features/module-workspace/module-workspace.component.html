@@ -766,102 +766,124 @@
 
     <!-- D. Create Role (Assign Rights) Page -->
     <div *ngIf="moduleKey === 'create-role'" class="space-y-6 animate-fadeIn text-left">
-      <!-- Role Select header -->
-      <div
-        class="sticky top-0 z-40 bg-white/95 backdrop-blur-md dark:bg-dark-900/95 rounded-2xl border border-slate-200/90 dark:border-dark-750 p-5 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
+      <!-- Role Select header (Sticky Top) -->
+      <div class="sticky top-0 z-40 pt-2 pb-4 -mt-2 bg-slate-50 dark:bg-dark-950">
+        <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 p-5 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 relative overflow-hidden">
+          <div class="flex items-center gap-3 relative z-10">
+            <div class="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-extrabold text-[#0B2240] dark:text-white font-devanagari">भूमिका अधिकार आवंटन (Assign User Rights)</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Configure feature permissions and modules control access list</p>
+            </div>
           </div>
-          <div>
-            <h3 class="text-sm font-extrabold text-[#0B2240] dark:text-white font-devanagari">भूमिका अधिकार आवंटन
-              (Assign User Rights)</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Configure feature permissions and modules control access list</p>
-          </div>
-        </div>
 
-        <!-- Role Dropdown -->
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <span class="text-xs font-bold text-slate-500">Target Role:</span>
-          <select [formControl]="loginTypeControl" (change)="onLoginTypeChanged(loginTypeControl.value)"
-            class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-bold focus:outline-none focus:border-orange-500">
-            <option [ngValue]="null">-- Select Login Type --</option>
-            <option *ngFor="let item of loginTypes" [ngValue]="item.loginTypeId">
-              {{ item.description }}
-            </option>
-          </select>
+          <!-- Role Dropdown -->
+          <div class="flex items-center gap-2 flex-shrink-0 relative z-10">
+            <span class="text-xs font-bold text-slate-500">Target Role:</span>
+            <select
+              [formControl]="loginTypeControl"
+              (ngModelChange)="onLoginTypeChanged($event)"
+              class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-750 text-slate-800 dark:text-slate-100 text-xs font-bold focus:outline-none focus:border-orange-500 cursor-pointer transition-colors hover:border-orange-500/50">
+              <option [ngValue]="null">-- Select Target Role --</option>
+              <option *ngFor="let role of loginTypes" [ngValue]="role.loginTypeId">{{ role.description }}</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <!-- Modules Permissions Tree -->
-      <div *ngIf="loginTypeControl.value" class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 shadow-xs flex flex-col mt-6">
+      <!-- Recursive Menu Node Template -->
+      <ng-template #menuNodeTemplate let-nodes="nodes" let-level="level">
+        <div *ngIf="nodes && nodes.length > 0" class="pl-4 border-l border-slate-200 dark:border-dark-800 ml-3 space-y-1 my-1">
+          <div *ngFor="let node of nodes; trackBy: trackByMenuId" class="relative group">
+            
+            <!-- Sticky Header for the Node -->
+            <!-- Calculate sticky top relative to scrolling container, adjusting 42px per level -->
+            <div 
+              class="sticky z-30 flex items-center py-2 px-3 bg-white dark:bg-dark-900 rounded-lg shadow-sm border border-slate-100 dark:border-dark-800 mb-1 transition-all hover:border-orange-500/30"
+              [style.top.px]="level * 42"
+            >
+              <label class="flex items-center gap-3 cursor-pointer w-full">
+                <input type="checkbox" 
+                       class="w-4 h-4 text-[#E15B25] rounded border-slate-300 focus:ring-[#E15B25] cursor-pointer"
+                       [checked]="selectedMenuIds.has(node.menuId)"
+                       (change)="onMenuCheckboxChanged(node, $event.target.checked)" />
+                <span class="text-sm font-bold text-slate-800 dark:text-slate-200" [ngClass]="{'text-[#0B2240] dark:text-white': level === 0}">
+                  {{ (languageService.currentLang$ | async) === 'hi' && node.menuNameH ? node.menuNameH : node.menuNameE }}
+                </span>
+              </label>
+            </div>
+
+            <!-- Recursive Children Render -->
+            <ng-container *ngIf="node.children && node.children.length > 0">
+              <ng-container *ngTemplateOutlet="menuNodeTemplate; context: { nodes: node.children, level: level + 1 }"></ng-container>
+            </ng-container>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Modules Permissions Tree Container -->
+      <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200/90 dark:border-dark-750 shadow-xs flex flex-col relative" *ngIf="loginTypeControl.value">
         
-        <div class="flex justify-between items-center border-b border-slate-100 dark:border-dark-850 p-4 bg-slate-50/50 dark:bg-dark-850/50 rounded-t-2xl">
-          <h4 class="text-xs font-black text-[#0B2240] dark:text-amber-400 uppercase tracking-wider">System Menus Rights Hierarchy</h4>
-          
-          <div *ngIf="menuTree.length > 0" class="flex gap-2">
-             <button type="button" (click)="selectAllRights()" class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:hover:bg-orange-500/20 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">
-               Select All
-             </button>
-             <button type="button" (click)="clearAllRights()" class="px-3 py-1.5 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-dark-800 dark:text-slate-300 dark:hover:bg-dark-700 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">
-               Clear All
-             </button>
+        <!-- Header for Tree -->
+        <div class="bg-slate-50 dark:bg-dark-850 px-5 py-3 border-b border-slate-100 dark:border-dark-800 flex items-center justify-between rounded-t-2xl">
+          <h4 class="text-xs font-black text-[#0B2240] dark:text-amber-400 uppercase tracking-wider">SYSTEM MENUS RIGHTS HIERARCHY</h4>
+          <div class="flex items-center gap-2">
+            <button (click)="selectAllRights()" class="px-3.5 py-1.5 text-[10px] font-bold text-[#E15B25] bg-white rounded-lg hover:bg-orange-50 uppercase tracking-wider transition-colors cursor-pointer border border-orange-200/50 shadow-2xs">SELECT ALL</button>
+            <button (click)="clearAllRights()" class="px-3.5 py-1.5 text-[10px] font-bold text-slate-600 bg-white rounded-lg hover:bg-slate-50 border border-slate-200 uppercase tracking-wider transition-colors cursor-pointer shadow-2xs">CLEAR ALL</button>
           </div>
         </div>
 
-        <div *ngIf="roleLoading" class="p-8 text-center text-slate-500 flex-1">
-           Loading menu hierarchy...
+        <!-- Scrollable Tree View -->
+        <div class="max-h-[55vh] overflow-y-auto custom-scrollbar p-5 relative">
+          <!-- Loading State -->
+          <div *ngIf="roleLoading" class="py-10 flex flex-col items-center justify-center space-y-3">
+             <div class="w-8 h-8 border-4 border-slate-200 border-t-[#E15B25] rounded-full animate-spin"></div>
+             <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Loading Rights Hierarchy...</p>
+          </div>
+          
+          <!-- Tree Nodes -->
+          <div *ngIf="!roleLoading && menuTree.length > 0" class="-ml-3">
+            <ng-container *ngTemplateOutlet="menuNodeTemplate; context: { nodes: menuTree, level: 0 }"></ng-container>
+          </div>
+          
+          <!-- Empty State -->
+          <div *ngIf="!roleLoading && menuTree.length === 0" class="py-10 text-center">
+             <p class="text-sm font-bold text-slate-400">No menus configured for this role.</p>
+          </div>
         </div>
 
-        <!-- TREE CONTAINER (No internal scrollbar to allow page-level sticky to work) -->
-        <div *ngIf="!roleLoading && menuTree.length > 0" class="p-5 pb-10">
-          <ng-container *ngTemplateOutlet="menuNodes; context: { $implicit: menuTree, level: 0 }"></ng-container>
+      </div>
+      
+      <!-- Placeholder when no role selected -->
+      <div *ngIf="!loginTypeControl.value" class="bg-slate-50 dark:bg-dark-900/50 rounded-2xl border border-slate-200/50 dark:border-dark-800 p-10 flex flex-col items-center justify-center text-center">
+        <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-dark-800 flex items-center justify-center mb-4 text-slate-400">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+          </svg>
         </div>
-        
-        <div *ngIf="!roleLoading && menuTree.length === 0" class="p-8 text-center text-slate-500 text-sm font-medium flex-1">
-          No menus available for this login type.
-        </div>
+        <h4 class="text-sm font-black text-slate-600 dark:text-slate-400 mb-1">No Role Selected</h4>
+        <p class="text-xs text-slate-500 font-medium max-w-sm">Please select a target role from the dropdown above to configure feature permissions and system access rights.</p>
+      </div>
 
-        <ng-template #menuNodes let-nodes let-level="level">
-          <ul class="space-y-1.5" [ngClass]="{'pl-6 border-l-2 border-slate-100 dark:border-dark-800 ml-3 mt-1.5': level > 0}">
-            <li *ngFor="let node of nodes; trackBy: trackByMenuId" class="py-0.5 relative">
-              <div 
-                [ngClass]="level === 0 ? 'sticky top-[88px] z-20 bg-slate-50/95 dark:bg-dark-850/95 backdrop-blur-md border border-slate-200/60 dark:border-dark-750 shadow-sm rounded-xl mb-2' : ''"
-              >
-                <label class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-dark-850 cursor-pointer transition-colors w-full pr-6" [ngClass]="level === 0 ? 'py-3' : ''">
-                  <input
-                    type="checkbox"
-                    class="w-4 h-4 text-orange-500 rounded border-slate-300 focus:ring-orange-500"
-                    [checked]="selectedMenuIds.has(node.menuId)"
-                    (change)="onMenuCheckboxChanged(node, $any($event.target).checked)" />
-                  <span class="text-xs font-bold" [ngClass]="level === 0 ? 'text-slate-800 dark:text-slate-100 text-[14px] uppercase tracking-wider' : 'text-slate-600 dark:text-slate-300'">
-                    {{ node.menuNameE }}
-                  </span>
-                </label>
-              </div>
-         
-              <ng-container *ngIf="node.children.length > 0"
-                [ngTemplateOutlet]="menuNodes"
-                [ngTemplateOutletContext]="{ $implicit: node.children, level: level + 1 }">
-              </ng-container>
-            </li>
-          </ul>
-        </ng-template>
-
-        <!-- Action Bottom Bar -->
-        <div class="sticky bottom-0 z-30 flex justify-end gap-3 p-4 border-t border-slate-200 dark:border-dark-750 bg-white/95 dark:bg-dark-900/95 backdrop-blur-md rounded-b-2xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-          <button (click)="clearAllRights()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-wider transition-colors cursor-pointer">
-            Reset Rights
-          </button>
-          <button [disabled]="roleSaving" (click)="saveRights()" class="px-7 py-2.5 rounded-xl bg-[#E15B25] hover:bg-amber-600 disabled:opacity-50 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-sm cursor-pointer">
-            {{ roleSaving ? 'Saving...' : 'Save Rights configuration' }}
-          </button>
-        </div>
-
+      <!-- Action Bottom Bar -->
+      <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-dark-800 mt-2">
+        <button
+          (click)="onLoginTypeChanged(loginTypeControl.value)"
+          [disabled]="roleLoading || roleSaving || !loginTypeControl.value"
+          class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-850 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50">
+          Reset Rights
+        </button>
+        <button
+          (click)="saveRights()"
+          [disabled]="roleLoading || roleSaving || !loginTypeControl.value"
+          class="px-7 py-2.5 rounded-xl bg-[#E15B25] hover:bg-amber-600 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-sm cursor-pointer flex items-center gap-2 disabled:opacity-50">
+          <span *ngIf="roleSaving" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+          <span>Save Rights configuration</span>
+        </button>
       </div>
     </div>
 
