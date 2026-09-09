@@ -798,7 +798,7 @@
       <!-- Recursive Menu Node Template -->
       <ng-template #menuNodeTemplate let-nodes="nodes" let-level="level">
         <div *ngIf="nodes && nodes.length > 0" class="pl-4 border-l border-slate-200 dark:border-dark-800 ml-3 space-y-1 my-1">
-          <div *ngFor="let node of nodes; trackBy: trackByMenuId" class="relative group">
+          <div *ngFor="let node of nodes" class="relative group">
             
             <!-- Sticky Header for the Node -->
             <!-- Calculate sticky top relative to scrolling container, adjusting 42px per level -->
