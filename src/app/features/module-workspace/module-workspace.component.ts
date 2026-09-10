@@ -132,6 +132,19 @@ export class ModuleWorkspaceComponent implements OnInit {
     imgUrl: this.fb.control<string | null>(null, Validators.maxLength(200)),
     imgColor: this.fb.control<string | null>('#E15B25', Validators.maxLength(50))
   });
+  
+  menuIcon: string = '';
+  menuIconColor: string = '#E15B25';
+  
+  // Properties added to fix [(ngModel)] template errors
+  menuType: string = 'MainMenu';
+  menuNameEn: string = '';
+  menuNameHi: string = '';
+  menuNameGu: string = '';
+  navigatePage: string = '';
+  isMvcUser: boolean = false;
+  isEstimate: boolean = false;
+  menuFlag: string = '';
 
   // Form models for other administrator sub-pages
   createLoginType: string = '';
