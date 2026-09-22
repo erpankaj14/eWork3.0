@@ -89,15 +89,25 @@ export class PlanCreateComponent implements OnInit {
 
     const planPayload: PlanModel = {
       id: this.planId,
+      Id: this.planId,
       schemeCode: Number(this.schemeCode),
+      SchemeCode: Number(this.schemeCode),
       finYr: this.finYr,
+      FinYr: this.finYr,
       districtCode: this.districtCode,
+      DistrictCode: this.districtCode,
       dlcApprovalDate1: this.dlcApprovalDate,
+      DLCApprovalDate1: this.dlcApprovalDate,
       blockApprovalDate1: this.blockApprovalDate,
+      BlockApprovalDate1: this.blockApprovalDate,
       slcApprovalDate1: this.slcApprovalDate || undefined,
-      budgetTypeId: this.budgetTypeId || undefined,
-      totalEstimatedCost: this.totalEstimatedCost,
-      remarks: this.remarks
+      SLCApprovalDate1: this.slcApprovalDate || undefined,
+      budgetTypeId: this.budgetTypeId ? Number(this.budgetTypeId) : undefined,
+      BudgetTypeId: this.budgetTypeId ? Number(this.budgetTypeId) : undefined,
+      totalEstimatedCost: Number(this.totalEstimatedCost) || 0,
+      TotalEstimatedCost: Number(this.totalEstimatedCost) || 0,
+      remarks: this.remarks || '',
+      Remarks: this.remarks || ''
     };
 
     this.isSaving = true;
