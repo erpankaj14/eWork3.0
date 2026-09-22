@@ -3,10 +3,14 @@
     "target": "http://10.130.3.10",
     "secure": false,
     "changeOrigin": true,
-    "pathRewrite": {
-      "^/iwmsapi": ""
-    },
+    "logLevel": "debug"
+  },
+  "/api": {
+    "target": "http://10.130.3.10",
+    "secure": false,
+    "changeOrigin": true,
     "logLevel": "debug"
   }
 }
+
 
