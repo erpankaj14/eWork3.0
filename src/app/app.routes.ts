@@ -89,6 +89,16 @@ export const routes: Routes = [
         data: { animation: 'AdminSanctionUndispatch' }
       },
       {
+        path: 'sanction/plan/create',
+        loadComponent: () => import('./features/sanction/plan/plan-create/plan-create.component').then(m => m.PlanCreateComponent),
+        data: { animation: 'PlanCreate' }
+      },
+      {
+        path: 'sanction/plan/approved-list',
+        loadComponent: () => import('./features/sanction/plan/plan-list/plan-list.component').then(m => m.PlanListComponent),
+        data: { animation: 'PlanList' }
+      },
+      {
         path: 'stage/:id',
         loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
         data: { animation: 'ModuleWorkspace' }

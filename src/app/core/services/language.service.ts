@@ -9,6 +9,10 @@ import { BehaviorSubject } from 'rxjs';
 export class LanguageService {
   private currentLangSub = new BehaviorSubject<string>('en');
   currentLang$ = this.currentLangSub.asObservable();
+
+  get currentLang(): string {
+    return this.currentLangSub.value;
+  }
   
   private isBrowser: boolean;
 
