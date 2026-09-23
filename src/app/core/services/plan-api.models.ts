@@ -23,6 +23,11 @@ export interface PlanModel {
   finYr?: string;
   districtCode?: string;
   districtName?: string;
+  workName?: string;
+  workType?: string;
+  constCode?: string;
+  sectorArea?: string;
+  workCategory?: string;
   dlcApprovalDate1?: string; // dd/MM/yyyy
   blockApprovalDate1?: string; // dd/MM/yyyy
   slcApprovalDate1?: string; // dd/MM/yyyy

@@ -22,16 +22,24 @@ export class PlanCreateComponent implements OnInit {
   planId = 0;
   schemeCode = 5;
   finYr = '2026-27';
-  districtCode = '101'; // Default or from session
+  districtCode = '12'; // Default or from session
+  workName = 'Construction of Community Hall';
+  workType = 'New Work';
+  constCode = '101';
+  sectorArea = 'Rural';
+  workCategory = 'Building';
   budgetTypeId: number | null = null;
   dlcApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy
   blockApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy
-  slcApprovalDate = ''; // dd/MM/yyyy for state user
+  slcApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy for state user
   totalEstimatedCost = 0;
   remarks = '';
 
-  // Dropdown master list
+  // Dropdown master lists
   budgetTypes: BudgetType[] = [];
+  workTypes = ['New Work', 'Maintenance Work', 'Renovation', 'Extension', 'Upgradation'];
+  sectorAreas = ['Rural', 'Urban'];
+  workCategories = ['Building', 'Road', 'Water Supply', 'Sanitation', 'Electrical', 'Irrigation', 'Other'];
 
   // Schemes list
   schemes = [
@@ -96,12 +104,22 @@ export class PlanCreateComponent implements OnInit {
       FinYr: this.finYr,
       districtCode: this.districtCode,
       DistrictCode: this.districtCode,
+      workName: this.workName || 'Construction of Community Hall',
+      WorkName: this.workName || 'Construction of Community Hall',
+      workType: this.workType || 'New Work',
+      WorkType: this.workType || 'New Work',
+      constCode: this.constCode || '101',
+      ConstCode: this.constCode || '101',
+      sectorArea: this.sectorArea || 'Rural',
+      SectorArea: this.sectorArea || 'Rural',
+      workCategory: this.workCategory || 'Building',
+      WorkCategory: this.workCategory || 'Building',
       dlcApprovalDate1: this.dlcApprovalDate,
       DLCApprovalDate1: this.dlcApprovalDate,
       blockApprovalDate1: this.blockApprovalDate,
       BlockApprovalDate1: this.blockApprovalDate,
-      slcApprovalDate1: this.slcApprovalDate || undefined,
-      SLCApprovalDate1: this.slcApprovalDate || undefined,
+      slcApprovalDate1: this.slcApprovalDate || this.dlcApprovalDate,
+      SLCApprovalDate1: this.slcApprovalDate || this.dlcApprovalDate,
       budgetTypeId: this.budgetTypeId ? Number(this.budgetTypeId) : undefined,
       BudgetTypeId: this.budgetTypeId ? Number(this.budgetTypeId) : undefined,
       totalEstimatedCost: Number(this.totalEstimatedCost) || 0,

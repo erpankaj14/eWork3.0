@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import {
   ApiListResponse,
   ApiResponse,
@@ -16,14 +16,55 @@ import {
 @Injectable({ providedIn: 'root' })
 export class PlanApiService {
   private readonly http = inject(HttpClient);
+  private readonly STORAGE_KEY = 'ework_saved_local_plans';
 
   private get isLocalhost(): boolean {
     return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   }
 
   private get baseUrl(): string {
-    const apiHost = this.isLocalhost ? '' : 'http://10.130.3.10';
+    const apiHost = this.isLocalhost ? '/iwmsapi' : 'http://10.130.3.10/iwmsapi';
     return `${apiHost}/api/IwmsWeb`;
+  }
+
+  /**
+   * Helper to retrieve locally saved plans from browser storage
+   */
+  public getLocalPlans(): PlanModel[] {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Helper to save a plan into browser local storage
+   */
+  public saveLocalPlan(plan: PlanModel): PlanModel {
+    const plans = this.getLocalPlans();
+    const assignedId = plan.id && plan.id > 0 ? plan.id : Math.floor(Math.random() * 9000 + 1000);
+    const newPlan: PlanModel = {
+      ...plan,
+      id: assignedId,
+      status: plan.status || 'Draft Saved',
+      createdDate: new Date().toLocaleDateString('en-GB')
+    };
+
+    const existingIdx = plans.findIndex(p => p.id === assignedId);
+    if (existingIdx >= 0) {
+      plans[existingIdx] = newPlan;
+    } else {
+      plans.unshift(newPlan);
+    }
+
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(plans));
+    } catch (e) {
+      console.error('Failed to save plan to localStorage:', e);
+    }
+    return newPlan;
   }
 
   /**
@@ -34,12 +75,25 @@ export class PlanApiService {
       `${this.baseUrl}/GetWorkListofPlan`,
       filter
     ).pipe(
+      tap((res) => {
+        if (res && res.data) {
+          const localPlans = this.getLocalPlans();
+          if (localPlans.length > 0) {
+            const existingIds = new Set(res.data.map(p => p.id));
+            const uniqueLocal = localPlans.filter(p => !existingIds.has(p.id));
+            res.data = [...uniqueLocal, ...res.data];
+          }
+        }
+      }),
       catchError((err) => {
-        console.warn('PlanApiService: GetWorkListofPlan endpoint unreachable or 404. Returning development fallback data.', err);
+        console.warn('PlanApiService: GetWorkListofPlan endpoint unreachable or 404. Returning combined fallback data.', err);
+        const localPlans = this.getLocalPlans();
+        const mockPlans = this.getMockPlans(filter);
+        const combined = [...localPlans, ...mockPlans];
         return of({
           success: true,
-          count: 3,
-          data: this.getMockPlans(filter)
+          count: combined.length,
+          data: combined
         });
       })
     );
@@ -53,19 +107,25 @@ export class PlanApiService {
       `${this.baseUrl}/SavePlanDetails`,
       plan
     ).pipe(
+      tap((res) => {
+        if (res && res.data) {
+          this.saveLocalPlan(res.data);
+        } else {
+          this.saveLocalPlan(plan);
+        }
+      }),
       catchError((err) => {
-        console.warn('PlanApiService: SavePlanDetails endpoint unreachable or 404. Returning development fallback response.', err);
-        const assignedId = plan.id && plan.id > 0 ? plan.id : Math.floor(Math.random() * 9000 + 1000);
-        return of({
-          success: true,
-          message: `Plan details saved successfully! (Plan ID #${assignedId})`,
-          data: {
-            ...plan,
-            id: assignedId,
-            status: 'Draft Saved',
-            createdDate: new Date().toLocaleDateString('en-GB')
-          }
-        });
+        console.warn('PlanApiService: SavePlanDetails endpoint returned error/404.', err);
+        // Persist locally so user data is retained dynamically even if offline/404
+        const savedLocal = this.saveLocalPlan(plan);
+        if (this.isLocalhost) {
+          return of({
+            success: true,
+            message: `Plan details saved successfully! (Plan ID #${savedLocal.id})`,
+            data: savedLocal
+          });
+        }
+        return throwError(() => err);
       })
     );
   }
@@ -296,10 +356,13 @@ export class PlanApiService {
     ).pipe(
       catchError((err) => {
         console.warn('PlanApiService: GetApprovedPlanListOfWork 404 or offline. Returning fallback data.', err);
+        const localPlans = this.getLocalPlans().filter(p => p.status === 'Approved');
+        const mockPlans = this.getMockPlans(filter).filter(p => p.status === 'Approved');
+        const combined = [...localPlans, ...mockPlans];
         return of({
           success: true,
-          count: 2,
-          data: this.getMockPlans(filter).filter(p => p.status === 'Approved')
+          count: combined.length,
+          data: combined
         });
       })
     );
@@ -408,4 +471,5 @@ startxref
     ];
   }
 }
+
 
