@@ -1,0 +1,178 @@
+const PROXY_CONFIG = [
+  {
+    context: ['/api', '/iwmsapi'],
+    target: 'http://10.130.3.10',
+    secure: false,
+    changeOrigin: true,
+    bypass: function (req, res) {
+      const url = req.url.toLowerCase();
+
+      // 1. GetParentMenus
+      if (url.includes('getparentmenus')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          count: 8,
+          data: [
+            { menuId: 1, menuNameE: 'Master', menuNameH: 'मास्टर प्रबंधन', menuType: 'admin', orderNo: 1, navigateUrl: '/portal/master/scheme-configuration' },
+            { menuId: 2, menuNameE: 'Sanction', menuNameH: 'स्वीकृति प्रबंधन', menuType: 'sanction', orderNo: 2, navigateUrl: '/portal/sanction/admin-sanction/entry' },
+            { menuId: 3, menuNameE: 'Transaction', menuNameH: 'लेन-देन एवं कार्य प्रस्ताव', menuType: 'transaction', orderNo: 3, navigateUrl: '/portal/transaction/work-proposal' },
+            { menuId: 4, menuNameE: 'Reports', menuNameH: 'रिपोर्ट्स एवं डैशबोर्ड', menuType: 'reports', orderNo: 4, navigateUrl: '/portal/reports/physical-progress' },
+            { menuId: 5, menuNameE: 'UC/CC', menuNameH: 'उपयोगिता / पूर्णता प्रमाण पत्र', menuType: 'uccc', orderNo: 5, navigateUrl: '/portal/uccc/uc-entry' },
+            { menuId: 6, menuNameE: 'Administrator', menuNameH: 'प्रशासनिक नियंत्रण', menuType: 'admin', orderNo: 6, navigateUrl: '/portal/admin/menu-creation' },
+            { menuId: 7, menuNameE: 'MPK', menuNameH: 'महात्मा गांधी पंचायत केंद्र', menuType: 'mpk', orderNo: 7, navigateUrl: '/portal/mpk/kendra' },
+            { menuId: 8, menuNameE: 'Help', menuNameH: 'सहायता एवं निर्देशिका', menuType: 'help', orderNo: 8, navigateUrl: '/portal/help/user-manual' }
+          ]
+        }));
+        return true;
+      }
+
+      // 2. GetMenuFlags
+      if (url.includes('getmenuflags')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          count: 2,
+          data: [
+            { flagId: 1, flagName: 'Active', isVisible: true },
+            { flagId: 2, flagName: 'Inactive', isVisible: false }
+          ]
+        }));
+        return true;
+      }
+
+      // 3. GetMenus
+      if (url.includes('getmenus')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          count: 5,
+          data: [
+            { menuId: 101, parentId: 1, menuNameE: 'Scheme Configuration', menuNameH: 'योजना विन्यास', orderNo: 1, navigateUrl: '/portal/master/scheme-configuration' },
+            { menuId: 102, parentId: 2, menuNameE: 'Plan Management', menuNameH: 'योजना प्रबंधन', orderNo: 1, navigateUrl: '/portal/sanction/plan/create' },
+            { menuId: 103, parentId: 2, menuNameE: 'Admin Sanction Entry', menuNameH: 'प्रशासनिक स्वीकृति प्रविष्टि', orderNo: 2, navigateUrl: '/portal/sanction/admin-sanction/entry' },
+            { menuId: 104, parentId: 6, menuNameE: 'Menu Creation', menuNameH: 'मेनू निर्माण', orderNo: 1, navigateUrl: '/portal/admin/menu-creation' },
+            { menuId: 105, parentId: 6, menuNameE: 'Role Master Rights', menuNameH: 'रोल मास्टर अधिकार', orderNo: 2, navigateUrl: '/portal/admin/role-master-rights' }
+          ]
+        }));
+        return true;
+      }
+
+      // 4. BudgetTypeList
+      if (url.includes('budgettypelist')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          count: 2,
+          data: [
+            { id: 1, budgetTypeCode: 'BT01', budgetTypeName: 'Annual Plan - 80%', budgetTypeNameHi: 'वार्षिक योजना - 80%', isActive: true },
+            { id: 2, budgetTypeCode: 'BT02', budgetTypeName: 'State reserved plan - 19%', budgetTypeNameHi: 'राज्य आरक्षित योजना - 19%', isActive: true }
+          ]
+        }));
+        return true;
+      }
+
+      // 5. GetWorkListofPlan
+      if (url.includes('getworklistofplan')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          count: 2,
+          data: [
+            {
+              id: 1,
+              createdBy: 'JAIPUR_ADMIN',
+              schemeCode: 5,
+              schemeName: 'मुख्यमंत्री थार सीमा क्षेत्र विकास कार्यक्रम',
+              workName: 'निर्माण कार्य सामुदायिक भवन ग्राम कुकास आमेर',
+              sectorArea: 'Rural',
+              town: '-',
+              blockName: 'Amer',
+              gramPanchayat: 'Kukas',
+              village: 'Kukas',
+              totalEstimatedCost: 15.50,
+              schemeAmount: 15.50,
+              convergenceAmount: 0,
+              convergenceScheme: 'N/A',
+              workCategory: 'Building & Infra',
+              subCategory: 'Community Hall',
+              executiveDept: 'Panchayati Raj Department',
+              executiveAgency: 'Gram Panchayat Amer',
+              priority: 'First',
+              jShreeYojna: 'N/A',
+              cmBadpCategory: 'Standard',
+              mlaName: 'Shri Satish Poonia',
+              dlcApprovalDate1: '16/09/2026',
+              blockApprovalDate1: '16/09/2026',
+              status: 'Draft Saved'
+            },
+            {
+              id: 2,
+              createdBy: 'JAIPUR_ADMIN',
+              schemeCode: 5,
+              schemeName: 'मुख्यमंत्री थार सीमा क्षेत्र विकास कार्यक्रम',
+              workName: 'सी सी रोड निर्माण कार्य मुख्य बस स्टैंड से पंचायत भवन',
+              sectorArea: 'Rural',
+              town: '-',
+              blockName: 'Sanganer',
+              gramPanchayat: 'Watika',
+              village: 'Watika Main',
+              totalEstimatedCost: 28.00,
+              schemeAmount: 28.00,
+              convergenceAmount: 0,
+              convergenceScheme: 'N/A',
+              workCategory: 'Road & Connectivity',
+              subCategory: 'Concrete Road (CC Road)',
+              executiveDept: 'Public Works Department (PWD)',
+              executiveAgency: 'PWD Division Jaipur',
+              priority: 'Second',
+              jShreeYojna: 'N/A',
+              cmBadpCategory: 'Standard',
+              mlaName: 'Shri Rajendra Rathore',
+              dlcApprovalDate1: '18/09/2026',
+              blockApprovalDate1: '18/09/2026',
+              status: 'Draft Saved'
+            }
+          ]
+        }));
+        return true;
+      }
+
+      // 6. SsoLogin
+      if (url.includes('ssologin')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          isSuccessful: true,
+          message: 'SSO Login successful!',
+          district: 'JAIPUR',
+          districtHi: 'जयपुर',
+          role: 'District Administrator',
+          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mocktoken'
+        }));
+        return true;
+      }
+
+      // 7. SavePlanDetails
+      if (url.includes('saveplandetails')) {
+        const assignedId = Math.floor(Math.random() * 9000 + 1000);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          message: `Plan details saved successfully! (Plan ID #${assignedId})`,
+          data: {
+            id: assignedId,
+            status: 'Draft Saved',
+            createdDate: new Date().toLocaleDateString('en-GB')
+          }
+        }));
+        return true;
+      }
+
+      // Continue to target if not bypassed
+      return false;
+    }
+  }
+];
+
+module.exports = PROXY_CONFIG;
