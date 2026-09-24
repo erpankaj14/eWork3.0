@@ -15,7 +15,7 @@ export class RoleMasterApiService {
   private get baseUrl(): string {
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const apiHost = isLocalhost ? '' : 'http://10.130.3.10';
-    return `${apiHost}/iwmsapi/api/IwmsWeb`;
+    return `${apiHost}/api/IwmsWeb`;
   }
 
   constructor(private readonly http: HttpClient) {}
