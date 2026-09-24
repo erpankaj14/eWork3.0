@@ -15,7 +15,7 @@ export class MenuApiService {
   
   private get baseUrl(): string {
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const apiHost = isLocalhost ? '/iwmsapi' : 'http://10.130.3.10/iwmsapi';
+    const apiHost = isLocalhost ? '' : 'http://10.130.3.10';
     return `${apiHost}/api/IwmsWeb`;
   }
 

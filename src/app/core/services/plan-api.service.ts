@@ -23,7 +23,7 @@ export class PlanApiService {
   }
 
   private get baseUrl(): string {
-    const apiHost = this.isLocalhost ? '/iwmsapi' : 'http://10.130.3.10/iwmsapi';
+    const apiHost = this.isLocalhost ? '' : 'http://10.130.3.10';
     return `${apiHost}/api/IwmsWeb`;
   }
 

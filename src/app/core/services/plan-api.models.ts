@@ -69,6 +69,7 @@ export interface SelectedPlan {
 
 export interface BudgetType {
   id?: number;
+  budgetType?: string;
   budgetTypeCode?: string;
   budgetTypeName?: string;
   budgetTypeNameHi?: string;

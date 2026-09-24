@@ -4,11 +4,12 @@ import { catchError } from 'rxjs/operators';
 
 export const planMockInterceptor: HttpInterceptorFn = (req, next) => {
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const urlLower = req.url.toLowerCase();
 
   // Pass every HTTP request to next(req) so Chrome DevTools Network Tab logs the real XHR API call!
   return next(req).pipe(
     catchError((error) => {
-      if (isLocalhost && req.url.includes('/api/IwmsWeb/SavePlanDetails')) {
+      if (isLocalhost && urlLower.includes('/api/iwmsweb/saveplandetails')) {
         let bodyPayload: any = {};
         try {
           bodyPayload = req.body || {};
@@ -32,7 +33,7 @@ export const planMockInterceptor: HttpInterceptorFn = (req, next) => {
         }));
       }
 
-      if (isLocalhost && req.url.includes('/api/IwmsWeb/SavePlanFileandForward')) {
+      if (isLocalhost && urlLower.includes('/api/iwmsweb/saveplanfileandforward')) {
         return of(new HttpResponse({
           status: 200,
           statusText: 'OK',
@@ -48,7 +49,7 @@ export const planMockInterceptor: HttpInterceptorFn = (req, next) => {
         }));
       }
 
-      if (isLocalhost && req.url.includes('/api/IwmsWeb/ApprovePlanandUploadFile')) {
+      if (isLocalhost && urlLower.includes('/api/iwmsweb/approveplananduploadfile')) {
         return of(new HttpResponse({
           status: 200,
           statusText: 'OK',
@@ -64,7 +65,7 @@ export const planMockInterceptor: HttpInterceptorFn = (req, next) => {
         }));
       }
 
-      if (isLocalhost && req.url.includes('/api/IwmsWeb/RejectPlan')) {
+      if (isLocalhost && urlLower.includes('/api/iwmsweb/rejectplan')) {
         return of(new HttpResponse({
           status: 200,
           statusText: 'OK',
@@ -76,7 +77,7 @@ export const planMockInterceptor: HttpInterceptorFn = (req, next) => {
         }));
       }
 
-      if (isLocalhost && req.url.includes('/api/IwmsWeb/RevertPlan')) {
+      if (isLocalhost && urlLower.includes('/api/iwmsweb/revertplan')) {
         return of(new HttpResponse({
           status: 200,
           statusText: 'OK',
