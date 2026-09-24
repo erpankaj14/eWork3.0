@@ -1,32 +1,6 @@
-<div class="plan-create-container p-4 md:p-6 max-w-7xl mx-auto space-y-6">
-  <!-- Page Header -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-    <div class="flex items-center space-x-3">
-      <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      </div>
-      <div>
-        <h1 class="text-xl font-bold text-slate-800 dark:text-white">
-          {{ languageService.currentLang === 'hi' ? 'कार्य योजना निर्माण एवं प्रेषण' : 'Create & Forward District Plan' }}
-        </h1>
-        <p class="text-xs text-slate-5-00 dark:text-slate-400">
-          {{ languageService.currentLang === 'hi' ? 'नवीन योजना विवरण भरें एवं जिला योजना पीडीएफ अपलोड करके राज्य स्तर पर प्रेषित करें' : 'Enter plan details and upload District PDF for forwarding to State Approval' }}
-        </p>
-      </div>
-    </div>
+<div class="plan-create-container p-4 md:p-6 max-w-[1600px] mx-auto space-y-6">
 
-    <!-- Quick Status Badge -->
-    <div class="flex items-center space-x-2">
-      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-        <span class="w-2 h-2 rounded-full bg-indigo-500 mr-2 animate-pulse"></span>
-        API Endpoint: /SavePlanDetails & /SavePlanFileandForward
-      </span>
-    </div>
-  </div>
-
-  <!-- Live Toast Banner if active -->
+  <!-- Toast / Status Message Banner -->
   <div *ngIf="statusMessage" [class]="'p-4 rounded-xl border flex items-center justify-between shadow-sm transition-all duration-300 ' + (isSuccess ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200' : 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950 dark:border-rose-800 dark:text-rose-200')">
     <div class="flex items-center space-x-3">
       <svg *ngIf="isSuccess" class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -39,222 +13,449 @@
     </div>
   </div>
 
-  <!-- Plan Form & Upload Grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- STAGE 1: Plan Details Top Filter Card (Ref Images 2 & 5) -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <!-- Header -->
+    <div class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-6 py-4">
+      <h1 class="text-2xl font-bold text-center text-slate-800 dark:text-white tracking-wide">
+        Plan Details
+      </h1>
+    </div>
 
-    <!-- Plan Details Entry Card -->
-    <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 space-y-6">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
-        <h2 class="text-lg font-bold text-slate-800 dark:text-white flex items-center">
-          <span class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mr-2.5 text-xs font-bold">1</span>
-          {{ languageService.currentLang === 'hi' ? 'योजना विवरण (Plan Details)' : 'Plan Metadata & Approvals' }}
-        </h2>
-        <span class="text-xs text-slate-400" *ngIf="planId > 0">Plan ID: #{{ planId }}</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Scheme Code -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'योजना का नाम / कोड' : 'Scheme Name / Code' }} <span class="text-rose-500">*</span>
+    <!-- Filters Row -->
+    <div class="p-6">
+      <form (ngSubmit)="onFilterSubmit()" class="flex flex-col md:flex-row items-end justify-center gap-6 max-w-4xl mx-auto">
+        
+        <!-- Financial Year Dropdown -->
+        <div class="w-full md:w-1/3">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+            Financial Year
           </label>
-          <select [(ngModel)]="schemeCode" class="form-input">
-            <option *ngFor="let s of schemes" [value]="s.code">
-              {{ s.code }} - {{ s.name }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Financial Year -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'वित्तीय वर्ष (Financial Year)' : 'Financial Year' }} <span class="text-rose-500">*</span>
-          </label>
-          <select [(ngModel)]="finYr" class="form-input">
+          <select [(ngModel)]="selectedFinYr" name="finYr" class="w-full h-11 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 text-sm">
+            <option value="">--Select Financial Year--</option>
             <option *ngFor="let fy of finYears" [value]="fy">{{ fy }}</option>
           </select>
         </div>
 
-        <!-- Budget Type Master -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'बजट प्रकार (Budget Type)' : 'Budget Type' }}
+        <!-- Scheme Dropdown -->
+        <div class="w-full md:w-1/2">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+            Scheme
           </label>
-          <select [(ngModel)]="budgetTypeId" class="form-input">
-            <option [ngValue]="null">-- Select Budget Type --</option>
-            <option *ngFor="let bt of budgetTypes" [value]="bt.id">
-              {{ bt.budgetTypeCode ? bt.budgetTypeCode + ' - ' : '' }}
-              {{ languageService.currentLang === 'hi' ? (bt.budgetTypeNameHi || bt.budgetTypeName) : bt.budgetTypeName }}
+          <select [(ngModel)]="selectedSchemeCode" name="schemeCode" class="w-full h-11 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
+            <option [ngValue]="null">--Select Scheme--</option>
+            <option *ngFor="let s of schemes" [value]="s.code">
+              {{ s.name }}
             </option>
           </select>
         </div>
 
-        <!-- District Code -->
+        <!-- Submit Button -->
         <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'जिला कोड (District Code)' : 'District Code' }}
-          </label>
-          <input type="text" [(ngModel)]="districtCode" class="form-input" placeholder="e.g. 101" />
-          <p class="text-[10px] text-slate-400 mt-0.5">District code derived from token if logged in</p>
+          <button type="submit" [disabled]="isLoadingPlans" class="h-11 px-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md shadow-indigo-500/20 transition duration-150 flex items-center justify-center min-w-[110px]">
+            <svg *ngIf="isLoadingPlans" class="animate-spin h-4 w-4 mr-2 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Submit</span>
+          </button>
         </div>
 
-        <!-- Work Name -->
-        <div class="md:col-span-2">
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'कार्य का नाम (Work Name)' : 'Work Name / Description' }} <span class="text-rose-500">*</span>
-          </label>
-          <input type="text" [(ngModel)]="workName" class="form-input" placeholder="e.g. Construction of Community Hall" />
-        </div>
+      </form>
+    </div>
+  </div>
 
-        <!-- Work Type -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'कार्य प्रकार (Work Type)' : 'Work Type' }}
-          </label>
-          <select [(ngModel)]="workType" class="form-input">
-            <option *ngFor="let wt of workTypes" [value]="wt">{{ wt }}</option>
-          </select>
-        </div>
-
-        <!-- Constituency Code -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'विधानसभा क्षेत्र कोड (Constituency Code)' : 'Constituency Code (ConstCode)' }}
-          </label>
-          <input type="text" [(ngModel)]="constCode" class="form-input" placeholder="e.g. 101" />
-        </div>
-
-        <!-- Sector Area -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'क्षेत्र (Sector Area)' : 'Sector Area (Rural/Urban)' }}
-          </label>
-          <select [(ngModel)]="sectorArea" class="form-input">
-            <option *ngFor="let sa of sectorAreas" [value]="sa">{{ sa }}</option>
-          </select>
-        </div>
-
-        <!-- Work Category -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'कार्य श्रेणी (Work Category)' : 'Work Category' }}
-          </label>
-          <select [(ngModel)]="workCategory" class="form-input">
-            <option *ngFor="let wc of workCategories" [value]="wc">{{ wc }}</option>
-          </select>
-        </div>
-
-        <!-- DLC Approval Date -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'डीएलसी अनुमोदन तिथि (DLC Date)' : 'DLC Approval Date (dd/MM/yyyy)' }} <span class="text-rose-500">*</span>
-          </label>
-          <input type="text" [(ngModel)]="dlcApprovalDate" class="form-input" placeholder="dd/MM/yyyy" />
-        </div>
-
-        <!-- Block Approval Date -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'ब्लॉक अनुमोदन तिथि (Block Date)' : 'Block Approval Date (dd/MM/yyyy)' }} <span class="text-rose-500">*</span>
-          </label>
-          <input type="text" [(ngModel)]="blockApprovalDate" class="form-input" placeholder="dd/MM/yyyy" />
-        </div>
-
-        <!-- Total Estimated Cost -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'कुल अनुमानित लागत (लाख में)' : 'Total Estimated Cost (in Lakhs)' }}
-          </label>
-          <input type="number" [(ngModel)]="totalEstimatedCost" class="form-input" placeholder="0.00" />
-        </div>
-
-        <!-- State Approval Date (Optional for district) -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            {{ languageService.currentLang === 'hi' ? 'राज्य स्तरीय समिति तिथि (SLC Date)' : 'SLC Approval Date (dd/MM/yyyy)' }}
-          </label>
-          <input type="text" [(ngModel)]="slcApprovalDate" class="form-input" placeholder="dd/MM/yyyy (Optional)" />
-        </div>
-      </div>
-
-      <!-- Remarks / Description -->
-      <div>
-        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-          {{ languageService.currentLang === 'hi' ? 'टिप्पणी / विवरण (Remarks)' : 'Plan Remarks / Notes' }}
-        </label>
-        <textarea [(ngModel)]="remarks" rows="3" class="form-input" placeholder="Enter any notes or remarks regarding this plan entry..."></textarea>
-      </div>
-
-      <!-- Save Button Group -->
-      <div class="flex items-center justify-end space-x-3 pt-2">
-        <button type="button" (click)="onResetForm()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition">
-          {{ languageService.currentLang === 'hi' ? 'रीसेट करें' : 'Reset Form' }}
-        </button>
-        <button type="button" (click)="onSavePlan()" [disabled]="isSaving" class="btn-primary flex items-center space-x-2">
-          <svg *ngIf="isSaving" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+  <!-- STAGE 2: Table & Action Bar (Ref Image 5) -->
+  <div *ngIf="isFilterSubmitted" class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+    
+    <!-- Action Bar: +Add Work, Forward to State, Search -->
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700 pb-4">
+      <div class="flex items-center space-x-3 w-full md:w-auto">
+        <!-- +Add Work Button -->
+        <button type="button" (click)="openAddWorkModal()" class="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm flex items-center space-x-2 transition">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          <span>{{ isSaving ? 'Saving...' : (languageService.currentLang === 'hi' ? 'योजना सहेजें (Save Plan)' : 'Save Plan Details') }}</span>
+          <span>+Add Work</span>
         </button>
+
+        <!-- Forward to State Button -->
+        <button type="button" (click)="openForwardModal()" class="px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold text-xs transition">
+          Forward to State
+        </button>
+      </div>
+
+      <!-- Search Filter Input -->
+      <div class="w-full md:w-72 relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search..." class="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500" />
       </div>
     </div>
 
-    <!-- PDF Upload & Forward Side Card -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 space-y-6 flex flex-col justify-between">
-      <div class="space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
-          <h2 class="text-lg font-bold text-slate-800 dark:text-white flex items-center">
-            <span class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center mr-2.5 text-xs font-bold">2</span>
-            {{ languageService.currentLang === 'hi' ? 'पीडीएफ अपलोड एवं प्रेषण' : 'Upload PDF & Forward' }}
-          </h2>
-        </div>
+    <!-- Data Table (23 Columns from Reference Image 5) -->
+    <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg max-h-[600px] overflow-y-auto">
+      <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+        <thead class="sticky top-0 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700 uppercase tracking-wider">
+          <tr>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800 text-center">S.No.</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Plan Created by</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Scheme Name</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800 min-w-[220px]">Work Name</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Sector</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Town</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Block Name</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Gram Panchayat</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Village</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800 text-right">Proposed Amount(in lacs)</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800 text-right">Scheme Amount(in lacs)</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800 text-right">Convergence Amount(in lacs)</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Convergence Scheme</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Category</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Sub Category</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Executive Department</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Executive Agency</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">Priority</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">J-Shree Yojna</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">CM BADP Category</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">MLA Name</th>
+            <th class="p-3 border-r border-slate-200 dark:border-slate-800">DLC Approval Date</th>
+            <th class="p-3">Block Approval Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
+          <tr *ngFor="let item of filteredPlanList; let idx = index" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-center font-semibold text-slate-500">{{ idx + 1 }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['createdBy'] || 'District Admin' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item.schemeName || 'MLALAD' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 font-medium text-slate-900 dark:text-white max-w-xs truncate" [title]="item.workName">{{ item.workName }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['sectorArea'] || 'Rural' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-500">{{ item['town'] || '-' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['blockName'] || 'Amer' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['gramPanchayat'] || 'Kukas' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['village'] || 'Kukas' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-right font-semibold text-indigo-600 dark:text-indigo-400">{{ getAmountNum(item.totalEstimatedCost) | number:'1.2-2' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-right text-slate-700 dark:text-slate-300">{{ getAmountNum(item['schemeAmount'], getAmountNum(item.totalEstimatedCost)) | number:'1.2-2' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-right text-slate-500">{{ getAmountNum(item['convergenceAmount']) | number:'1.2-2' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-500">{{ item['convergenceScheme'] || 'N/A' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['workCategory'] || 'Road & Connectivity' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['subCategory'] || 'CC Road' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['executiveDept'] || 'Panchayati Raj' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['executiveAgency'] || 'GP Amer' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['priority'] || 'First' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-500">{{ item['jShreeYojna'] || 'N/A' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-500">{{ item['cmBadpCategory'] || 'Standard' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-700 dark:text-slate-300">{{ item['mlaName'] || 'Shri Satish Poonia' }}</td>
+            <td class="p-3 border-r border-slate-100 dark:border-slate-700/60 text-slate-600 dark:text-slate-400">{{ item.dlcApprovalDate1 || '-' }}</td>
+            <td class="p-3 text-slate-600 dark:text-slate-400">{{ item.blockApprovalDate1 || '-' }}</td>
+          </tr>
 
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Upload signed District Plan PDF (Max 5 MB) and forward to State Level user for formal review & approval.
+          <!-- Empty Table Message -->
+          <tr *ngIf="filteredPlanList.length === 0">
+            <td colspan="23" class="p-12 text-center text-slate-400">
+              <svg class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              --No Data Found--
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- POPUP MODAL 1: "Work Details" Form Modal (Ref Images 3 & 4) -->
+  <div *ngIf="showAddWorkModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-5xl my-8 overflow-hidden transform transition-all">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
+        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Work Details</h2>
+        <button type="button" (click)="closeAddWorkModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body Form -->
+      <div class="p-6 max-h-[75vh] overflow-y-auto space-y-6 text-xs">
+        <form (ngSubmit)="onSaveWorkDetail()" id="workDetailsForm">
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            
+            <!-- Financial Year (Disabled/Readonly) -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Financial Year <span class="text-rose-500">*</span></label>
+              <input type="text" [value]="selectedFinYr" disabled class="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-semibold" />
+            </div>
+
+            <!-- Scheme (Disabled/Readonly) -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Scheme <span class="text-rose-500">*</span></label>
+              <select [ngModel]="selectedSchemeCode" name="schemeModal" disabled class="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-semibold">
+                <option *ngFor="let s of schemes" [value]="s.code">{{ s.name }}</option>
+              </select>
+            </div>
+
+            <!-- Sector Area Radio -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-2">Sector Area <span class="text-rose-500">*</span></label>
+              <div class="flex items-center space-x-6 h-10">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="radio" [(ngModel)]="sectorArea" name="sectorArea" value="Rural" class="text-indigo-600 focus:ring-indigo-500" />
+                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">Rural</span>
+                </label>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="radio" [(ngModel)]="sectorArea" name="sectorArea" value="Urban" class="text-indigo-600 focus:ring-indigo-500" />
+                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">Urban</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Work Type -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Work Type <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="workType" name="workType" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Select type</option>
+                <option *ngFor="let wt of workTypes" [value]="wt">{{ wt }}</option>
+              </select>
+            </div>
+
+            <!-- Block Level Approval Date -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Block Level Approval Date</label>
+              <input type="text" [(ngModel)]="blockApprovalDate" name="blockApprovalDate" placeholder="dd/MM/yyyy" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500" />
+            </div>
+
+            <!-- DLC Approval Date -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">DLC Approval Date <span class="text-rose-500">*</span></label>
+              <input type="text" [(ngModel)]="dlcApprovalDate" name="dlcApprovalDate" placeholder="dd/MM/yyyy" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500" />
+            </div>
+
+            <!-- Work Name (Full Width) -->
+            <div class="md:col-span-3">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Work Name <span class="text-rose-500">*</span></label>
+              <textarea [(ngModel)]="workName" name="workName" rows="2" placeholder="Enter work title or detailed work description..." class="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
+
+            <!-- District Dropdown -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">District <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="districtCode" name="districtCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">--Select District--</option>
+                <option *ngFor="let d of districts" [value]="d.code">{{ d.name }}</option>
+              </select>
+            </div>
+
+            <!-- Block Name Dropdown -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Block Name <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="blockCode" name="blockCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">--Select Block--</option>
+                <option *ngFor="let b of currentBlocks" [value]="b.code">{{ b.name }}</option>
+              </select>
+            </div>
+
+            <!-- Gram Panchayat Dropdown -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Gram Panchayat <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="gpCode" name="gpCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">--Select Panchayat--</option>
+                <option *ngFor="let gp of currentPanchayats" [value]="gp.code">{{ gp.name }}</option>
+              </select>
+            </div>
+
+            <!-- Village Dropdown -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Village <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="villageCode" name="villageCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">--Select Village--</option>
+                <option *ngFor="let v of currentVillages" [value]="v.code">{{ v.name }}</option>
+              </select>
+            </div>
+
+            <!-- Proposed Amount in Scheme(in lacs) -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Proposed Amount in Scheme(in lacs) <span class="text-rose-500">*</span></label>
+              <input type="number" step="0.01" [(ngModel)]="proposedAmount" name="proposedAmount" placeholder="0.00" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500" />
+            </div>
+
+            <!-- Category -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Category <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="category" name="category" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Select category</option>
+                <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+              </select>
+            </div>
+
+            <!-- Sub Category -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Sub Category <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="subCategory" name="subCategory" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Select Sub Category</option>
+                <option *ngFor="let sc of subCategories" [value]="sc">{{ sc }}</option>
+              </select>
+            </div>
+
+            <!-- Assembly No -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Assembly No <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="assemblyNo" name="assemblyNo" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Select Assembly</option>
+                <option *ngFor="let a of assemblies" [value]="a">{{ a }}</option>
+              </select>
+            </div>
+
+            <!-- Other District MLA Radio -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-2">Other District MLA</label>
+              <div class="flex items-center space-x-6 h-10">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="radio" [(ngModel)]="otherDistrictMla" name="otherDistrictMla" value="Yes" class="text-indigo-600" />
+                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">Yes</span>
+                </label>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="radio" [(ngModel)]="otherDistrictMla" name="otherDistrictMla" value="No" class="text-indigo-600" />
+                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">No</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- MLA Name -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">MLA Name <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="mlaName" name="mlaName" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Select MLA</option>
+                <option *ngFor="let m of mlas" [value]="m">{{ m }}</option>
+              </select>
+            </div>
+
+            <!-- isConvergence Radio -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-2">isConvergence <span class="text-rose-500">*</span></label>
+              <div class="flex items-center space-x-6 h-10">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="radio" [(ngModel)]="isConvergence" name="isConvergence" value="Yes" class="text-indigo-600" />
+                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">Yes</span>
+                </label>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="radio" [(ngModel)]="isConvergence" name="isConvergence" value="No" class="text-indigo-600" />
+                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">No</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Executive Department -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Executive Department <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="executiveDept" name="executiveDept" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Select Executing Department</option>
+                <option *ngFor="let ed of executiveDepts" [value]="ed">{{ ed }}</option>
+              </select>
+            </div>
+
+            <!-- Executive Agency -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Executive Agency <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="executiveAgency" name="executiveAgency" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">--Select Executive Agency--</option>
+                <option *ngFor="let ea of executiveAgencies" [value]="ea">{{ ea }}</option>
+              </select>
+            </div>
+
+            <!-- Priority -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Priority <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="priority" name="priority" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">First</option>
+                <option *ngFor="let pr of priorities" [value]="pr">{{ pr }}</option>
+              </select>
+            </div>
+
+            <!-- J-Shree Yojna -->
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">J-Shree Yojna <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="jShreeYojna" name="jShreeYojna" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Select Yojana</option>
+                <option *ngFor="let js of jShreeYojnas" [value]="js">{{ js }}</option>
+              </select>
+            </div>
+
+          </div>
+
+          <!-- Modal Footer Buttons -->
+          <div class="mt-8 flex items-center justify-center space-x-4 border-t border-slate-100 dark:border-slate-700 pt-6">
+            <button type="submit" [disabled]="isSaving" class="px-8 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md shadow-indigo-500/20 transition flex items-center space-x-2 min-w-[120px] justify-center">
+              <svg *ngIf="isSaving" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ isSaving ? 'Saving...' : 'Submit' }}</span>
+            </button>
+            <button type="button" (click)="closeAddWorkModal()" class="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-semibold transition">
+              Cancel
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- POPUP MODAL 2: "Forward to State" PDF Upload Modal -->
+  <div *ngIf="showForwardModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-lg overflow-hidden transform transition-all">
+      
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white">Save PDF & Forward to State</h2>
+        <button type="button" (click)="closeForwardModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs">
+        <p class="text-slate-600 dark:text-slate-300">
+          Upload signed District Plan PDF (Maximum size: 5 MB) for Scheme <strong>{{ selectedSchemeCode }}</strong> (FY {{ selectedFinYr }}).
         </p>
 
-        <!-- Dropzone / File Picker -->
-        <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-2xl p-6 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition cursor-pointer relative bg-slate-50 dark:bg-slate-800/50">
+        <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center hover:border-indigo-500 transition cursor-pointer relative bg-slate-50 dark:bg-slate-900/50">
           <input type="file" (change)="onFileSelected($event)" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
           <div class="flex flex-col items-center space-y-2">
-            <div class="w-12 h-12 rounded-full bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-300 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-            </div>
-            <p class="text-xs font-semibold text-slate-700 dark:text-slate-200">
-              {{ selectedFileName ? selectedFileName : (languageService.currentLang === 'hi' ? 'पीडीएफ फ़ाइल चुनें या यहाँ ड्रैग करें' : 'Click to select or drag PDF file here') }}
+            <svg class="w-10 h-10 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <p class="font-bold text-slate-700 dark:text-slate-200">
+              {{ selectedFileName ? selectedFileName : 'Click to select or drag PDF file here' }}
             </p>
             <p class="text-[10px] text-slate-400">PDF format only, Maximum file size 5MB</p>
           </div>
         </div>
 
-        <!-- File selected pill -->
-        <div *ngIf="selectedFileName" class="flex items-center justify-between p-3 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-900 text-xs text-purple-800 dark:text-purple-200">
-          <div class="flex items-center space-x-2 truncate">
-            <svg class="w-4 h-4 text-purple-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+          <button type="button" (click)="closeForwardModal()" class="px-5 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold">
+            Cancel
+          </button>
+          <button type="button" (click)="onSaveAndForwardFile()" [disabled]="isUploading || !selectedPdfFile" class="px-6 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md shadow-purple-500/20 transition flex items-center space-x-2">
+            <svg *ngIf="isUploading" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span class="truncate font-medium">{{ selectedFileName }}</span>
-          </div>
-          <button (click)="selectedPdfFile = null; selectedFileName = ''" class="text-rose-500 hover:text-rose-700 ml-2">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span>{{ isUploading ? 'Uploading...' : 'Save PDF & Forward' }}</span>
           </button>
         </div>
       </div>
 
-      <!-- Action Button -->
-      <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
-        <button type="button" (click)="onSaveAndForwardFile()" [disabled]="isUploading || !selectedPdfFile" class="w-full btn-purple flex items-center justify-center space-x-2 py-3">
-          <svg *ngIf="isUploading" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span>{{ isUploading ? 'Uploading & Forwarding...' : (languageService.currentLang === 'hi' ? 'पीडीएफ सहेजें एवं अग्रेषित करें' : 'Save PDF & Forward to State') }}</span>
-        </button>
-      </div>
     </div>
-
   </div>
+
 </div>
+
