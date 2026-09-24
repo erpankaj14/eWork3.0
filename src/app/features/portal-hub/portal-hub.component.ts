@@ -527,7 +527,200 @@ export class PortalHubComponent implements OnInit, OnDestroy {
   ];
 
   // Core System Administrative Portals & Modules
-  corePortals: CorePortalItem[] = [];
+  corePortals: CorePortalItem[] = [
+    {
+      id: 'master',
+      titleEn: 'Master',
+      titleHi: 'मास्टर प्रबंधन',
+      descEn: 'Navigate URL: /portal/master/scheme-configuration | MVC Path: None | Target: Self',
+      descHi: 'नेविगेट यूआरएल: /portal/master/scheme-configuration | एमवीसी पाथ: कोई नहीं | लक्ष्य: स्वयं',
+      badgeEn: 'admin',
+      badgeHi: 'प्रशासनिक',
+      path: '/portal/master/scheme-configuration',
+      iconType: 'default',
+      colorClass: 'from-blue-600 to-indigo-700',
+      subItemsCount: 1,
+      accent: {
+        topBar: 'bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600',
+        badgeBg: 'bg-blue-50 dark:bg-blue-500/10',
+        badgeText: 'text-blue-700 dark:text-blue-300',
+        badgeBorder: 'border-blue-200 dark:border-blue-500/30',
+        hoverBorder: 'group-hover:border-blue-500 dark:group-hover:border-blue-400',
+        hoverShadow: 'group-hover:shadow-blue-500/15',
+        titleHover: 'group-hover:text-blue-700 dark:group-hover:text-blue-400',
+        stepBg: 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white',
+        btnHover: 'group-hover:bg-blue-600 group-hover:text-white dark:group-hover:bg-blue-600'
+      }
+    },
+    {
+      id: 'sanction',
+      titleEn: 'Sanction',
+      titleHi: 'स्वीकृति प्रबंधन',
+      descEn: 'Navigate URL: /portal/sanction/admin-sanction/entry | MVC Path: None | Target: Self',
+      descHi: 'नेविगेट यूआरएल: /portal/sanction/admin-sanction/entry | एमवीसी पाथ: कोई नहीं | लक्ष्य: स्वयं',
+      badgeEn: 'sanction',
+      badgeHi: 'sanction',
+      path: '/portal/sanction/admin-sanction/entry',
+      iconType: 'default',
+      colorClass: 'from-[#E15B25] to-amber-600',
+      subItemsCount: 2,
+      accent: {
+        topBar: 'bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500',
+        badgeBg: 'bg-orange-50 dark:bg-orange-500/10',
+        badgeText: 'text-orange-700 dark:text-orange-300',
+        badgeBorder: 'border-orange-200 dark:border-orange-500/30',
+        hoverBorder: 'group-hover:border-orange-500 dark:group-hover:border-orange-400',
+        hoverShadow: 'group-hover:shadow-orange-500/15',
+        titleHover: 'group-hover:text-orange-700 dark:group-hover:text-orange-400',
+        stepBg: 'bg-gradient-to-r from-orange-500 to-amber-500 text-white',
+        btnHover: 'group-hover:bg-orange-500 group-hover:text-white dark:group-hover:bg-orange-600'
+      }
+    },
+    {
+      id: 'transaction',
+      titleEn: 'Transaction',
+      titleHi: 'लेन-देन एवं कार्य प्रस्ताव',
+      descEn: 'Navigate URL: /portal/transaction/work-proposal | MVC Path: None | Target: Self',
+      descHi: 'नेविगेट यूआरएल: /portal/transaction/work-proposal | एमवीसी पाथ: कोई नहीं | लक्ष्य: स्वयं',
+      badgeEn: 'transaction',
+      badgeHi: 'transaction',
+      path: '/portal/transaction/work-proposal',
+      iconType: 'default',
+      colorClass: 'from-rose-600 to-red-700',
+      subItemsCount: 3,
+      accent: {
+        topBar: 'bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500',
+        badgeBg: 'bg-orange-50 dark:bg-orange-500/10',
+        badgeText: 'text-orange-700 dark:text-orange-300',
+        badgeBorder: 'border-orange-200 dark:border-orange-500/30',
+        hoverBorder: 'group-hover:border-orange-500 dark:group-hover:border-orange-400',
+        hoverShadow: 'group-hover:shadow-orange-500/15',
+        titleHover: 'group-hover:text-orange-700 dark:group-hover:text-orange-400',
+        stepBg: 'bg-gradient-to-r from-orange-500 to-amber-500 text-white',
+        btnHover: 'group-hover:bg-orange-500 group-hover:text-white dark:group-hover:bg-orange-600'
+      }
+    },
+    {
+      id: 'reports',
+      titleEn: 'Reports',
+      titleHi: 'रिपोर्ट्स एवं डैशबोर्ड',
+      descEn: 'Navigate URL: /portal/reports/physical-progress | MVC Path: None | Target: Self',
+      descHi: 'नेविगेट यूआरएल: /portal/reports/physical-progress | एमवीसी पाथ: कोई नहीं | लक्ष्य: स्वयं',
+      badgeEn: 'reports',
+      badgeHi: 'reports',
+      path: '/portal/reports/physical-progress',
+      iconType: 'default',
+      colorClass: 'from-emerald-600 to-teal-700',
+      subItemsCount: 4,
+      accent: {
+        topBar: 'bg-gradient-to-r from-emerald-500 via-teal-500 to-green-600',
+        badgeBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+        badgeText: 'text-emerald-700 dark:text-emerald-300',
+        badgeBorder: 'border-emerald-200 dark:border-emerald-500/30',
+        hoverBorder: 'group-hover:border-emerald-500 dark:group-hover:border-emerald-400',
+        hoverShadow: 'group-hover:shadow-emerald-500/15',
+        titleHover: 'group-hover:text-emerald-700 dark:group-hover:text-emerald-400',
+        stepBg: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white',
+        btnHover: 'group-hover:bg-emerald-500 group-hover:text-white dark:group-hover:bg-emerald-600'
+      }
+    },
+    {
+      id: 'uccc',
+      titleEn: 'UC/CC',
+      titleHi: 'उपयोगिता / पूर्णता प्रमाण पत्र',
+      descEn: 'Navigate URL: /portal/uccc/uc-entry | MVC Path: None | Target: Self',
+      descHi: 'नेविगेट यूआरएल: /portal/uccc/uc-entry | एमवीसी पाथ: कोई नहीं | लक्ष्य: स्वयं',
+      badgeEn: 'uccc',
+      badgeHi: 'uccc',
+      path: '/portal/uccc/uc-entry',
+      iconType: 'default',
+      colorClass: 'from-purple-600 to-indigo-800',
+      subItemsCount: 5,
+      accent: {
+        topBar: 'bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600',
+        badgeBg: 'bg-blue-50 dark:bg-blue-500/10',
+        badgeText: 'text-blue-700 dark:text-blue-300',
+        badgeBorder: 'border-blue-200 dark:border-blue-500/30',
+        hoverBorder: 'group-hover:border-blue-500 dark:group-hover:border-blue-400',
+        hoverShadow: 'group-hover:shadow-blue-500/15',
+        titleHover: 'group-hover:text-blue-700 dark:group-hover:text-blue-400',
+        stepBg: 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white',
+        btnHover: 'group-hover:bg-blue-600 group-hover:text-white dark:group-hover:bg-blue-600'
+      }
+    },
+    {
+      id: 'administrator',
+      titleEn: 'Administrator',
+      titleHi: 'प्रशासनिक नियंत्रण',
+      descEn: 'Navigate URL: /portal/admin/menu-creation | MVC Path: None | Target: Self',
+      descHi: 'नेविगेट यूआरएल: /portal/admin/menu-creation | एमवीसी पाथ: कोई नहीं | लक्ष्य: स्वयं',
+      badgeEn: 'admin',
+      badgeHi: 'प्रशासनिक',
+      path: '/portal/admin/menu-creation',
+      iconType: 'default',
+      colorClass: 'from-slate-700 to-slate-900',
+      subItemsCount: 6,
+      accent: {
+        topBar: 'bg-gradient-to-r from-slate-700 via-indigo-700 to-blue-800',
+        badgeBg: 'bg-slate-100 dark:bg-slate-800',
+        badgeText: 'text-slate-700 dark:text-slate-300',
+        badgeBorder: 'border-slate-300 dark:border-slate-700',
+        hoverBorder: 'group-hover:border-slate-500 dark:group-hover:border-slate-400',
+        hoverShadow: 'group-hover:shadow-slate-500/15',
+        titleHover: 'group-hover:text-slate-800 dark:group-hover:text-slate-200',
+        stepBg: 'bg-gradient-to-r from-slate-700 to-indigo-700 text-white',
+        btnHover: 'group-hover:bg-slate-700 group-hover:text-white dark:group-hover:bg-slate-600'
+      }
+    },
+    {
+      id: 'mpk',
+      titleEn: 'MPK',
+      titleHi: 'महात्मा गांधी पंचायत केंद्र',
+      descEn: 'Navigate URL: /portal/mpk/kendra | MVC Path: None | Target: Self',
+      descHi: 'नेविगेट यूआरएल: /portal/mpk/kendra | एमवीसी पाथ: कोई नहीं | लक्ष्य: स्वयं',
+      badgeEn: 'mpk',
+      badgeHi: 'mpk',
+      path: '/portal/mpk/kendra',
+      iconType: 'default',
+      colorClass: 'from-[#0F7A3E] to-emerald-800',
+      subItemsCount: 7,
+      accent: {
+        topBar: 'bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600',
+        badgeBg: 'bg-green-50 dark:bg-green-500/10',
+        badgeText: 'text-green-700 dark:text-green-300',
+        badgeBorder: 'border-green-200 dark:border-green-500/30',
+        hoverBorder: 'group-hover:border-green-500 dark:group-hover:border-green-400',
+        hoverShadow: 'group-hover:shadow-green-500/15',
+        titleHover: 'group-hover:text-green-700 dark:group-hover:text-green-400',
+        stepBg: 'bg-gradient-to-r from-green-600 to-emerald-600 text-white',
+        btnHover: 'group-hover:bg-green-600 group-hover:text-white dark:group-hover:bg-green-600'
+      }
+    },
+    {
+      id: 'help',
+      titleEn: 'Help',
+      titleHi: 'सहायता एवं निर्देशिका',
+      descEn: 'Navigate URL: /portal/help/user-manual | MVC Path: None | Target: Self',
+      descHi: 'नेविगेट यूआरएल: /portal/help/user-manual | एमवीसी पाथ: कोई नहीं | लक्ष्य: स्वयं',
+      badgeEn: 'help',
+      badgeHi: 'help',
+      path: '/portal/help/user-manual',
+      iconType: 'default',
+      colorClass: 'from-rose-600 to-red-700',
+      subItemsCount: 8,
+      accent: {
+        topBar: 'bg-gradient-to-r from-rose-500 via-red-500 to-pink-500',
+        badgeBg: 'bg-rose-50 dark:bg-rose-500/10',
+        badgeText: 'text-rose-600 dark:text-rose-300',
+        badgeBorder: 'border-rose-200 dark:border-rose-500/30',
+        hoverBorder: 'group-hover:border-rose-500 dark:group-hover:border-rose-400',
+        hoverShadow: 'group-hover:shadow-rose-500/15',
+        titleHover: 'group-hover:text-rose-600 dark:group-hover:text-rose-400',
+        stepBg: 'bg-gradient-to-r from-rose-500 to-red-500 text-white',
+        btnHover: 'group-hover:bg-rose-500 group-hover:text-white dark:group-hover:bg-rose-600'
+      }
+    }
+  ];
 
   getThemeClass(id: string): string {
     const cleanId = id.toLowerCase().trim();
