@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   ApiListResponse, ApiResponse, DeleteResult,
   MenuDetailsDto, MenuFlagDto, MenuIdResult,
@@ -13,7 +14,7 @@ import {
 export class MenuApiService {
   private readonly http = inject(HttpClient);
   
-  private readonly baseUrl = 'http://10.130.3.10/iwmsapi/api/IwmsWeb';
+  private readonly baseUrl = environment.iwmsApiBaseUrl;
 
   getParentMenus(): Observable<ApiListResponse<ParentMenuDto>> {
     return this.http.get<ApiListResponse<ParentMenuDto>>(

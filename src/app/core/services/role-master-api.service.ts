@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   ApiListResponse,
   ApiResponse,
@@ -12,7 +13,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class RoleMasterApiService {
-  private readonly baseUrl = 'http://10.130.3.10/iwmsapi/api/IwmsWeb';
+  private readonly baseUrl = environment.iwmsApiBaseUrl;
 
   constructor(private readonly http: HttpClient) {}
 

@@ -183,8 +183,23 @@
       </div>
     </div>
 
-    <!-- 9 Core Portals Grid (3 columns on large screens) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Loading State indicator for Dynamic API Menus -->
+    <div *ngIf="isLoadingPortals" class="py-12 flex flex-col items-center justify-center space-y-3 bg-white/50 dark:bg-dark-900/50 rounded-2xl border border-slate-200 dark:border-dark-750">
+      <div class="w-10 h-10 border-4 border-[#E15B25] border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-sm font-bold text-slate-600 dark:text-slate-300 font-devanagari">
+        {{ (languageService.currentLang$ | async) === 'hi' ? 'डायनामिक API मेनू लोड हो रहे हैं...' : 'Loading dynamic API menus...' }}
+      </p>
+    </div>
+
+    <!-- Empty State if no API menus returned -->
+    <div *ngIf="!isLoadingPortals && filteredPortals.length === 0" class="py-10 text-center bg-white/50 dark:bg-dark-900/50 rounded-2xl border border-slate-200 dark:border-dark-750">
+      <p class="text-sm font-bold text-slate-500 font-devanagari">
+        {{ (languageService.currentLang$ | async) === 'hi' ? 'कोई मेनू डेटा उपलब्ध नहीं है।' : 'No menu data available from API.' }}
+      </p>
+    </div>
+
+    <!-- Core Dynamic Portals Grid (Loaded from API) -->
+    <div *ngIf="!isLoadingPortals && filteredPortals.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
       <div *ngFor="let portal of filteredPortals" (click)="navigateToPortal(portal.path)"
         [ngClass]="getThemeClass(portal.id)" class="group card-premium bg-white dark:bg-[#0F172A] cursor-pointer">

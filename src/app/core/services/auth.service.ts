@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 export interface UserSession {
   username: string;
@@ -176,7 +177,7 @@ export class AuthService {
         .set('device_id', 'WEB_BROWSER_CLIENT')
         .set('type', userType);
 
-      const url = `${BASE_URL}/api/SsoLogin`;
+      const url = environment.ssoLoginUrl;
       const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
 
       console.log('Sending SSO Login request payload to intranet endpoint...', {

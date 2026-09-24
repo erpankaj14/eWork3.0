@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 import {
   ApiListResponse,
   ApiResponse,
@@ -22,7 +23,7 @@ export class PlanApiService {
     return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   }
 
-  private readonly baseUrl = 'http://10.130.3.10/api/IwmsWeb';
+  private readonly baseUrl = environment.rdWebApiBaseUrl;
 
   /**
    * Helper to retrieve locally saved plans from browser storage
