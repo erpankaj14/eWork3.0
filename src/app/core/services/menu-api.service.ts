@@ -13,10 +13,7 @@ import {
 export class MenuApiService {
   private readonly http = inject(HttpClient);
   
-  private get baseUrl(): string {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    return isLocalhost ? '/iwmsapi/api/IwmsWeb' : 'http://10.130.3.10/iwmsapi/api/IwmsWeb';
-  }
+  private readonly baseUrl = 'http://10.130.3.10/iwmsapi/api/IwmsWeb';
 
   getParentMenus(): Observable<ApiListResponse<ParentMenuDto>> {
     return this.http.get<ApiListResponse<ParentMenuDto>>(

@@ -22,9 +22,7 @@ export class PlanApiService {
     return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   }
 
-  private get baseUrl(): string {
-    return this.isLocalhost ? '/api/IwmsWeb' : 'http://10.130.3.10/api/IwmsWeb';
-  }
+  private readonly baseUrl = 'http://10.130.3.10/api/IwmsWeb';
 
   /**
    * Helper to retrieve locally saved plans from browser storage
