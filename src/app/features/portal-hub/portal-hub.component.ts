@@ -1160,8 +1160,8 @@ export class PortalHubComponent implements OnInit, OnDestroy {
 
   loadDynamicMenus(token: string): void {
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseUrl = isLocalhost ? '/iwmsapi' : 'http://10.130.3.10/iwmsapi';
-    const url = `${baseUrl}/api/IwmsWeb/GetParentMenus`;
+    const baseUrl = isLocalhost ? '' : 'http://10.130.3.10';
+    const url = `${baseUrl}/iwmsapi/api/IwmsWeb/GetParentMenus`;
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
