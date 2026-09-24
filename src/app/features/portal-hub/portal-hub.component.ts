@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LanguageService } from '../../core/services/language.service';
 import { AuthService, UserSession } from '../../core/services/auth.service';
+import { MenuApiService } from '../../core/services/menu-api.service';
 
 export interface CardAccent {
   topBar: string;
@@ -761,7 +762,8 @@ export class PortalHubComponent implements OnInit, OnDestroy {
     public languageService: LanguageService,
     private authService: AuthService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private menuApiService: MenuApiService
   ) { }
 
   ngOnInit(): void {
@@ -1159,11 +1161,7 @@ export class PortalHubComponent implements OnInit, OnDestroy {
   }
 
   loadDynamicMenus(token: string): void {
-    const url = 'http://10.130.3.10/iwmsapi/api/IwmsWeb/GetParentMenus';
-
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    this.http.get<any>(url, { headers }).subscribe({
+    this.menuApiService.getParentMenus().subscribe({
       next: (response) => {
         if (response && response.success && response.data) {
           this.mapApiMenusToPortals(response.data);
