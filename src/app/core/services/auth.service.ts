@@ -153,8 +153,7 @@ export class AuthService {
 
   // ═══ BACKEND SECURE SSO LOGIN INTEGRATION ═══
   async loginWithBackend(ssoId: string, pswd: string, userType: string = 'portal'): Promise<boolean> {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const BASE_URL = isLocalhost ? '' : 'http://10.130.3.10';
+    const BASE_URL = 'http://10.130.3.10';
     const HEX_IV = '881F7841B563695E1A3DDEE1EE8CAEB0';
     const HEX_KEY = '70B3BAEB69E82EEBCAD94CB48EE80625FE11FC4FC72D6D256839628D9F04D963';
 

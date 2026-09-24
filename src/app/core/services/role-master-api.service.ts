@@ -12,11 +12,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class RoleMasterApiService {
-  private get baseUrl(): string {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const apiHost = isLocalhost ? '' : 'http://10.130.3.10';
-    return `${apiHost}/iwmsapi/api/IwmsWeb`;
-  }
+  private readonly baseUrl = 'http://10.130.3.10/iwmsapi/api/IwmsWeb';
 
   constructor(private readonly http: HttpClient) {}
 
