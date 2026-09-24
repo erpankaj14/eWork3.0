@@ -29,7 +29,8 @@ export class AuthService {
     department: 'Rural Development and Panchayati Raj Department',
     departmentHi: 'ग्रामीण विकास एवं पंचायती राज विभाग',
     loginTime: '27/07/2026, 10:59 AM',
-    portalVersion: 'e-Work Integrated Work Monitoring System (Version 3.0)'
+    portalVersion: 'e-Work Integrated Work Monitoring System (Version 3.0)',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mocktoken'
   };
 
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
