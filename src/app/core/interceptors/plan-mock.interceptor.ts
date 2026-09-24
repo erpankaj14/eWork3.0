@@ -70,7 +70,7 @@ export const planMockInterceptor: HttpInterceptorFn = (req, next) => {
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const urlLower = req.url.toLowerCase();
 
-  // For Localhost development, intercept mock endpoints directly to return HTTP 200 OK without 401 errors
+  // On localhost, intercept mock endpoints directly to return HTTP 200 OK without failing XHR 401s
   if (isLocalhost) {
     // 1. GetParentMenus
     if (urlLower.includes('getparentmenus')) {
