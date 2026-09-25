@@ -246,7 +246,7 @@
             <!-- District Dropdown -->
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">District <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="districtCode" name="districtCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <select [(ngModel)]="districtCode" (change)="onDistrictChange()" name="districtCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">--Select District--</option>
                 <option *ngFor="let d of districts" [value]="d.code">{{ d.name }}</option>
               </select>
@@ -255,18 +255,18 @@
             <!-- Block Name Dropdown -->
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Block Name <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="blockCode" name="blockCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <select [(ngModel)]="blockCode" (change)="onBlockChange()" name="blockCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">--Select Block--</option>
-                <option *ngFor="let b of currentBlocks" [value]="b.code">{{ b.name }}</option>
+                <option *ngFor="let b of blocksList" [value]="b.code">{{ b.name }}</option>
               </select>
             </div>
 
             <!-- Gram Panchayat Dropdown -->
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Gram Panchayat <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="gpCode" name="gpCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <select [(ngModel)]="gpCode" (change)="onPanchayatChange()" name="gpCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">--Select Panchayat--</option>
-                <option *ngFor="let gp of currentPanchayats" [value]="gp.code">{{ gp.name }}</option>
+                <option *ngFor="let gp of panchayatsList" [value]="gp.code">{{ gp.name }}</option>
               </select>
             </div>
 
@@ -275,7 +275,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Village <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="villageCode" name="villageCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">--Select Village--</option>
-                <option *ngFor="let v of currentVillages" [value]="v.code">{{ v.name }}</option>
+                <option *ngFor="let v of villagesList" [value]="v.code">{{ v.name }}</option>
               </select>
             </div>
 
@@ -290,7 +290,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Category <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="category" name="category" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">Select category</option>
-                <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+                <option *ngFor="let c of categoriesList" [value]="c.name">{{ c.name }}</option>
               </select>
             </div>
 
@@ -299,7 +299,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Sub Category <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="subCategory" name="subCategory" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">Select Sub Category</option>
-                <option *ngFor="let sc of subCategories" [value]="sc">{{ sc }}</option>
+                <option *ngFor="let sc of subCategoriesList" [value]="sc.name">{{ sc.name }}</option>
               </select>
             </div>
 
@@ -308,7 +308,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Assembly No <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="assemblyNo" name="assemblyNo" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">Select Assembly</option>
-                <option *ngFor="let a of assemblies" [value]="a">{{ a }}</option>
+                <option *ngFor="let a of mlaList" [value]="a.assemblyNo">{{ a.assemblyNo }} - {{ a.name }}</option>
               </select>
             </div>
 
@@ -332,7 +332,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">MLA Name <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="mlaName" name="mlaName" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">Select MLA</option>
-                <option *ngFor="let m of mlas" [value]="m">{{ m }}</option>
+                <option *ngFor="let m of mlaList" [value]="m.name">{{ m.name }}</option>
               </select>
             </div>
 
@@ -356,7 +356,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Executive Department <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="executiveDept" name="executiveDept" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">Select Executing Department</option>
-                <option *ngFor="let ed of executiveDepts" [value]="ed">{{ ed }}</option>
+                <option *ngFor="let ed of deptList" [value]="ed.name">{{ ed.name }}</option>
               </select>
             </div>
 
@@ -365,7 +365,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Executive Agency <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="executiveAgency" name="executiveAgency" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
                 <option value="">--Select Executive Agency--</option>
-                <option *ngFor="let ea of executiveAgencies" [value]="ea">{{ ea }}</option>
+                <option *ngFor="let ea of agencyList" [value]="ea.name">{{ ea.name }}</option>
               </select>
             </div>
 

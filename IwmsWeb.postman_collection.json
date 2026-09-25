@@ -1,0 +1,793 @@
+{
+  "info": {
+    "_postman_id": "5b458c96-bc70-468f-be78-57f95c47a91d",
+    "name": "IwmsWeb",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "38166760",
+    "_collection_link": "https://go.postman.co/collection/38166760-5b458c96-bc70-468f-be78-57f95c47a91d?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "https://localhost:7107/api/SsoLogin",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "SsoId",
+              "value": "0/O/WTF2SY/vZmdk/XVAAeEp8rJgUdQFyRVeYLU=",
+              "type": "text",
+              "uuid": "7ab2596c-7e6e-43ab-8e00-8d9891bf97ff"
+            },
+            {
+              "key": "SsoPassword",
+              "value": "8/O3W3t9aNSxZ2NybYl7LpFG+8lKBW0gC+yqVQ==",
+              "type": "text",
+              "uuid": "0003a13a-f316-482a-83ba-db784c42be35"
+            },
+            {
+              "key": "imei_no",
+              "value": "45354",
+              "type": "text",
+              "uuid": "a7baa4d1-728b-4316-bae4-5d3e7fe1ba68"
+            },
+            {
+              "key": "device_id",
+              "value": "76745",
+              "type": "text",
+              "uuid": "b451452b-2066-48ba-953d-c4103cb3f3a6"
+            },
+            {
+              "key": "Type",
+              "value": "E",
+              "type": "text",
+              "uuid": "08ba59ee-5b5e-45a1-b74a-fbaa74588ade"
+            }
+          ]
+        },
+        "url": {
+          "raw": "https://localhost:7107/api/SsoLogin",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "7107",
+          "path": [
+            "api",
+            "SsoLogin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10.130.3.10_SsoLogin",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "SsoId",
+              "value": "0/O/WTF2SY/vZmdk/XVAAeEp8rJgUdQFyRVeYLU=",
+              "type": "text",
+              "uuid": "7ab2596c-7e6e-43ab-8e00-8d9891bf97ff"
+            },
+            {
+              "key": "SsoPassword",
+              "value": "8/O3W3t9aNSxZ2NybYl7LpFG+8lKBW0gC+yqVQ==",
+              "type": "text",
+              "uuid": "0003a13a-f316-482a-83ba-db784c42be35"
+            },
+            {
+              "key": "imei_no",
+              "value": "45354",
+              "type": "text",
+              "uuid": "a7baa4d1-728b-4316-bae4-5d3e7fe1ba68"
+            },
+            {
+              "key": "device_id",
+              "value": "76745",
+              "type": "text",
+              "uuid": "b451452b-2066-48ba-953d-c4103cb3f3a6"
+            },
+            {
+              "key": "Type",
+              "value": "E",
+              "type": "text",
+              "uuid": "08ba59ee-5b5e-45a1-b74a-fbaa74588ade"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/SsoLogin",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "SsoLogin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://localhost:7107/api/IwmsWeb/GetParentMenus",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiI2ZGFhNTcwMy0xODQzLTQwOGQtOGM3MS0xNTY3ZDQ1YjRlNjgiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3ODY0Mjk0NzcsImV4cCI6MTc4NjQzMDY3NywiaWF0IjoxNzg2NDI5NDc3LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.qMoYq56bJDIq_8V0HD860SmY0o8aeAQsW5fEtUbDQCs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:7107/api/IwmsWeb/GetParentMenus",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "7107",
+          "path": [
+            "api",
+            "IwmsWeb",
+            "GetParentMenus"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10.130.3.10-GetParentMenus",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiI2ZGFhNTcwMy0xODQzLTQwOGQtOGM3MS0xNTY3ZDQ1YjRlNjgiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3ODY0Mjk0NzcsImV4cCI6MTc4NjQzMDY3NywiaWF0IjoxNzg2NDI5NDc3LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.qMoYq56bJDIq_8V0HD860SmY0o8aeAQsW5fEtUbDQCs",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/IwmsWeb/GetParentMenus",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "IwmsWeb",
+            "GetParentMenus"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/IwmsWeb/GetRoleMenuRights/6",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{json_web_token_08if}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/IwmsWeb/GetRoleMenuRights/6",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "IwmsWeb",
+            "GetRoleMenuRights",
+            "6"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/IwmsWeb/GetRoleLoginTypes",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiI0ODkyMmY5Yi05YjdjLTQ2YjctYjU3Ni02NGFlZDVmZjY4NmQiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3ODg5NDcyNjcsImV4cCI6MTc4ODk0ODQ2NywiaWF0IjoxNzg4OTQ3MjY3LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.skIivHRoPW-qU5t6NZv_cu0WtEHG0ueKwOrvlDOsouE",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/IwmsWeb/GetRoleLoginTypes",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "IwmsWeb",
+            "GetRoleLoginTypes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/api/IwmsWeb/SavePlanDetails",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"id\": 0,\r\n  \"schemeCode\": 5,\r\n  \"finYr\": \"2026-27\",\r\n    \"districtCode\":\"12\",\r\n  \"workName\": \"Construction of Community Hall\",\r\n  \"workType\": \"New Work\",\r\n  \"constCode\": \"101\",\r\n  \"sectorArea\": \"Rural\",\r\n  \"workCategory\": \"Building\",\r\n  \"slcApprovalDate1\": \"23/09/2026\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://10.130.3.10/api/IwmsWeb/SavePlanDetails",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "api",
+            "IwmsWeb",
+            "SavePlanDetails"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/api/IwmsWeb/BudgetTypeList",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiI1MGZjMzE4Ny0xMWIyLTQ1MzQtYWZlNS1hMjMxOTg3ZjVmNmQiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3OTAxNTc5MjksImV4cCI6MTc5MDE1OTEyOSwiaWF0IjoxNzkwMTU3OTI5LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.olpywp6zXg824FOrnQ1a0kf_CQ4aYgKo_XGryyQI5Us",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://10.130.3.10/api/IwmsWeb/BudgetTypeList",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "api",
+            "IwmsWeb",
+            "BudgetTypeList"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/Block",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiI0OTZmYWVkMS05OGU3LTQ5NmEtOWE3OS01NTQ1MjI2ZWRmZWMiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3OTAyMjc0ODgsImV4cCI6MTc5MDIyODY4OCwiaWF0IjoxNzkwMjI3NDg4LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.Ed3GI5PSsGor44MEI76tM3zcxJS-WwdwFetIpuMbDEU",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "DistrictCode",
+              "value": "12"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/Block",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "Block"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/GramPanchayat",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiI0OTZmYWVkMS05OGU3LTQ5NmEtOWE3OS01NTQ1MjI2ZWRmZWMiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3OTAyMjc0ODgsImV4cCI6MTc5MDIyODY4OCwiaWF0IjoxNzkwMjI3NDg4LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.Ed3GI5PSsGor44MEI76tM3zcxJS-WwdwFetIpuMbDEU",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "DistrictCode",
+              "value": "12"
+            },
+            {
+              "key": "BlockCode",
+              "value": "0001"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/GramPanchayat",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "GramPanchayat"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/Village",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiI0OTZmYWVkMS05OGU3LTQ5NmEtOWE3OS01NTQ1MjI2ZWRmZWMiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3OTAyMjc0ODgsImV4cCI6MTc5MDIyODY4OCwiaWF0IjoxNzkwMjI3NDg4LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.Ed3GI5PSsGor44MEI76tM3zcxJS-WwdwFetIpuMbDEU",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "DistrictCode",
+              "value": "12"
+            },
+            {
+              "key": "BlockCode",
+              "value": "0001"
+            },
+            {
+              "key": "PanchayatCode",
+              "value": "0001"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/Village",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "Village"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/GetWorkCategories",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiIyZGNhMzljNi00N2NiLTQ1NjktODBjMS0zYTZiZGVkYTAyOGUiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3OTAzMTEyNzUsImV4cCI6MTc5MDMxMjQ3NSwiaWF0IjoxNzkwMzExMjc1LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.RuBpm9Vnyi3nwzUNR1_WHCyIBTTiSHKiw8-UVVu3TXg",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "DistrictCode",
+              "value": "12",
+              "disabled": true
+            },
+            {
+              "key": "BlockCode",
+              "value": "0001",
+              "disabled": true
+            },
+            {
+              "key": "PanchayatCode",
+              "value": "0001",
+              "disabled": true
+            },
+            {
+              "key": "assembly",
+              "value": "16",
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/Master/GetWorkCategories",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "Master",
+            "GetWorkCategories"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/GetWorkCategories Copy",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiI3N2U2OTQzMy0xYzY1LTQ2ZjQtOTJkYy02NzkyZDE2ODY5YTUiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3OTAzMTE5NTQsImV4cCI6MTc5MDMxMzE1NCwiaWF0IjoxNzkwMzExOTU0LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.qOuwNWkyRjiowhL_xM34VJIW60OCFdIssulUDu4y6DQ",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "DistrictCode",
+              "value": "12",
+              "disabled": true
+            },
+            {
+              "key": "BlockCode",
+              "value": "0001",
+              "disabled": true
+            },
+            {
+              "key": "PanchayatCode",
+              "value": "0001",
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/Master/GetWorkSubCategories?sector=01",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "Master",
+            "GetWorkSubCategories"
+          ],
+          "query": [
+            {
+              "key": "sector",
+              "value": "01"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/MlaList",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiI3N2U2OTQzMy0xYzY1LTQ2ZjQtOTJkYy02NzkyZDE2ODY5YTUiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3OTAzMTE5NTQsImV4cCI6MTc5MDMxMzE1NCwiaWF0IjoxNzkwMzExOTU0LCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.qOuwNWkyRjiowhL_xM34VJIW60OCFdIssulUDu4y6DQ",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "DistrictCode",
+              "value": "12",
+              "disabled": true
+            },
+            {
+              "key": "BlockCode",
+              "value": "0001",
+              "disabled": true
+            },
+            {
+              "key": "PanchayatCode",
+              "value": "0001",
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/Master/MlaList?assembly=16",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "Master",
+            "MlaList"
+          ],
+          "query": [
+            {
+              "key": "assembly",
+              "value": "16"
+            },
+            {
+              "key": "sector",
+              "value": "01",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/Agency",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiJmN2Y5NDE3Zi02NzE2LTQzMWQtYjJhMy1iMDc0MzBjNGNkMmIiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3OTAzMTMyODEsImV4cCI6MTc5MDMxNDQ4MSwiaWF0IjoxNzkwMzEzMjgxLCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.S49-Qhwh16V1S1TCU4hM1C3YOjoVO8_yPiHOetDudZk",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "DistrictCode",
+              "value": "12"
+            },
+            {
+              "key": "BlockCode",
+              "value": "0001",
+              "disabled": true
+            },
+            {
+              "key": "PanchayatCode",
+              "value": "0001",
+              "disabled": true
+            },
+            {
+              "key": "AgencyId",
+              "value": "6"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/Agency",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "Agency"
+          ],
+          "query": [
+            {
+              "key": "sector",
+              "value": "01",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://10.130.3.10/iwmsapi/api/Department",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNhZG1pbjEiLCJqdGkiOiJmN2Y5NDE3Zi02NzE2LTQzMWQtYjJhMy1iMDc0MzBjNGNkMmIiLCJVc2VyTmFtZSI6Im5pY2FkbWluMSIsIkRldmljZUlkIjoiNzY3NDUiLCJEaXN0cmljdENvZGUiOiIwIiwiQmxvY2tDb2RlIjoiMDAwMCIsIlVzZXJUeXBlIjoiNiIsIlVzZXJJZCI6Im5pY2FkbWluMSIsIlVpZCI6IjUzNzc4IiwiU3NvSWQiOiJBTklMLkpBSU4zMjUyIiwiVXNlckxldmVUeXBlIjoiTiIsIlVzZXJMZXZlbENvZGUiOiIxIiwiVG9rZW5UeXBlIjoiSW50ZXJuYWwiLCJuYmYiOjE3OTAzMTMyODEsImV4cCI6MTc5MDMxNDQ4MSwiaWF0IjoxNzkwMzEzMjgxLCJpc3MiOiJOSUMiLCJhdWQiOiJSRCJ9.S49-Qhwh16V1S1TCU4hM1C3YOjoVO8_yPiHOetDudZk",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "DistrictCode",
+              "value": "12",
+              "disabled": true
+            },
+            {
+              "key": "BlockCode",
+              "value": "0001",
+              "disabled": true
+            },
+            {
+              "key": "PanchayatCode",
+              "value": "0001",
+              "disabled": true
+            },
+            {
+              "key": "AgencyId",
+              "value": "6",
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://10.130.3.10/iwmsapi/api/Department",
+          "protocol": "http",
+          "host": [
+            "10",
+            "130",
+            "3",
+            "10"
+          ],
+          "path": [
+            "iwmsapi",
+            "api",
+            "Department"
+          ],
+          "query": [
+            {
+              "key": "sector",
+              "value": "01",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "json_web_token_1egw",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_08if",
+      "secret": true
+    }
+  ]
+}
