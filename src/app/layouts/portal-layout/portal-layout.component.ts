@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { LanguageService } from '../../core/services/language.service';
 import { AuthService, UserSession } from '../../core/services/auth.service';
+import { MenuApiService } from '../../core/services/menu-api.service';
 
 export interface DropdownMenu {
   id: string;
@@ -254,7 +255,8 @@ export class PortalLayoutComponent implements OnInit {
   constructor(
     public languageService: LanguageService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private menuApiService: MenuApiService
   ) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -275,7 +277,62 @@ export class PortalLayoutComponent implements OnInit {
       this.user = session || this.authService.getCurrentUser();
     });
 
+    this.loadDynamicSidebarMenus();
     this.updateLayoutState(this.router.url);
+  }
+
+  private loadDynamicSidebarMenus(): void {
+    this.menuApiService.getParentMenus().subscribe({
+      next: (response) => {
+        if (response && response.success && response.data && response.data.length > 0) {
+          const dynamicMenus: DropdownMenu[] = [];
+          const parentItems = response.data;
+          let loadedCount = 0;
+
+          parentItems.forEach(parent => {
+            const key = parent.menuNameE ? parent.menuNameE.toLowerCase().trim() : '';
+            const existingDefault = this.menus.find(m => m.id === key);
+
+            this.menuApiService.getMenus(parent.menuId).subscribe({
+              next: (childResp) => {
+                loadedCount++;
+                const childItems = (childResp && childResp.data && childResp.data.length > 0)
+                  ? childResp.data.map(c => ({
+                      title: c.menuNameE || '',
+                      titleHi: c.menuNameH || c.menuNameE || '',
+                      path: c.navigateUrl ? c.navigateUrl.replace(/^\/portal\//, '') : undefined,
+                      badge: c.isMvc ? 'MVC' : undefined
+                    }))
+                  : (existingDefault ? existingDefault.items : []);
+
+                dynamicMenus.push({
+                  id: key,
+                  label: parent.menuNameE || '',
+                  labelHi: parent.menuNameH || parent.menuNameE || '',
+                  items: childItems
+                });
+
+                if (loadedCount === parentItems.length) {
+                  this.menus = dynamicMenus;
+                  this.updateLayoutState(this.router.url);
+                }
+              },
+              error: () => {
+                loadedCount++;
+                if (existingDefault) dynamicMenus.push(existingDefault);
+                if (loadedCount === parentItems.length && dynamicMenus.length > 0) {
+                  this.menus = dynamicMenus;
+                  this.updateLayoutState(this.router.url);
+                }
+              }
+            });
+          });
+        }
+      },
+      error: (err) => {
+        console.warn('PortalLayoutComponent: Failed to load dynamic sidebar menus from API:', err);
+      }
+    });
   }
 
   updateLayoutState(url: string): void {
