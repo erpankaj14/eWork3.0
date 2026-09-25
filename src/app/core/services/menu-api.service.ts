@@ -23,18 +23,18 @@ export class MenuApiService {
     ).pipe(
       catchError((err) => {
         console.warn('MenuApiService: GetParentMenus endpoint unreachable. Returning fallback dynamic menus.', err);
-        return of({
+        return of<ApiListResponse<ParentMenuDto>>({
           success: true,
           count: 8,
           data: [
-            { menuId: 1, menuNameE: 'Master', menuNameH: 'मास्टर प्रबंधन', menuType: 'admin', orderNo: 1, navigateUrl: '/portal/master/scheme-configuration', mvcPath: null, target: 'Self', parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
-            { menuId: 2, menuNameE: 'Sanction', menuNameH: 'स्वीकृति प्रबंधन', menuType: 'sanction', orderNo: 2, navigateUrl: '/portal/sanction/admin-sanction/entry', mvcPath: null, target: 'Self', parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
-            { menuId: 3, menuNameE: 'Transaction', menuNameH: 'लेन-देन एवं कार्य प्रस्ताव', menuType: 'transaction', orderNo: 3, navigateUrl: '/portal/transaction/work-proposal', mvcPath: null, target: 'Self', parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
-            { menuId: 4, menuNameE: 'Reports', menuNameH: 'रिपोर्ट्स एवं डैशबोर्ड', menuType: 'reports', orderNo: 4, navigateUrl: '/portal/reports/physical-progress', mvcPath: null, target: 'Self', parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
-            { menuId: 5, menuNameE: 'UC/CC', menuNameH: 'उपयोगिता / पूर्णता प्रमाण पत्र', menuType: 'uccc', orderNo: 5, navigateUrl: '/portal/uccc/uc-entry', mvcPath: null, target: 'Self', parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
-            { menuId: 6, menuNameE: 'Administrator', menuNameH: 'प्रशासनिक नियंत्रण', menuType: 'admin', orderNo: 6, navigateUrl: '/portal/admin/menu-creation', mvcPath: null, target: 'Self', parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
-            { menuId: 7, menuNameE: 'MPK', menuNameH: 'महात्मा गांधी पंचायत केंद्र', menuType: 'mpk', orderNo: 7, navigateUrl: '/portal/mpk/kendra', mvcPath: null, target: 'Self', parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
-            { menuId: 8, menuNameE: 'Help', menuNameH: 'सहायता एवं निर्देशिका', menuType: 'help', orderNo: 8, navigateUrl: '/portal/help/user-manual', mvcPath: null, target: 'Self', parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 }
+            { menuId: 1, menuNameE: 'Master', menuNameH: 'मास्टर प्रबंधन', menuNameG: null, menuType: 'admin', orderNo: 1, navigateUrl: '/portal/master/scheme-configuration', mvcPath: null, parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
+            { menuId: 2, menuNameE: 'Sanction', menuNameH: 'स्वीकृति प्रबंधन', menuNameG: null, menuType: 'sanction', orderNo: 2, navigateUrl: '/portal/sanction/admin-sanction/entry', mvcPath: null, parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
+            { menuId: 3, menuNameE: 'Transaction', menuNameH: 'लेन-देन एवं कार्य प्रस्ताव', menuNameG: null, menuType: 'transaction', orderNo: 3, navigateUrl: '/portal/transaction/work-proposal', mvcPath: null, parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
+            { menuId: 4, menuNameE: 'Reports', menuNameH: 'रिपोर्ट्स एवं डैशबोर्ड', menuNameG: null, menuType: 'reports', orderNo: 4, navigateUrl: '/portal/reports/physical-progress', mvcPath: null, parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
+            { menuId: 5, menuNameE: 'UC/CC', menuNameH: 'उपयोगिता / पूर्णता प्रमाण पत्र', menuNameG: null, menuType: 'uccc', orderNo: 5, navigateUrl: '/portal/uccc/uc-entry', mvcPath: null, parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
+            { menuId: 6, menuNameE: 'Administrator', menuNameH: 'प्रशासनिक नियंत्रण', menuNameG: null, menuType: 'admin', orderNo: 6, navigateUrl: '/portal/admin/menu-creation', mvcPath: null, parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
+            { menuId: 7, menuNameE: 'MPK', menuNameH: 'महात्मा गांधी पंचायत केंद्र', menuNameG: null, menuType: 'mpk', orderNo: 7, navigateUrl: '/portal/mpk/kendra', mvcPath: null, parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 },
+            { menuId: 8, menuNameE: 'Help', menuNameH: 'सहायता एवं निर्देशिका', menuNameG: null, menuType: 'help', orderNo: 8, navigateUrl: '/portal/help/user-manual', mvcPath: null, parentId: null, imgUrl: null, isMlaMp: null, isMvc: false, isEstimate: false, imgColor: null, menuFlag: 1 }
           ]
         });
       })
@@ -47,7 +47,7 @@ export class MenuApiService {
     ).pipe(
       catchError((err) => {
         console.warn('MenuApiService: GetMenuFlags endpoint unreachable. Returning fallback flags.', err);
-        return of({
+        return of<ApiListResponse<MenuFlagDto>>({
           success: true,
           count: 2,
           data: [
@@ -78,7 +78,7 @@ export class MenuApiService {
     ).pipe(
       catchError((err) => {
         console.warn('MenuApiService: GetMenus endpoint unreachable. Returning fallback menu items.', err);
-        return of({
+        return of<ApiListResponse<MenuListItemDto>>({
           success: true,
           count: 5,
           data: [
@@ -99,12 +99,12 @@ export class MenuApiService {
     ).pipe(
       catchError((err) => {
         console.warn(`MenuApiService: GetMenu/${menuId} endpoint unreachable. Returning fallback details.`, err);
-        return of({
+        return of<ApiResponse<MenuDetailsDto>>({
           success: true,
           message: 'Menu details retrieved',
           data: {
             menuId,
-            menuType: 'MainMenu',
+            menuType: 'MainMenu' as MenuLevelName,
             mainMenuId: null,
             parentMenuId: null,
             menuNameE: 'Sample Menu',
@@ -129,7 +129,7 @@ export class MenuApiService {
     ).pipe(
       catchError((err) => {
         console.warn('MenuApiService: CreateMenu endpoint unreachable. Returning success fallback.', err);
-        return of({
+        return of<ApiResponse<MenuIdResult>>({
           success: true,
           message: 'Menu created successfully!',
           data: { menuId: Math.floor(Math.random() * 900 + 200) }
@@ -147,7 +147,7 @@ export class MenuApiService {
     ).pipe(
       catchError((err) => {
         console.warn(`MenuApiService: UpdateMenu/${menuId} endpoint unreachable. Returning success fallback.`, err);
-        return of({
+        return of<ApiResponse<MenuIdResult>>({
           success: true,
           message: 'Menu updated successfully!',
           data: { menuId }
@@ -162,7 +162,7 @@ export class MenuApiService {
     ).pipe(
       catchError((err) => {
         console.warn(`MenuApiService: DeleteMenu/${menuId} endpoint unreachable. Returning success fallback.`, err);
-        return of({
+        return of<ApiResponse<DeleteResult>>({
           success: true,
           message: 'Menu deleted successfully!',
           data: { deletedCount: 1 }
@@ -179,7 +179,7 @@ export class MenuApiService {
     ).pipe(
       catchError((err) => {
         console.warn('MenuApiService: UpdateMenuOrder endpoint unreachable. Returning success fallback.', err);
-        return of({
+        return of<ApiResponse<OrderResult>>({
           success: true,
           message: 'Menu order updated successfully!',
           data: { updatedCount: body.menuIds.length }
