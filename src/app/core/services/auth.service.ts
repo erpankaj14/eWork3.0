@@ -154,110 +154,72 @@ export class AuthService {
   }
 
   // ═══ BACKEND SECURE SSO LOGIN INTEGRATION ═══
-  async loginWithBackend(ssoId: string, pswd: string, userType: string = 'portal'): Promise<boolean> {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const BASE_URL = 'http://10.130.3.10';
+  async loginWithBackend(ssoId: string, pswd: string, userType: string = 'E'): Promise<boolean> {
     const HEX_IV = '881F7841B563695E1A3DDEE1EE8CAEB0';
     const HEX_KEY = '70B3BAEB69E82EEBCAD94CB48EE80625FE11FC4FC72D6D256839628D9F04D963';
 
     try {
-      // 1. Perform client-side AES-GCM encryption on Credentials
-      const enc_ssoId = await this.encryptAesGcm(ssoId.trim(), HEX_KEY, HEX_IV);
-      const enc_pswd = await this.encryptAesGcm(pswd, HEX_KEY, HEX_IV);
+      // 1. Perform client-side AES-GCM encryption on Credentials if not already encrypted
+      const enc_ssoId = ssoId.includes('=') && ssoId.length > 25
+        ? ssoId.trim()
+        : await this.encryptAesGcm(ssoId.trim(), HEX_KEY, HEX_IV);
+
+      const enc_pswd = pswd.includes('=') && pswd.length > 25
+        ? pswd
+        : await this.encryptAesGcm(pswd, HEX_KEY, HEX_IV);
 
       if (!enc_ssoId || !enc_pswd) {
         throw new Error('Encryption failed. Unable to securely encrypt login credentials.');
       }
 
-      // 2. Prepare payload as x-www-form-urlencoded for the API
+      // 2. Prepare payload as x-www-form-urlencoded for ASP.NET Backend API
       const payload = new HttpParams()
         .set('ssoId', enc_ssoId)
+        .set('SsoId', enc_ssoId)
         .set('ssoPassword', enc_pswd)
-        .set('imei_no', 'WEB_BROWSER_CLIENT')
-        .set('device_id', 'WEB_BROWSER_CLIENT')
-        .set('type', userType);
+        .set('SsoPassword', enc_pswd)
+        .set('imei_no', '45354')
+        .set('device_id', '76745')
+        .set('type', userType || 'E')
+        .set('Type', userType || 'E');
 
       const url = environment.ssoLoginUrl;
       const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
 
-      console.log('Sending SSO Login request payload to intranet endpoint...', {
+      console.log('Sending SSO Login request payload to backend endpoint...', {
         url,
         body: payload.toString()
       });
 
-      let response: any = null;
-      try {
-        response = await firstValueFrom(
-          this.http.post(url, payload.toString(), { headers })
-        );
-        console.log('SSO Login backend response received:', response);
-      } catch (httpError: any) {
-        console.warn('Backend SsoLogin API unreachable or returned HTTP error (e.g. Intranet server 10.130.3.10 error):', httpError);
-        if (isLocalhost) {
-          console.log('Localhost development fallback: Logging user in locally.');
-          const customUser: Partial<UserSession> = {
-            username: ssoId.trim() || 'jaipur',
-            district: 'JAIPUR',
-            districtHi: 'जयपुर',
-            role: 'District Administrator',
-            roleHi: 'जिला अधिकारी',
-            department: 'Rural Development and Panchayati Raj Department',
-            departmentHi: 'ग्रामीण विकास एवं पंचायती राज विभाग',
-            token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVhdGVkX2F0IjoxNzI2NDg5ODAwfQ.mocktoken'
-          };
-          this.login(customUser);
-          return true;
-        }
-        throw httpError;
-      }
+      const response: any = await firstValueFrom(
+        this.http.post(url, payload.toString(), { headers })
+      );
+      console.log('SSO Login backend response received:', response);
 
-      // 3. Map successful response or handle status
-      if (response && (response.isSuccessful === true || response.success === true)) {
+      // 3. Check response status strictly
+      if (response && (response.isSuccessful === true || response.success === true || response.token || response.result?.app_auth_token)) {
+        const token = response.result?.app_auth_token || response.token || response.app_auth_token || '';
+        if (token) {
+          localStorage.setItem('access_token', token);
+        }
         const customUser: Partial<UserSession> = {
-          username: ssoId.trim(),
+          username: response.username || ssoId.trim(),
           district: response.district || 'JAIPUR',
           districtHi: response.districtHi || 'जयपुर',
           role: response.role || 'District Administrator',
           roleHi: response.roleHi || 'जिला अधिकारी',
           department: response.department || 'Rural Development and Panchayati Raj Department',
           departmentHi: response.departmentHi || 'ग्रामीण विकास एवं पंचायती राज विभाग',
-          token: response.result?.app_auth_token || response.token || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mocktoken'
-        };
-        this.login(customUser);
-        return true;
-      } else if (isLocalhost) {
-        // Fallback for localhost if backend returned response with failure flag
-        const customUser: Partial<UserSession> = {
-          username: ssoId.trim(),
-          district: 'JAIPUR',
-          districtHi: 'जयपुर',
-          role: 'District Administrator',
-          roleHi: 'जिला अधिकारी',
-          department: 'Rural Development and Panchayati Raj Department',
-          departmentHi: 'ग्रामीण विकास एवं पंचायती राज विभाग',
-          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mocktoken'
+          token: token
         };
         this.login(customUser);
         return true;
       } else {
-        throw new Error(response?.message || 'अमान्य क्रेडेंशियल (Invalid credentials).');
+        const errorMsg = response?.message || response?.error || 'अमान्य क्रेडेंशियल (Invalid credentials).';
+        throw new Error(errorMsg);
       }
     } catch (error: any) {
       console.error('SSO Backend Auth Error:', error);
-      if (isLocalhost) {
-        const customUser: Partial<UserSession> = {
-          username: ssoId.trim() || 'jaipur',
-          district: 'JAIPUR',
-          districtHi: 'जयपुर',
-          role: 'District Administrator',
-          roleHi: 'जिला अधिकारी',
-          department: 'Rural Development and Panchayati Raj Department',
-          departmentHi: 'ग्रामीण विकास एवं पंचायती राज विभाग',
-          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mocktoken'
-        };
-        this.login(customUser);
-        return true;
-      }
       throw error;
     }
   }

@@ -5,7 +5,6 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideTranslateService } from '@ngx-translate/core';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { planMockInterceptor } from './core/interceptors/plan-mock.interceptor';
 import { provideToastr } from 'ngx-toastr';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -17,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideCharts(withDefaultRegisterables()),
-    provideHttpClient(withInterceptors([authInterceptor, planMockInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor])),
     provideTranslateService({
       fallbackLang: 'en'
     }),
@@ -25,3 +24,4 @@ export const appConfig: ApplicationConfig = {
     provideToastr()
   ]
 };
+
