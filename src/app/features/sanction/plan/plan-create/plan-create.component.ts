@@ -121,10 +121,47 @@ export class PlanCreateComponent implements OnInit {
   deptList: { id: any; name: string }[] = [];
   agencyList: { id: any; name: string }[] = [];
 
+  get assemblies(): string[] {
+    return this.mlaList.length > 0
+      ? this.mlaList.map(m => `${m.assemblyNo} - ${m.name}`)
+      : ['16 - Amber', '102 - Hawa Mahal', '103 - Vidhyadhar Nagar'];
+  }
+
+  get mlas(): string[] {
+    return this.mlaList.length > 0
+      ? this.mlaList.map(m => m.name)
+      : ['Shri Satish Poonia', 'Shri Rajendra Rathore', 'Smt. Diya Kumari'];
+  }
+
+  get executiveDepts(): string[] {
+    return this.deptList.length > 0
+      ? this.deptList.map(d => d.name)
+      : ['Panchayati Raj Department', 'Public Works Department (PWD)', 'Water Resources Dept (WRD)', 'Public Health Engineering Dept (PHED)'];
+  }
+
+  get executiveAgencies(): string[] {
+    return this.agencyList.length > 0
+      ? this.agencyList.map(a => a.name)
+      : ['Gram Panchayat Amer', 'Block Development Officer Amer', 'Executive Engineer PWD Jaipur'];
+  }
+
+  get categories(): string[] {
+    return this.categoriesList.length > 0
+      ? this.categoriesList.map(c => c.name)
+      : ['Road & Connectivity', 'Building & Infra', 'Water & Sanitation', 'Irrigation & Agri', 'Community Development'];
+  }
+
+  get subCategories(): string[] {
+    return this.subCategoriesList.length > 0
+      ? this.subCategoriesList.map(sc => sc.name)
+      : ['Concrete Road (CC Road)', 'Community Hall / Panchayat Ghar', 'Drinking Water Tube Well', 'Drainage Pipeline', 'School Classroom'];
+  }
+
   workTypes = ['New Work', 'Maintenance Work', 'Renovation', 'Extension', 'Upgradation'];
   priorities = ['First', 'Second', 'Third', 'Fourth'];
   jShreeYojnas = ['J-Shree Phase 1', 'J-Shree Phase 2', 'Not Applicable'];
   budgetTypes: BudgetType[] = [];
+
 
   // File Upload State
   selectedPdfFile: File | null = null;
@@ -342,26 +379,19 @@ export class PlanCreateComponent implements OnInit {
     this.showForwardModal = false;
   }
 
-  // Dependent Dropdown Handlers
+  // Dynamic Dependent Dropdown Handlers
   get currentBlocks() {
-    return this.blocksMap[this.districtCode] || [
-      { code: 'B101', name: 'Amer (आमेर)' },
-      { code: 'B102', name: 'Sanganer (सांगानेर)' }
-    ];
+    return this.blocksList;
   }
 
   get currentPanchayats() {
-    return this.panchayatsMap[this.blockCode] || [
-      { code: 'GP01', name: 'Kukas (कुकास)' },
-      { code: 'GP02', name: 'Chandwaji (चंदवाजी)' }
-    ];
+    return this.panchayatsList;
   }
 
   get currentVillages() {
-    return this.villagesMap[this.gpCode] || [
-      { code: 'V01', name: 'Kukas Village (कुकास गांव)' }
-    ];
+    return this.villagesList;
   }
+
 
   /**
    * Save Plan Work Details via API (Fixes HTTP 400 Bad Request error)
