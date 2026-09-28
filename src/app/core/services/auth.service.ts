@@ -172,28 +172,35 @@ export class AuthService {
         throw new Error('Encryption failed. Unable to securely encrypt login credentials.');
       }
 
-      // 2. Prepare payload as x-www-form-urlencoded for ASP.NET Backend API
-      const payload = new HttpParams()
-        .set('ssoId', enc_ssoId)
-        .set('SsoId', enc_ssoId)
-        .set('ssoPassword', enc_pswd)
-        .set('SsoPassword', enc_pswd)
-        .set('imei_no', '45354')
-        .set('device_id', '76745')
-        .set('type', userType || 'E')
-        .set('Type', userType || 'E');
+      // 2. Prepare properly URL-encoded x-www-form-urlencoded body (encodes '+' to '%2B' to prevent C# Base64 corruption)
+      const bodyString = [
+        `SsoId=${encodeURIComponent(enc_ssoId)}`,
+        `SsoPassword=${encodeURIComponent(enc_pswd)}`,
+        `imei_no=${encodeURIComponent('45354')}`,
+        `device_id=${encodeURIComponent('76745')}`,
+        `Type=${encodeURIComponent(userType || 'E')}`
+      ].join('&');
 
-      const url = environment.ssoLoginUrl;
       const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
 
-      console.log('Sending SSO Login request payload to backend endpoint...', {
-        url,
-        body: payload.toString()
-      });
+      // Try main /api/SsoLogin URL first, fallback to /iwmsapi/api/SsoLogin if 400/404 occurs
+      let response: any = null;
+      const primaryUrl = environment.ssoLoginUrl; // /api/SsoLogin
+      const secondaryUrl = '/iwmsapi/api/SsoLogin';
 
-      const response: any = await firstValueFrom(
-        this.http.post(url, payload.toString(), { headers })
-      );
+      console.log('Sending SSO Login request payload to primary endpoint...', { url: primaryUrl, bodyString });
+
+      try {
+        response = await firstValueFrom(
+          this.http.post(primaryUrl, bodyString, { headers })
+        );
+      } catch (primaryErr: any) {
+        console.warn('Primary endpoint /api/SsoLogin returned error. Retrying with /iwmsapi/api/SsoLogin...', primaryErr);
+        response = await firstValueFrom(
+          this.http.post(secondaryUrl, bodyString, { headers })
+        );
+      }
+
       console.log('SSO Login backend response received:', response);
 
       // 3. Check response status strictly

@@ -69,10 +69,28 @@ export class PlanApiService {
    * 1. Get plan list using filters
    */
   getWorkListOfPlan(filter: PlanModel): Observable<ApiListResponse<PlanModel>> {
+    const cleanPayload: PlanModel = {
+      id: filter.id || 0,
+      schemeCode: Number(filter.schemeCode || 5),
+      finYr: filter.finYr || '2026-27',
+      districtCode: String(filter.districtCode || '12'),
+      dlcApprovalDate1: filter.dlcApprovalDate1 || '28/09/2026',
+      blockApprovalDate1: filter.blockApprovalDate1 || '28/09/2026',
+      slcApprovalDate1: filter.slcApprovalDate1 || '28/09/2026',
+      workName: filter.workName || '',
+      constCode: filter.constCode || ''
+    };
+
     return this.http.post<ApiListResponse<PlanModel>>(
       `${this.baseUrl}/GetWorkListofPlan`,
-      filter
+      cleanPayload
     ).pipe(
+      catchError(() => {
+        return this.http.post<ApiListResponse<PlanModel>>(
+          '/iwmsapi/api/IwmsWeb/GetWorkListofPlan',
+          cleanPayload
+        );
+      }),
       tap((res) => {
         if (res && res.data) {
           const localPlans = this.getLocalPlans();
@@ -84,9 +102,9 @@ export class PlanApiService {
         }
       }),
       catchError((err) => {
-        console.warn('PlanApiService: GetWorkListofPlan endpoint unreachable or 404. Returning combined fallback data.', err);
+        console.warn('PlanApiService: GetWorkListofPlan endpoint unreachable or 400/404. Returning combined local/mock data.', err);
         const localPlans = this.getLocalPlans();
-        const mockPlans = this.getMockPlans(filter);
+        const mockPlans = this.getMockPlans(cleanPayload);
         const combined = [...localPlans, ...mockPlans];
         return of({
           success: true,

@@ -150,8 +150,8 @@ const PROXY_CONFIG = [
         return true;
       }
 
-      // 8. GetWorkListofPlan
-      if (url.includes('getworklistofplan')) {
+      // 8. GetWorkListofPlan / GetWorkListToPlan
+      if (url.includes('getworklist')) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           success: true,

@@ -98,68 +98,114 @@ export const routes: Routes = [
         loadComponent: () => import('./features/sanction/plan/plan-list/plan-list.component').then(m => m.PlanListComponent),
         data: { animation: 'PlanList' }
       },
-      {
-        path: 'stage/:id',
-        loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
-        data: { animation: 'ModuleWorkspace' }
-      },
-      {
-        path: 'master/:id',
-        loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
-        data: { animation: 'ModuleWorkspace' }
-      },
-      {
-        path: 'reports/:id',
-        loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
-        data: { animation: 'ModuleWorkspace' }
-      },
-      {
-        path: 'transaction/:id',
-        loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
-        data: { animation: 'ModuleWorkspace' }
-      },
-      {
-        path: 'uccc/:id',
-        loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
-        data: { animation: 'ModuleWorkspace' }
-      },
-      {
-        path: 'admin/:id',
-        loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
-        data: { animation: 'ModuleWorkspace' }
-      },
-      {
-        path: 'mpk/:id',
-        loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
-        data: { animation: 'ModuleWorkspace' }
-      },
-      {
-        path: 'help/:id',
-        loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
-        data: { animation: 'ModuleWorkspace' }
-      },
-      {
-        path: 'problem/:id',
-        loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent),
-        data: { animation: 'ModuleWorkspace' }
-      },
+
+      // Generic Multi-Segment Routes for Module Workspaces inside Portal Layout
+      { path: 'sanction/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'sanction/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'sanction/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'sanction', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
+      { path: 'master/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'master/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'master/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'master', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
+      { path: 'reports/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'reports/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'reports/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'reports', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
+      { path: 'transaction/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'transaction/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'transaction/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'transaction', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
+      { path: 'uccc/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'uccc/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'uccc/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'uccc', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
+      { path: 'admin/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'admin/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'admin/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'admin', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
+      { path: 'mpk/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'mpk/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'mpk/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'mpk', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
+      { path: 'help/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'help/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'help/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'help', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
+      { path: 'problem/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'problem/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'problem/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'problem', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
+      { path: 'stage/:p1/:p2/:p3', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'stage/:p1/:p2', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'stage/:p1', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+      { path: 'stage', loadComponent: () => import('./features/module-workspace/module-workspace.component').then(m => m.ModuleWorkspaceComponent) },
+
       {
         path: '',
         redirectTo: 'hub',
         pathMatch: 'full'
+      },
+      {
+        path: '**',
+        redirectTo: 'hub'
       }
     ]
   },
-  {
-    path: 'work-monitoring',
-    redirectTo: '/portal/work-monitoring',
-    pathMatch: 'full'
-  },
-  {
-    path: 'hub',
-    redirectTo: '/portal/hub',
-    pathMatch: 'full'
-  },
+
+  // Root-Level Module Catchers redirecting to Portal Layout
+  { path: 'work-monitoring', redirectTo: '/portal/work-monitoring', pathMatch: 'full' },
+  { path: 'hub', redirectTo: '/portal/hub', pathMatch: 'full' },
+  { path: 'sanction/:p1/:p2/:p3', redirectTo: '/portal/sanction/:p1/:p2/:p3' },
+  { path: 'sanction/:p1/:p2', redirectTo: '/portal/sanction/:p1/:p2' },
+  { path: 'sanction/:p1', redirectTo: '/portal/sanction/:p1' },
+  { path: 'sanction', redirectTo: '/portal/sanction' },
+  { path: 'master/:p1/:p2/:p3', redirectTo: '/portal/master/:p1/:p2/:p3' },
+  { path: 'master/:p1/:p2', redirectTo: '/portal/master/:p1/:p2' },
+  { path: 'master/:p1', redirectTo: '/portal/master/:p1' },
+  { path: 'master', redirectTo: '/portal/master' },
+  { path: 'reports/:p1/:p2/:p3', redirectTo: '/portal/reports/:p1/:p2/:p3' },
+  { path: 'reports/:p1/:p2', redirectTo: '/portal/reports/:p1/:p2' },
+  { path: 'reports/:p1', redirectTo: '/portal/reports/:p1' },
+  { path: 'reports', redirectTo: '/portal/reports' },
+  { path: 'transaction/:p1/:p2/:p3', redirectTo: '/portal/transaction/:p1/:p2/:p3' },
+  { path: 'transaction/:p1/:p2', redirectTo: '/portal/transaction/:p1/:p2' },
+  { path: 'transaction/:p1', redirectTo: '/portal/transaction/:p1' },
+  { path: 'transaction', redirectTo: '/portal/transaction' },
+  { path: 'uccc/:p1/:p2/:p3', redirectTo: '/portal/uccc/:p1/:p2/:p3' },
+  { path: 'uccc/:p1/:p2', redirectTo: '/portal/uccc/:p1/:p2' },
+  { path: 'uccc/:p1', redirectTo: '/portal/uccc/:p1' },
+  { path: 'uccc', redirectTo: '/portal/uccc' },
+  { path: 'admin/:p1/:p2/:p3', redirectTo: '/portal/admin/:p1/:p2/:p3' },
+  { path: 'admin/:p1/:p2', redirectTo: '/portal/admin/:p1/:p2' },
+  { path: 'admin/:p1', redirectTo: '/portal/admin/:p1' },
+  { path: 'admin', redirectTo: '/portal/admin' },
+  { path: 'mpk/:p1/:p2/:p3', redirectTo: '/portal/mpk/:p1/:p2/:p3' },
+  { path: 'mpk/:p1/:p2', redirectTo: '/portal/mpk/:p1/:p2' },
+  { path: 'mpk/:p1', redirectTo: '/portal/mpk/:p1' },
+  { path: 'mpk', redirectTo: '/portal/mpk' },
+  { path: 'help/:p1/:p2/:p3', redirectTo: '/portal/help/:p1/:p2/:p3' },
+  { path: 'help/:p1/:p2', redirectTo: '/portal/help/:p1/:p2' },
+  { path: 'help/:p1', redirectTo: '/portal/help/:p1' },
+  { path: 'help', redirectTo: '/portal/help' },
+  { path: 'problem/:p1/:p2/:p3', redirectTo: '/portal/problem/:p1/:p2/:p3' },
+  { path: 'problem/:p1/:p2', redirectTo: '/portal/problem/:p1/:p2' },
+  { path: 'problem/:p1', redirectTo: '/portal/problem/:p1' },
+  { path: 'problem', redirectTo: '/portal/problem' },
+  { path: 'stage/:p1/:p2/:p3', redirectTo: '/portal/stage/:p1/:p2/:p3' },
+  { path: 'stage/:p1/:p2', redirectTo: '/portal/stage/:p1/:p2' },
+  { path: 'stage/:p1', redirectTo: '/portal/stage/:p1' },
+  { path: 'stage', redirectTo: '/portal/stage' },
+
   {
     path: '**',
     redirectTo: 'dashboard'

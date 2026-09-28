@@ -659,8 +659,14 @@ export class PortalHubComponent implements OnInit, OnDestroy {
   }
 
   navigateToPortal(path: string): void {
-    if (path) {
-      this.router.navigate([path]);
+    if (path && path !== '#' && !path.includes('#')) {
+      const cleanPath = path.startsWith('/') ? path : '/' + path;
+      this.router.navigateByUrl(cleanPath).catch(() => {
+        console.warn('Navigation failed for path, staying in portal hub:', cleanPath);
+        this.router.navigate(['/portal/hub']);
+      });
+    } else {
+      this.router.navigate(['/portal/hub']);
     }
   }
 
@@ -1010,7 +1016,8 @@ export class PortalHubComponent implements OnInit, OnDestroy {
       const descEn = `Navigate URL: ${item.navigateUrl || '#'} | MVC Path: ${item.mvcPath || 'None'} | Target: ${item.target || 'Self'}`;
       const descHi = `नेविगेट यूआरएल: ${item.navigateUrl || '#'} | एमवीसी पाथ: ${item.mvcPath || 'कोई नहीं'} | लक्ष्य: ${item.target || 'स्वयं'}`;
 
-      const path = item.navigateUrl || pathMap[key] || '/portal/hub';
+      const isValidNavUrl = item.navigateUrl && item.navigateUrl !== '#' && !item.navigateUrl.includes('#') && item.navigateUrl.trim() !== '';
+      const path = (isValidNavUrl ? item.navigateUrl : null) || pathMap[key] || `/portal/${key}`;
       const accent = this.getCardAccent(key);
 
       mappedPortals.push({

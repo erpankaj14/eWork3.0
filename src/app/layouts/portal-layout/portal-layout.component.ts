@@ -296,14 +296,21 @@ export class PortalLayoutComponent implements OnInit {
             this.menuApiService.getMenus(parent.menuId).subscribe({
               next: (childResp) => {
                 loadedCount++;
-                const childItems = (childResp && childResp.data && childResp.data.length > 0)
-                  ? childResp.data.map(c => ({
-                      title: c.menuNameE || '',
-                      titleHi: c.menuNameH || c.menuNameE || '',
-                      path: c.navigateUrl ? c.navigateUrl.replace(/^\/portal\//, '') : undefined,
-                      badge: c.isMvc ? 'MVC' : undefined
-                    }))
-                  : (existingDefault ? existingDefault.items : []);
+                const hasRichDefaultChildren = existingDefault && existingDefault.items && existingDefault.items.some(i => i.children && i.children.length > 0);
+
+                const childItems = hasRichDefaultChildren
+                  ? existingDefault.items
+                  : ((childResp && childResp.data && childResp.data.length > 0)
+                      ? childResp.data.map(c => {
+                          const isValidNav = !!(c.navigateUrl && c.navigateUrl !== '#' && !c.navigateUrl.includes('#') && c.navigateUrl.trim() !== '');
+                          return {
+                            title: c.menuNameE || '',
+                            titleHi: c.menuNameH || c.menuNameE || '',
+                            path: (isValidNav && c.navigateUrl) ? c.navigateUrl.replace(/^\/portal\//, '') : undefined,
+                            badge: c.isMvc ? 'MVC' : undefined
+                          };
+                        })
+                      : (existingDefault ? existingDefault.items : []));
 
                 dynamicMenus.push({
                   id: key,
@@ -438,10 +445,9 @@ export class PortalLayoutComponent implements OnInit {
     this.isSwitcherOpen = false;
     if (menu.items && menu.items.length > 0) {
       const firstItem = menu.items[0];
-      if (firstItem.path) {
-        this.router.navigate(['/portal/' + firstItem.path]);
-      } else if (firstItem.children && firstItem.children.length > 0 && firstItem.children[0].path) {
-        this.router.navigate(['/portal/' + firstItem.children[0].path]);
+      const targetPath = firstItem.path || (firstItem.children && firstItem.children.length > 0 ? firstItem.children[0].path : undefined);
+      if (targetPath) {
+        this.navigateToPath(targetPath);
       }
     }
   }
@@ -449,7 +455,27 @@ export class PortalLayoutComponent implements OnInit {
   onSubmenuClick(item: any): void {
     this.activeSubmenuItem = item;
     if (item.path) {
-      this.router.navigate(['/portal/' + item.path]);
+      this.navigateToPath(item.path);
+    }
+  }
+
+  private navigateToPath(pathStr: string): void {
+    if (!pathStr) return;
+    let cleanPath = pathStr.trim();
+    if (cleanPath.startsWith('/portal/')) {
+      cleanPath = cleanPath.substring('/portal/'.length);
+    } else if (cleanPath.startsWith('portal/')) {
+      cleanPath = cleanPath.substring('portal/'.length);
+    } else if (cleanPath.startsWith('/')) {
+      cleanPath = cleanPath.substring(1);
+    }
+
+    if (cleanPath && cleanPath !== '#' && !cleanPath.includes('#')) {
+      const targetUrl = '/portal/' + cleanPath;
+      this.router.navigateByUrl(targetUrl).catch((err) => {
+        console.warn('Navigation fallback to portal hub for:', cleanPath, err);
+        this.router.navigateByUrl('/portal/hub');
+      });
     }
   }
 

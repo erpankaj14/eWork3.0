@@ -125,14 +125,17 @@ export class MainLayoutComponent implements OnInit {
       }
     } catch (err: any) {
       console.error('Login submit error:', err);
-      // Clean user-friendly message for network or CORS errors
-      if (err?.status === 0 || err?.message?.includes('Http failure response')) {
+      if (err?.status === 0) {
         this.ssoErrorMessage = 'सर्वर कनेक्शन में त्रुटि: लॉगिन सेवा से संपर्क करने में असमर्थ। कृपया अपने इंटरनेट या वीपीएन (VPN) कनेक्शन की जाँच करें।';
+      } else if (err?.status === 400 || err?.status === 401) {
+        const backendMsg = err?.error?.message || err?.error?.error;
+        this.ssoErrorMessage = backendMsg ? `लॉगिन विफल: ${backendMsg}` : 'लॉगिन विफल: अमान्य SSO ID या पासवर्ड (Invalid Credentials)।';
       } else {
-        this.ssoErrorMessage = err?.message || 'लॉगिन सेवा अनुपलब्ध है। कृपया थोड़ी देर बाद पुनः प्रयास करें।';
+        this.ssoErrorMessage = err?.error?.message || err?.message || 'लॉगिन सेवा में त्रुटि। कृपया क्रेडेंशियल की जाँच करें।';
       }
       this.refreshCaptcha();
-    } finally {
+    }
+ finally {
       this.isSsoLoading = false;
     }
   }

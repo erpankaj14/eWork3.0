@@ -168,58 +168,76 @@
   </div>
 
   <!-- POPUP MODAL 1: "Work Details" Form Modal (Ref Images 3 & 4) -->
-  <div *ngIf="showAddWorkModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-5xl my-8 overflow-hidden transform transition-all">
+  <div *ngIf="showAddWorkModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/75 backdrop-blur-md p-3 sm:p-4 md:p-6 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-700 w-full max-w-5xl my-auto overflow-hidden transform transition-all relative flex flex-col max-h-[90vh] z-[10000]">
       
+      <!-- Top Saffron/Green Accent Line -->
+      <div class="h-1.5 w-full bg-gradient-to-r from-[#E15B25] via-amber-400 to-[#0F7A3E]"></div>
+
       <!-- Modal Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
-        <h2 class="text-xl font-bold text-slate-800 dark:text-white">Work Details</h2>
-        <button type="button" (click)="closeAddWorkModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-850 flex-shrink-0">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-[#E15B25]/10 text-[#E15B25] flex items-center justify-center font-bold shadow-xs">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-black text-[#0B2240] dark:text-white tracking-tight font-devanagari">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'कार्य विवरण प्रविष्टि (Plan Work Details)' : 'Work Details' }}
+            </h2>
+            <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+              {{ (languageService.currentLang$ | async) === 'hi' ? 'ग्रामीण विकास एवं पंचायती राज विभाग - योजना निर्माण प्रपत्र' : 'Rural Development & Panchayati Raj Dept - Plan Creation Form' }}
+            </p>
+          </div>
+        </div>
+
+        <button type="button" (click)="closeAddWorkModal()" class="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
 
-      <!-- Modal Body Form -->
-      <div class="p-6 max-h-[75vh] overflow-y-auto space-y-6 text-xs">
+      <!-- Modal Body Form (Scrollable Viewport) -->
+      <div class="p-6 overflow-y-auto max-h-[72vh] space-y-6 text-xs custom-scrollbar flex-1">
         <form (ngSubmit)="onSaveWorkDetail()" id="workDetailsForm">
           
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             
             <!-- Financial Year (Disabled/Readonly) -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Financial Year <span class="text-rose-500">*</span></label>
-              <input type="text" [value]="selectedFinYr" disabled class="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-semibold" />
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Financial Year <span class="text-rose-500">*</span></label>
+              <input type="text" [value]="selectedFinYr" disabled class="w-full h-10.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold" />
             </div>
 
             <!-- Scheme (Disabled/Readonly) -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Scheme <span class="text-rose-500">*</span></label>
-              <select [ngModel]="selectedSchemeCode" name="schemeModal" disabled class="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-semibold">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Scheme <span class="text-rose-500">*</span></label>
+              <select [ngModel]="selectedSchemeCode" name="schemeModal" disabled class="w-full h-10.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold truncate">
                 <option *ngFor="let s of schemes" [value]="s.code">{{ s.name }}</option>
               </select>
             </div>
 
             <!-- Sector Area Radio -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-2">Sector Area <span class="text-rose-500">*</span></label>
-              <div class="flex items-center space-x-6 h-10">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Sector Area <span class="text-rose-500">*</span></label>
+              <div class="flex items-center space-x-6 h-10.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-850">
                 <label class="inline-flex items-center cursor-pointer">
-                  <input type="radio" [(ngModel)]="sectorArea" name="sectorArea" value="Rural" class="text-indigo-600 focus:ring-indigo-500" />
-                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">Rural</span>
+                  <input type="radio" [(ngModel)]="sectorArea" name="sectorArea" value="Rural" class="w-4 h-4 text-[#E15B25] focus:ring-[#E15B25]" />
+                  <span class="ml-2 font-bold text-slate-700 dark:text-slate-200">Rural</span>
                 </label>
                 <label class="inline-flex items-center cursor-pointer">
-                  <input type="radio" [(ngModel)]="sectorArea" name="sectorArea" value="Urban" class="text-indigo-600 focus:ring-indigo-500" />
-                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">Urban</span>
+                  <input type="radio" [(ngModel)]="sectorArea" name="sectorArea" value="Urban" class="w-4 h-4 text-[#E15B25] focus:ring-[#E15B25]" />
+                  <span class="ml-2 font-bold text-slate-700 dark:text-slate-200">Urban</span>
                 </label>
               </div>
             </div>
 
             <!-- Work Type -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Work Type <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="workType" name="workType" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Work Type <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="workType" name="workType" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select type</option>
                 <option *ngFor="let wt of workTypes" [value]="wt">{{ wt }}</option>
               </select>
@@ -227,26 +245,26 @@
 
             <!-- Block Level Approval Date -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Block Level Approval Date</label>
-              <input type="text" [(ngModel)]="blockApprovalDate" name="blockApprovalDate" placeholder="dd/MM/yyyy" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500" />
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Block Level Approval Date</label>
+              <input type="text" [(ngModel)]="blockApprovalDate" name="blockApprovalDate" placeholder="dd/MM/yyyy" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold" />
             </div>
 
             <!-- DLC Approval Date -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">DLC Approval Date <span class="text-rose-500">*</span></label>
-              <input type="text" [(ngModel)]="dlcApprovalDate" name="dlcApprovalDate" placeholder="dd/MM/yyyy" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500" />
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">DLC Approval Date <span class="text-rose-500">*</span></label>
+              <input type="text" [(ngModel)]="dlcApprovalDate" name="dlcApprovalDate" placeholder="dd/MM/yyyy" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold" />
             </div>
 
-            <!-- Work Name (Full Width) -->
-            <div class="md:col-span-3">
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Work Name <span class="text-rose-500">*</span></label>
-              <textarea [(ngModel)]="workName" name="workName" rows="2" placeholder="Enter work title or detailed work description..." class="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500"></textarea>
+            <!-- Work Name (Full Width Across Grid) -->
+            <div class="md:col-span-2 lg:col-span-3">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Work Name <span class="text-rose-500">*</span></label>
+              <textarea [(ngModel)]="workName" name="workName" rows="2" placeholder="Enter complete work title or detailed proposal description (कार्य का पूरा विवरण दर्ज करें)..." class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-devanagari font-semibold leading-relaxed"></textarea>
             </div>
 
             <!-- District Dropdown -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">District <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="districtCode" (change)="onDistrictChange()" name="districtCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">District <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="districtCode" (change)="onDistrictChange()" name="districtCode" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">--Select District--</option>
                 <option *ngFor="let d of districts" [value]="d.code">{{ d.name }}</option>
               </select>
@@ -254,125 +272,125 @@
 
             <!-- Block Name Dropdown -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Block Name <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="blockCode" (change)="onBlockChange()" name="blockCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Block Name <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="blockCode" (change)="onBlockChange()" name="blockCode" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">--Select Block--</option>
-                <option *ngFor="let b of blocksList" [value]="b.code">{{ b.name }}</option>
+                <option *ngFor="let b of currentBlocks" [value]="b.code">{{ b.name }}</option>
               </select>
             </div>
 
             <!-- Gram Panchayat Dropdown -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Gram Panchayat <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="gpCode" (change)="onPanchayatChange()" name="gpCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Gram Panchayat <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="gpCode" (change)="onPanchayatChange()" name="gpCode" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">--Select Panchayat--</option>
-                <option *ngFor="let gp of panchayatsList" [value]="gp.code">{{ gp.name }}</option>
+                <option *ngFor="let gp of currentPanchayats" [value]="gp.code">{{ gp.name }}</option>
               </select>
             </div>
 
             <!-- Village Dropdown -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Village <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="villageCode" name="villageCode" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Village <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="villageCode" name="villageCode" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">--Select Village--</option>
-                <option *ngFor="let v of villagesList" [value]="v.code">{{ v.name }}</option>
+                <option *ngFor="let v of currentVillages" [value]="v.code">{{ v.name }}</option>
               </select>
             </div>
 
             <!-- Proposed Amount in Scheme(in lacs) -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Proposed Amount in Scheme(in lacs) <span class="text-rose-500">*</span></label>
-              <input type="number" step="0.01" [(ngModel)]="proposedAmount" name="proposedAmount" placeholder="0.00" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500" />
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Proposed Amount in Scheme(in lacs) <span class="text-rose-500">*</span></label>
+              <input type="number" step="0.01" [(ngModel)]="proposedAmount" name="proposedAmount" placeholder="0.00" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-extrabold text-indigo-600 dark:text-amber-300" />
             </div>
 
             <!-- Category -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Category <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="category" name="category" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="category" name="category" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select category</option>
-                <option *ngFor="let c of categoriesList" [value]="c.name">{{ c.name }}</option>
+                <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
               </select>
             </div>
 
             <!-- Sub Category -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Sub Category <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="subCategory" name="subCategory" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Sub Category <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="subCategory" name="subCategory" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select Sub Category</option>
-                <option *ngFor="let sc of subCategoriesList" [value]="sc.name">{{ sc.name }}</option>
+                <option *ngFor="let sc of subCategories" [value]="sc">{{ sc }}</option>
               </select>
             </div>
 
             <!-- Assembly No -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Assembly No <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="assemblyNo" name="assemblyNo" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Assembly No <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="assemblyNo" name="assemblyNo" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select Assembly</option>
-                <option *ngFor="let a of mlaList" [value]="a.assemblyNo">{{ a.assemblyNo }} - {{ a.name }}</option>
+                <option *ngFor="let a of assemblies" [value]="a">{{ a }}</option>
               </select>
             </div>
 
             <!-- Other District MLA Radio -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-2">Other District MLA</label>
-              <div class="flex items-center space-x-6 h-10">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Other District MLA</label>
+              <div class="flex items-center space-x-6 h-10.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-850">
                 <label class="inline-flex items-center cursor-pointer">
-                  <input type="radio" [(ngModel)]="otherDistrictMla" name="otherDistrictMla" value="Yes" class="text-indigo-600" />
-                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">Yes</span>
+                  <input type="radio" [(ngModel)]="otherDistrictMla" name="otherDistrictMla" value="Yes" class="w-4 h-4 text-[#E15B25]" />
+                  <span class="ml-2 font-bold text-slate-700 dark:text-slate-200">Yes</span>
                 </label>
                 <label class="inline-flex items-center cursor-pointer">
-                  <input type="radio" [(ngModel)]="otherDistrictMla" name="otherDistrictMla" value="No" class="text-indigo-600" />
-                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">No</span>
+                  <input type="radio" [(ngModel)]="otherDistrictMla" name="otherDistrictMla" value="No" class="w-4 h-4 text-[#E15B25]" />
+                  <span class="ml-2 font-bold text-slate-700 dark:text-slate-200">No</span>
                 </label>
               </div>
             </div>
 
             <!-- MLA Name -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">MLA Name <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="mlaName" name="mlaName" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">MLA Name <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="mlaName" name="mlaName" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select MLA</option>
-                <option *ngFor="let m of mlaList" [value]="m.name">{{ m.name }}</option>
+                <option *ngFor="let m of mlas" [value]="m">{{ m }}</option>
               </select>
             </div>
 
             <!-- isConvergence Radio -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-2">isConvergence <span class="text-rose-500">*</span></label>
-              <div class="flex items-center space-x-6 h-10">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">isConvergence <span class="text-rose-500">*</span></label>
+              <div class="flex items-center space-x-6 h-10.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-850">
                 <label class="inline-flex items-center cursor-pointer">
-                  <input type="radio" [(ngModel)]="isConvergence" name="isConvergence" value="Yes" class="text-indigo-600" />
-                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">Yes</span>
+                  <input type="radio" [(ngModel)]="isConvergence" name="isConvergence" value="Yes" class="w-4 h-4 text-[#E15B25]" />
+                  <span class="ml-2 font-bold text-slate-700 dark:text-slate-200">Yes</span>
                 </label>
                 <label class="inline-flex items-center cursor-pointer">
-                  <input type="radio" [(ngModel)]="isConvergence" name="isConvergence" value="No" class="text-indigo-600" />
-                  <span class="ml-2 font-semibold text-slate-700 dark:text-slate-200">No</span>
+                  <input type="radio" [(ngModel)]="isConvergence" name="isConvergence" value="No" class="w-4 h-4 text-[#E15B25]" />
+                  <span class="ml-2 font-bold text-slate-700 dark:text-slate-200">No</span>
                 </label>
               </div>
             </div>
 
             <!-- Executive Department -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Executive Department <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="executiveDept" name="executiveDept" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Executive Department <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="executiveDept" name="executiveDept" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select Executing Department</option>
-                <option *ngFor="let ed of deptList" [value]="ed.name">{{ ed.name }}</option>
+                <option *ngFor="let ed of executiveDepts" [value]="ed">{{ ed }}</option>
               </select>
             </div>
 
             <!-- Executive Agency -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Executive Agency <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="executiveAgency" name="executiveAgency" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Executive Agency <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="executiveAgency" name="executiveAgency" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">--Select Executive Agency--</option>
-                <option *ngFor="let ea of agencyList" [value]="ea.name">{{ ea.name }}</option>
+                <option *ngFor="let ea of executiveAgencies" [value]="ea">{{ ea }}</option>
               </select>
             </div>
 
             <!-- Priority -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Priority <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="priority" name="priority" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Priority <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="priority" name="priority" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">First</option>
                 <option *ngFor="let pr of priorities" [value]="pr">{{ pr }}</option>
               </select>
@@ -380,8 +398,8 @@
 
             <!-- J-Shree Yojna -->
             <div>
-              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">J-Shree Yojna <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="jShreeYojna" name="jShreeYojna" class="w-full h-10 px-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">J-Shree Yojna <span class="text-rose-500">*</span></label>
+              <select [(ngModel)]="jShreeYojna" name="jShreeYojna" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select Yojana</option>
                 <option *ngFor="let js of jShreeYojnas" [value]="js">{{ js }}</option>
               </select>
@@ -390,16 +408,16 @@
           </div>
 
           <!-- Modal Footer Buttons -->
-          <div class="mt-8 flex items-center justify-center space-x-4 border-t border-slate-100 dark:border-slate-700 pt-6">
-            <button type="submit" [disabled]="isSaving" class="px-8 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md shadow-indigo-500/20 transition flex items-center space-x-2 min-w-[120px] justify-center">
+          <div class="mt-8 flex items-center justify-center space-x-4 border-t border-slate-100 dark:border-slate-800 pt-6 flex-shrink-0">
+            <button type="submit" [disabled]="isSaving" class="btn-shiny-saffron px-8 py-2.5 rounded-xl font-extrabold text-sm shadow-md flex items-center space-x-2 min-w-[140px] justify-center cursor-pointer">
               <svg *ngIf="isSaving" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span>{{ isSaving ? 'Saving...' : 'Submit' }}</span>
+              <span>{{ isSaving ? 'सुरक्षित हो रहा है...' : 'सुरक्षित करें (Submit)' }}</span>
             </button>
-            <button type="button" (click)="closeAddWorkModal()" class="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-semibold transition">
-              Cancel
+            <button type="button" (click)="closeAddWorkModal()" class="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 font-bold transition cursor-pointer">
+              रद्द करें (Cancel)
             </button>
           </div>
 
@@ -410,46 +428,49 @@
   </div>
 
   <!-- POPUP MODAL 2: "Forward to State" PDF Upload Modal -->
-  <div *ngIf="showForwardModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-lg overflow-hidden transform transition-all">
+  <div *ngIf="showForwardModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/75 backdrop-blur-md p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-700 w-full max-w-lg overflow-hidden transform transition-all relative z-[10000] my-auto">
       
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
-        <h2 class="text-lg font-bold text-slate-800 dark:text-white">Save PDF & Forward to State</h2>
-        <button type="button" (click)="closeForwardModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      <!-- Top Saffron/Green Accent Line -->
+      <div class="h-1.5 w-full bg-gradient-to-r from-[#E15B25] via-amber-400 to-[#0F7A3E]"></div>
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-850">
+        <h2 class="text-base font-extrabold text-[#0B2240] dark:text-white font-devanagari">Save PDF & Forward to State (राज्य को प्रेषित करें)</h2>
+        <button type="button" (click)="closeForwardModal()" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
 
       <div class="p-6 space-y-4 text-xs">
-        <p class="text-slate-600 dark:text-slate-300">
+        <p class="text-slate-600 dark:text-slate-300 font-medium">
           Upload signed District Plan PDF (Maximum size: 5 MB) for Scheme <strong>{{ selectedSchemeCode }}</strong> (FY {{ selectedFinYr }}).
         </p>
 
-        <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center hover:border-indigo-500 transition cursor-pointer relative bg-slate-50 dark:bg-slate-900/50">
+        <div class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center hover:border-[#E15B25] transition cursor-pointer relative bg-slate-50 dark:bg-slate-850">
           <input type="file" (change)="onFileSelected($event)" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
           <div class="flex flex-col items-center space-y-2">
-            <svg class="w-10 h-10 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-10 h-10 text-[#E15B25]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
             </svg>
-            <p class="font-bold text-slate-700 dark:text-slate-200">
+            <p class="font-bold text-slate-800 dark:text-slate-100">
               {{ selectedFileName ? selectedFileName : 'Click to select or drag PDF file here' }}
             </p>
-            <p class="text-[10px] text-slate-400">PDF format only, Maximum file size 5MB</p>
+            <p class="text-[10px] text-slate-400 font-medium">PDF format only, Maximum file size 5MB</p>
           </div>
         </div>
 
-        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-700">
-          <button type="button" (click)="closeForwardModal()" class="px-5 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold">
+        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" (click)="closeForwardModal()" class="px-5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold">
             Cancel
           </button>
-          <button type="button" (click)="onSaveAndForwardFile()" [disabled]="isUploading || !selectedPdfFile" class="px-6 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-md shadow-purple-500/20 transition flex items-center space-x-2">
+          <button type="button" (click)="onSaveAndForwardFile()" [disabled]="isUploading || !selectedPdfFile" class="btn-shiny-saffron px-6 py-2 rounded-xl font-extrabold text-xs shadow-md flex items-center space-x-2 cursor-pointer">
             <svg *ngIf="isUploading" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span>{{ isUploading ? 'Uploading...' : 'Save PDF & Forward' }}</span>
+            <span>{{ isUploading ? 'Uploading...' : 'Save PDF & Forward to State' }}</span>
           </button>
         </div>
       </div>
