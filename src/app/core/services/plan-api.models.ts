@@ -18,22 +18,45 @@ export interface MessageResponse {
 
 export interface PlanModel {
   id?: number;
-  schemeCode?: number;
-  schemeName?: string;
   finYr?: string;
+  workType?: string;
+  sectorArea?: string;
   districtCode?: string;
   districtName?: string;
-  workName?: string;
-  workType?: string;
-  constCode?: string;
-  sectorArea?: string;
+  dlcApprovalDate1?: string | null;
+  blockApprovalDate1?: string | null;
+  slcApprovalDate1?: string | null;
+  priority?: number | string;
+  cmBadpCategoryCode?: string | null;
+  jayShreeCode?: string | null;
+  blockCode?: string;
+  blockName?: string;
+  panchayatCode?: string;
+  gramPanchayat?: string;
+  villageCode?: string;
+  village?: string;
+  townCode?: string | null;
+  town?: string;
+  schemeCode?: number;
+  schemeName?: string;
   workCategory?: string;
-  dlcApprovalDate1?: string; // dd/MM/yyyy
-  blockApprovalDate1?: string; // dd/MM/yyyy
-  slcApprovalDate1?: string; // dd/MM/yyyy
+  workSubCategory?: string;
+  subCategory?: string;
+  departmentId?: number;
+  executiveDept?: string;
+  agencyId?: number;
+  executiveAgency?: string;
+  budgetType?: number;
   budgetTypeId?: number;
   budgetTypeName?: string;
+  schemeAmount?: number;
   totalEstimatedCost?: number;
+  isConvergence?: boolean;
+  convergenceSchemeCode?: string | number | null;
+  convergenceAmount?: number | null;
+  workName?: string;
+  assemblyNo?: number;
+  constCode?: string;
   status?: string;
   statusCode?: number;
   remarks?: string;
