@@ -28,7 +28,7 @@ export interface PlanModel {
   slcApprovalDate1?: string | null;
   priority?: number | string;
   cmBadpCategoryCode?: string | null;
-  jayShreeCode?: string | null;
+  jayShreeCode?: number | null;
   blockCode?: string;
   blockName?: string;
   panchayatCode?: string;
