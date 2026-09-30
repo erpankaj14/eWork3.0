@@ -44,7 +44,7 @@
           </label>
           <select [(ngModel)]="selectedSchemeCode" name="schemeCode" class="w-full h-11 px-3.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 text-sm font-medium">
             <option [ngValue]="null">--Select Scheme--</option>
-            <option *ngFor="let s of schemes" [value]="s.code">
+            <option *ngFor="let s of schemes" [ngValue]="s.code">
               {{ s.name }}
             </option>
           </select>
@@ -215,7 +215,7 @@
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Scheme <span class="text-rose-500">*</span></label>
               <select [ngModel]="selectedSchemeCode" name="schemeModal" disabled class="w-full h-10.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-bold truncate">
-                <option *ngFor="let s of schemes" [value]="s.code">{{ s.name }}</option>
+                <option *ngFor="let s of schemes" [ngValue]="s.code">{{ s.name }}</option>
               </select>
             </div>
 
@@ -238,8 +238,9 @@
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Work Type <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="workType" name="workType" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
-                <option value="">Select type</option>
-                <option *ngFor="let wt of workTypes" [value]="wt">{{ wt }}</option>
+                <option value="" disabled selected>Select type</option>
+                <option value="N">New</option>
+                <option value="M">Maintenance</option>
               </select>
             </div>
 
@@ -264,7 +265,7 @@
             <!-- District Dropdown -->
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">District <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="districtCode" (change)="onDistrictChange()" name="districtCode" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
+              <select [(ngModel)]="districtCode" [disabled]="isDistrictDisabled" (change)="onDistrictChange()" name="districtCode" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold disabled:opacity-75 disabled:bg-slate-100 disabled:dark:bg-slate-800">
                 <option value="">--Select District--</option>
                 <option *ngFor="let d of districts" [value]="d.code">{{ d.name }}</option>
               </select>
@@ -308,7 +309,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="category" name="category" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select category</option>
-                <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+                <option *ngFor="let c of categories" [value]="c.code">{{ c.name }}</option>
               </select>
             </div>
 
@@ -317,16 +318,16 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Sub Category <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="subCategory" name="subCategory" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select Sub Category</option>
-                <option *ngFor="let sc of subCategories" [value]="sc">{{ sc }}</option>
+                <option *ngFor="let sc of subCategories" [value]="sc.code">{{ sc.name }}</option>
               </select>
             </div>
 
-            <!-- Assembly No -->
+            <!-- Assembly No (Actually Constituency) -->
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Assembly No <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="assemblyNo" name="assemblyNo" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
+              <select [(ngModel)]="assemblyNo" name="assemblyNo" (change)="onAssemblyChange()" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select Assembly</option>
-                <option *ngFor="let a of assemblies" [value]="a">{{ a }}</option>
+                <option *ngFor="let a of assemblies" [value]="a.assemblyNo">{{ a.name }}</option>
               </select>
             </div>
 
@@ -348,9 +349,9 @@
             <!-- MLA Name -->
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">MLA Name <span class="text-rose-500">*</span></label>
-              <select [(ngModel)]="mlaName" name="mlaName" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
+              <select [(ngModel)]="constCode" name="constCode" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select MLA</option>
-                <option *ngFor="let m of mlas" [value]="m">{{ m }}</option>
+                <option *ngFor="let m of mlas" [value]="m.constCode">{{ m.constName }} - {{ m.mlaName }}</option>
               </select>
             </div>
 
@@ -374,7 +375,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Executive Department <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="executiveDept" name="executiveDept" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">Select Executing Department</option>
-                <option *ngFor="let ed of executiveDepts" [value]="ed">{{ ed }}</option>
+                <option *ngFor="let ed of executiveDepts" [value]="ed.id">{{ ed.name }}</option>
               </select>
             </div>
 
@@ -383,7 +384,7 @@
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Executive Agency <span class="text-rose-500">*</span></label>
               <select [(ngModel)]="executiveAgency" name="executiveAgency" class="w-full h-10.5 px-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#E15B25] font-semibold">
                 <option value="">--Select Executive Agency--</option>
-                <option *ngFor="let ea of executiveAgencies" [value]="ea">{{ ea }}</option>
+                <option *ngFor="let ea of executiveAgencies" [value]="ea.id">{{ ea.name }}</option>
               </select>
             </div>
 

@@ -70,7 +70,7 @@ export class PlanCreateComponent implements OnInit {
   // Form Fields for "Work Details" Modal (Ref Images 3 & 4)
   planId = 0;
   sectorArea = 'Rural'; // Rural / Urban
-  workType = 'New Work';
+  workType = '';
   blockApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy
   dlcApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy
   slcApprovalDate = this.getTodayFormatted();
@@ -82,7 +82,8 @@ export class PlanCreateComponent implements OnInit {
   proposedAmount: number | null = null;
   category = '';
   subCategory = '';
-  assemblyNo = '16';
+  assemblyNo = '';
+  constCode = '';
   otherDistrictMla = 'No';
   mlaName = '';
   isConvergence = 'No';
@@ -120,43 +121,73 @@ export class PlanCreateComponent implements OnInit {
   categoriesList: { code: string; name: string }[] = [];
   subCategoriesList: { code: string; name: string }[] = [];
   mlaList: { assemblyNo: string; name: string }[] = [];
+  assembliesList: { assemblyNo: string; name: string }[] = [];
   deptList: { id: any; name: string }[] = [];
   agencyList: { id: any; name: string }[] = [];
 
-  get assemblies(): string[] {
-    return this.mlaList.length > 0
-      ? this.mlaList.map(m => `${m.assemblyNo} - ${m.name}`)
-      : ['16 - Amber', '102 - Hawa Mahal', '103 - Vidhyadhar Nagar'];
+  get assemblies(): any[] {
+    return this.assembliesList.length > 0
+      ? this.assembliesList
+      : [
+          { constCode: '001', assemblyNo: 16, constName: 'Amber', mlaName: 'Shri Satish Poonia' },
+          { constCode: '002', assemblyNo: 16, constName: 'Hawa Mahal', mlaName: 'Shri Rajendra Rathore' },
+          { constCode: '003', assemblyNo: 16, constName: 'Vidhyadhar Nagar', mlaName: 'Smt. Diya Kumari' }
+        ];
   }
 
-  get mlas(): string[] {
+  get mlas(): any[] {
     return this.mlaList.length > 0
-      ? this.mlaList.map(m => m.name)
-      : ['Shri Satish Poonia', 'Shri Rajendra Rathore', 'Smt. Diya Kumari'];
+      ? this.mlaList
+      : [
+          { constCode: '001', assemblyNo: 16, constName: 'Amber', mlaName: 'Shri Satish Poonia' },
+          { constCode: '002', assemblyNo: 16, constName: 'Hawa Mahal', mlaName: 'Shri Rajendra Rathore' },
+          { constCode: '003', assemblyNo: 16, constName: 'Vidhyadhar Nagar', mlaName: 'Smt. Diya Kumari' }
+        ];
   }
 
-  get executiveDepts(): string[] {
+  get executiveDepts(): any[] {
     return this.deptList.length > 0
-      ? this.deptList.map(d => d.name)
-      : ['Panchayati Raj Department', 'Public Works Department (PWD)', 'Water Resources Dept (WRD)', 'Public Health Engineering Dept (PHED)'];
+      ? this.deptList
+      : [
+          { id: 1, name: 'Panchayati Raj Department' },
+          { id: 2, name: 'Public Works Department (PWD)' },
+          { id: 3, name: 'Water Resources Dept (WRD)' },
+          { id: 4, name: 'Public Health Engineering Dept (PHED)' }
+        ];
   }
 
-  get executiveAgencies(): string[] {
+  get executiveAgencies(): any[] {
     return this.agencyList.length > 0
-      ? this.agencyList.map(a => a.name)
-      : ['Gram Panchayat Amer', 'Block Development Officer Amer', 'Executive Engineer PWD Jaipur'];
+      ? this.agencyList
+      : [
+          { id: 1, name: 'Gram Panchayat Amer' },
+          { id: 2, name: 'Block Development Officer Amer' },
+          { id: 3, name: 'Executive Engineer PWD Jaipur' }
+        ];
   }
 
-  get categories(): string[] {
+  get categories(): any[] {
     return this.categoriesList.length > 0
-      ? this.categoriesList.map(c => c.name)
-      : ['Road & Connectivity', 'Building & Infra', 'Water & Sanitation', 'Irrigation & Agri', 'Community Development'];
+      ? this.categoriesList
+      : [
+          { code: '01', name: 'Road & Connectivity' },
+          { code: '02', name: 'Building & Infra' },
+          { code: '03', name: 'Water & Sanitation' },
+          { code: '04', name: 'Irrigation & Agri' },
+          { code: '05', name: 'Community Development' }
+        ];
   }
 
-  get subCategories(): string[] {
+  get subCategories(): any[] {
     return this.subCategoriesList.length > 0
-      ? this.subCategoriesList.map(sc => sc.name)
-      : ['Concrete Road (CC Road)', 'Community Hall / Panchayat Ghar', 'Drinking Water Tube Well', 'Drainage Pipeline', 'School Classroom'];
+      ? this.subCategoriesList
+      : [
+          { code: '0101', name: 'Concrete Road (CC Road)' },
+          { code: '0201', name: 'Community Hall / Panchayat Ghar' },
+          { code: '0301', name: 'Drinking Water Tube Well' },
+          { code: '0401', name: 'Drainage Pipeline' },
+          { code: '0202', name: 'School Classroom' }
+        ];
   }
 
   get currentBlocks(): { code: string; name: string }[] {
@@ -208,23 +239,57 @@ export class PlanCreateComponent implements OnInit {
   statusMessage = '';
   isSuccess = false;
 
+  isDistrictDisabled = false;
+
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
-    if (user && user.district) {
-      this.districtCode = '12';
+    // Fallback to '12' if old session is still active and missing districtCode, unless it's state level
+    const distCode = user?.districtCode || (user?.district === 'State' ? '0' : '12'); 
+    
+    if (distCode !== '0' && distCode !== '00') {
+      this.districtCode = distCode;
+      this.isDistrictDisabled = true;
+    } else {
+      this.isDistrictDisabled = false;
     }
+    
     this.loadBudgetTypeList();
     this.loadAllMasterData();
     this.onFilterSubmit(); // Auto fetch initial table data
   }
 
   loadAllMasterData(): void {
+    this.loadDistricts();
     this.loadBlocks();
     this.loadWorkCategories();
     this.loadWorkSubCategories();
-    this.loadMlaList();
+    this.loadAssemblies();
     this.loadDepartments();
     this.loadAgencies();
+  }
+
+  loadDistricts(): void {
+    this.masterApi.getDistricts().subscribe({
+      next: (res) => {
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        let formattedDistricts = items.map((d: any) => ({
+          code: String(d.districtCode || d.DistrictCode || d.id || d.code || '12'),
+          name: d.districtName || d.districtNameE || d.name || 'JAIPUR (जयपुर)'
+        }));
+
+        const user = this.authService.getCurrentUser();
+        const distCode = user?.districtCode || (user?.district === 'State' ? '0' : '12');
+        
+        // If user is district specific, filter the dropdown to only show that district
+        if (distCode !== '0' && distCode !== '00') {
+          formattedDistricts = formattedDistricts.filter((d: any) => d.code === distCode);
+        }
+        
+        if (formattedDistricts.length > 0) {
+          this.districts = formattedDistricts;
+        }
+      }
+    });
   }
 
   loadBlocks(): void {
@@ -360,8 +425,8 @@ export class PlanCreateComponent implements OnInit {
       next: (res) => {
         const items = res?.data || [];
         this.categoriesList = items.map((c: any) => ({
-          code: c.categoryCode || c.code || 'CAT01',
-          name: c.categoryNameE || c.name || 'Road & Connectivity'
+          code: c.sectorCode || c.categoryCode || c.code || '01',
+          name: c.description || c.categoryNameE || c.name || 'Road & Connectivity'
         }));
       }
     });
@@ -372,20 +437,44 @@ export class PlanCreateComponent implements OnInit {
       next: (res) => {
         const items = res?.data || [];
         this.subCategoriesList = items.map((sc: any) => ({
-          code: sc.subCategoryCode || sc.code || 'SUBCAT01',
-          name: sc.subCategoryNameE || sc.name || 'Concrete Road (CC Road)'
+          code: sc.id || sc.subCategoryCode || sc.code || 101,
+          name: sc.description || sc.subCategoryNameE || sc.name || 'Concrete Road (CC Road)'
         }));
       }
     });
   }
 
+  loadAssemblies(): void {
+    this.masterApi.getAssemblyNoList().subscribe({
+      next: (res) => {
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        this.assembliesList = items.map((a: any) => ({
+          assemblyNo: a.assemblyno || a.assemblyNo || a.id || a.code || 16,
+          name: a.assemblyname || a.assemblyName || a.assemblyNameE || a.name || a.description || `Assembly ${a.assemblyno || 16}`
+        })).filter((a: any) => a.assemblyNo != 0 && a.name !== '--ALL--'); // exclude '--ALL--' option
+        if (this.assembliesList.length > 0 && !this.assemblyNo) {
+          this.assemblyNo = String(this.assembliesList[0].assemblyNo);
+        }
+        this.loadMlaList();
+      }
+    });
+  }
+
+  onAssemblyChange(): void {
+    this.constCode = ''; // reset MLA when assembly changes
+    this.loadMlaList();
+  }
+
   loadMlaList(): void {
-    this.masterApi.getMlaList('16').subscribe({
+    const assemblyToLoad = this.assemblyNo || '16';
+    this.masterApi.getMlaList(assemblyToLoad).subscribe({
       next: (res) => {
         const items = res?.data || [];
         this.mlaList = items.map((m: any) => ({
-          assemblyNo: m.assemblyNo || '16',
-          name: m.mlaNameE || m.name || 'Shri Satish Poonia'
+          constCode: m.constCode || '001',
+          assemblyNo: m.assemblyNo || 16,
+          constName: m.constName || 'Amber',
+          mlaName: m.mlaName || m.name || 'Shri Satish Poonia'
         }));
       }
     });
@@ -505,6 +594,11 @@ export class PlanCreateComponent implements OnInit {
       return;
     }
 
+    if (!this.workType) {
+      this.showToast('Please select Work Type.', 'error');
+      return;
+    }
+
     // Map Priority string ('First', 'Second', etc.) to Number
     let priorityNum = 1;
     if (this.priority === 'Second' || this.priority === '2') priorityNum = 2;
@@ -538,16 +632,14 @@ export class PlanCreateComponent implements OnInit {
       townCode: null,
 
       schemeCode: Number(this.selectedSchemeCode || 5),
-      workCategory: this.category || '01',
-      workSubCategory: this.subCategory || '0101',
+      workCategory: String(this.category || '01'),
+      workSubCategory: Number(this.subCategory) || 101,
 
       departmentId: Number(this.executiveDept) || 1,
       agencyId: Number(this.executiveAgency) || 1,
 
       budgetType: this.budgetTypeId ? Number(this.budgetTypeId) : 1,
-      budgetTypeId: this.budgetTypeId ? Number(this.budgetTypeId) : 1,
       schemeAmount: Number(this.proposedAmount) || 1000000.00,
-      totalEstimatedCost: Number(this.proposedAmount) || 1000000.00,
 
       isConvergence: this.isConvergence === 'Yes',
       convergenceSchemeCode: null,
@@ -555,8 +647,7 @@ export class PlanCreateComponent implements OnInit {
 
       workName: this.workName.trim(),
       assemblyNo: Number(this.assemblyNo) || 16,
-      constCode: String(this.assemblyNo || '001'),
-      remarks: this.remarks || ''
+      constCode: String(this.constCode || '001').padStart(3, '0')
     };
 
     this.isSaving = true;

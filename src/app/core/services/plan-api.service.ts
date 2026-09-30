@@ -125,16 +125,10 @@ export class PlanApiService {
         }
       }),
       catchError((err) => {
-        console.warn('PlanApiService: SavePlanDetails endpoint returned error/404.', err);
+        console.warn('PlanApiService: SavePlanDetails endpoint returned error:', err);
         // Persist locally so user data is retained dynamically even if offline/404
-        const savedLocal = this.saveLocalPlan(plan);
-        if (this.isLocalhost) {
-          return of({
-            success: true,
-            message: `Plan details saved successfully! (Plan ID #${savedLocal.id})`,
-            data: savedLocal
-          });
-        }
+        this.saveLocalPlan(plan);
+        // Propagate the actual error so the UI shows the real backend failure (e.g., 400 Bad Request)
         return throwError(() => err);
       })
     );

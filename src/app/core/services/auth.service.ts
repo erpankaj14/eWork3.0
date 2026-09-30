@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 export interface UserSession {
   username: string;
   district: string;
+  districtCode?: string;
   districtHi: string;
   role: string;
   roleHi: string;
@@ -210,10 +211,11 @@ export class AuthService {
           localStorage.setItem('access_token', token);
         }
         const customUser: Partial<UserSession> = {
-          username: response.username || ssoId.trim(),
+          username: response.result?.user_name || response.username || ssoId.trim(),
           district: response.district || 'JAIPUR',
+          districtCode: response.result?.distict_code || '12',
           districtHi: response.districtHi || 'जयपुर',
-          role: response.role || 'District Administrator',
+          role: response.result?.userTypeName || response.role || 'District Administrator',
           roleHi: response.roleHi || 'जिला अधिकारी',
           department: response.department || 'Rural Development and Panchayati Raj Department',
           departmentHi: response.departmentHi || 'ग्रामीण विकास एवं पंचायती राज विभाग',

@@ -39,8 +39,8 @@ export interface PlanModel {
   town?: string;
   schemeCode?: number;
   schemeName?: string;
-  workCategory?: string;
-  workSubCategory?: string;
+  workCategory?: string | number;
+  workSubCategory?: string | number;
   subCategory?: string;
   departmentId?: number;
   executiveDept?: string;

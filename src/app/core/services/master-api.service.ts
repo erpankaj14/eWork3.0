@@ -23,6 +23,36 @@ export class MasterApiService {
     return new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
   }
 
+  getDistricts(): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/District`, null, { headers: this.formHeaders }).pipe(
+      catchError((err) => {
+        console.warn('MasterApiService: District endpoint unreachable. Returning fallback data.', err);
+        return of({
+          success: true,
+          data: [
+            { code: '06', name: 'JAIPUR - 06 (जयपुर)' },
+            { code: '12', name: 'JAIPUR (जयपुर)' }
+          ]
+        });
+      })
+    );
+  }
+
+  getAssemblyNoList(): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/AssemblyNoList`, null, { headers: this.formHeaders }).pipe(
+      catchError((err) => {
+        console.warn('MasterApiService: AssemblyNoList endpoint unreachable. Returning fallback data.', err);
+        return of({
+          success: true,
+          data: [
+            { assemblyNo: 16, assemblyName: '16th Assembly' },
+            { assemblyNo: 15, assemblyName: '15th Assembly' }
+          ]
+        });
+      })
+    );
+  }
+
   /**
    * 1. GET /iwmsapi/api/Master/MlaList?assembly=16
    */
