@@ -484,9 +484,9 @@ export class PlanCreateComponent implements OnInit {
     this.masterApi.getDepartments(this.districtCode).subscribe({
       next: (res) => {
         const items = res?.data || [];
-        this.deptList = items.map((d: any) => ({
-          id: d.deptId || d.id || '1',
-          name: d.deptNameE || d.name || 'Panchayati Raj Department'
+        this.deptList = items.map((d: any, index: number) => ({
+          id: d.deptId || d.departmentId || d.deptCode || d.id || (index + 1),
+          name: d.deptNameE || d.departmentName || d.deptName || d.name || 'Panchayati Raj Department'
         }));
       }
     });
@@ -496,9 +496,9 @@ export class PlanCreateComponent implements OnInit {
     this.masterApi.getAgencies(this.districtCode, '6').subscribe({
       next: (res) => {
         const items = res?.data || [];
-        this.agencyList = items.map((a: any) => ({
-          id: a.agencyId || a.id || '6',
-          name: a.agencyNameE || a.name || 'Gram Panchayat Amer'
+        this.agencyList = items.map((a: any, index: number) => ({
+          id: a.agencyId || a.agencyCode || a.id || (index + 1),
+          name: a.agencyNameE || a.agencyName || a.name || 'Gram Panchayat Amer'
         }));
       }
     });
@@ -624,7 +624,7 @@ export class PlanCreateComponent implements OnInit {
 
       priority: priorityNum,
       cmBadpCategoryCode: null,
-      jayShreeCode: this.jShreeYojna && this.jShreeYojna !== 'Not Applicable' ? this.jShreeYojna : null,
+      jayShreeCode: this.jShreeYojna && this.jShreeYojna !== 'Not Applicable' ? (this.jShreeYojna.includes('1') ? 1 : 2) : null,
 
       blockCode: String(this.blockCode || '001'),
       panchayatCode: String(this.gpCode || '0001'),
