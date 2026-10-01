@@ -120,7 +120,7 @@ export class PlanCreateComponent implements OnInit {
   villagesList: { code: string; name: string }[] = [];
   categoriesList: { code: string; name: string }[] = [];
   subCategoriesList: { code: string; name: string }[] = [];
-  mlaList: { assemblyNo: string; name: string }[] = [];
+  mlaList: any[] = [];
   assembliesList: { assemblyNo: string; name: string }[] = [];
   deptList: { id: any; name: string }[] = [];
   agencyList: { id: any; name: string }[] = [];
@@ -647,7 +647,23 @@ export class PlanCreateComponent implements OnInit {
 
       workName: this.workName.trim(),
       assemblyNo: Number(this.assemblyNo) || 16,
-      constCode: String(this.constCode || '001').padStart(3, '0')
+      constCode: String(this.constCode || '001').padStart(3, '0'),
+
+      // UI Display properties for local table rendering
+      createdBy: this.authService.getCurrentUser()?.username || 'District Admin',
+      schemeName: this.schemes.find(s => s.code == Number(this.selectedSchemeCode))?.name || 'MLALAD',
+      blockName: this.blocksList.find(b => b.code == this.blockCode)?.name || 'Amer',
+      gramPanchayat: this.panchayatsList.find(p => p.code == this.gpCode)?.name || 'Kukas',
+      village: this.villagesList.find(v => v.code == this.villageCode)?.name || 'Kukas Village',
+      districtName: this.districts.find(d => d.code == this.districtCode)?.name || 'JAIPUR',
+      town: this.sectorArea === 'Urban' || this.sectorArea === 'U' ? 'Urban Town' : '-',
+      subCategory: this.subCategoriesList.find(s => s.code == this.subCategory)?.name || 'CC Road',
+      executiveDept: this.deptList.find(d => d.id == this.executiveDept)?.name || 'Panchayati Raj',
+      executiveAgency: this.agencyList.find(a => a.id == this.executiveAgency)?.name || 'GP Amer',
+      mlaName: this.mlaList.find(m => m.constCode == this.constCode)?.mlaName || 'Shri Satish Poonia',
+      convergenceScheme: this.isConvergence === 'Yes' ? 'Convergence Scheme' : 'N/A',
+      jShreeYojna: this.jShreeYojna || 'N/A',
+      cmBadpCategory: 'Standard'
     };
 
     this.isSaving = true;
