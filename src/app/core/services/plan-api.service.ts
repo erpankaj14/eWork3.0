@@ -100,7 +100,18 @@ export class PlanApiService {
       }),
       tap((res) => {
         if (res && res.data) {
-          const localPlans = this.getLocalPlans();
+          let localPlans = this.getLocalPlans();
+          // Filter local plans to match the current selection
+          localPlans = localPlans.filter(p => {
+            let match = true;
+            if (filter.finYr && p.finYr !== filter.finYr) match = false;
+            if (filter.schemeCode && Number(p.schemeCode) !== Number(filter.schemeCode)) match = false;
+            if (filter.districtCode && filter.districtCode !== '0' && filter.districtCode !== '00') {
+               if (String(p.districtCode).padStart(2, '0') !== String(filter.districtCode).padStart(2, '0')) match = false;
+            }
+            return match;
+          });
+
           if (localPlans.length > 0) {
             const existingIds = new Set(res.data.map(p => p.id));
             const uniqueLocal = localPlans.filter(p => !existingIds.has(p.id));
@@ -110,7 +121,17 @@ export class PlanApiService {
       }),
       catchError((err) => {
         console.warn('PlanApiService: GetWorkListofPlan endpoint unreachable or 400/404. Returning combined local/mock data.', err);
-        const localPlans = this.getLocalPlans();
+        let localPlans = this.getLocalPlans();
+        localPlans = localPlans.filter(p => {
+          let match = true;
+          if (filter.finYr && p.finYr !== filter.finYr) match = false;
+          if (filter.schemeCode && Number(p.schemeCode) !== Number(filter.schemeCode)) match = false;
+          if (filter.districtCode && filter.districtCode !== '0' && filter.districtCode !== '00') {
+             if (String(p.districtCode).padStart(2, '0') !== String(filter.districtCode).padStart(2, '0')) match = false;
+          }
+          return match;
+        });
+
         const mockPlans = this.getMockPlans(filter);
         const combined = [...localPlans, ...mockPlans];
         return of({
@@ -436,7 +457,7 @@ startxref
   private getMockPlans(filter: PlanModel): PlanModel[] {
     const fy = filter.finYr || '2026-27';
     const sc = filter.schemeCode || 5;
-    return [
+    const mockData = [
       {
         id: 101,
         schemeCode: sc,
@@ -486,6 +507,11 @@ startxref
         workCount: 5
       }
     ];
+
+    if (filter.districtCode && filter.districtCode !== '0' && filter.districtCode !== '00') {
+      return mockData.filter(m => String(m.districtCode).padStart(2, '0') === String(filter.districtCode).padStart(2, '0'));
+    }
+    return mockData;
   }
 }
 
