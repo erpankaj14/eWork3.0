@@ -23,8 +23,11 @@ export interface PlanModel {
   sectorArea?: string;
   districtCode?: string;
   districtName?: string;
+  dlcApprovalDate?: string | null;
   dlcApprovalDate1?: string | null;
+  blockApprovalDate?: string | null;
   blockApprovalDate1?: string | null;
+  slcApprovalDate?: string | null;
   slcApprovalDate1?: string | null;
   priority?: number | string;
   cmBadpCategoryCode?: string | null;
@@ -65,6 +68,23 @@ export interface PlanModel {
   updatedBy?: string;
   updatedDate?: string;
   workCount?: number;
+  planCreatedBy?: string;
+  sectorAreaName?: string;
+  panchayatName?: string;
+  villageName?: string;
+  townName?: string;
+  workCategoryName?: string;
+  workSubCategoryName?: string;
+  departmentName?: string;
+  agencyName?: string;
+  priorityName?: string;
+  jayshreeCategoryName?: string;
+  cmbadpSchemeCategoryName?: string;
+  planStatus?: string;
+  workTypeName?: string;
+  proposedAmount?: number;
+  convergenceSchemeName?: string;
+  mlaName?: string;
   [key: string]: unknown;
 }
 

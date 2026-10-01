@@ -73,7 +73,7 @@ export class PlanCreateComponent implements OnInit {
   workType = '';
   blockApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy
   dlcApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy
-  slcApprovalDate = this.getTodayFormatted();
+  slcApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy
   workName = '';
   districtCode = '06';
   blockCode = '0001';
@@ -618,9 +618,9 @@ export class PlanCreateComponent implements OnInit {
       workType: workTypeVal,
       sectorArea: sectorAreaVal,
       districtCode: String(this.districtCode || '12').padStart(2, '0'),
-      dlcApprovalDate1: this.dlcApprovalDate || null,
-      blockApprovalDate1: this.blockApprovalDate || null,
-      slcApprovalDate1: this.slcApprovalDate || this.dlcApprovalDate || '28/09/2026',
+      dlcApprovalDate1: this.isDistrictDisabled ? (this.dlcApprovalDate || null) : null,
+      blockApprovalDate1: this.isDistrictDisabled ? (this.blockApprovalDate || null) : null,
+      slcApprovalDate1: !this.isDistrictDisabled ? (this.slcApprovalDate || null) : null,
 
       priority: priorityNum,
       cmBadpCategoryCode: null,
@@ -650,20 +650,26 @@ export class PlanCreateComponent implements OnInit {
       constCode: String(this.constCode || '001').padStart(3, '0'),
 
       // UI Display properties for local table rendering
-      createdBy: this.authService.getCurrentUser()?.username || 'District Admin',
+      planCreatedBy: this.authService.getCurrentUser()?.username || 'District Admin',
       schemeName: this.schemes.find(s => s.code == Number(this.selectedSchemeCode))?.name || 'MLALAD',
       blockName: this.blocksList.find(b => b.code == this.blockCode)?.name || 'Amer',
-      gramPanchayat: this.panchayatsList.find(p => p.code == this.gpCode)?.name || 'Kukas',
-      village: this.villagesList.find(v => v.code == this.villageCode)?.name || 'Kukas Village',
+      panchayatName: this.panchayatsList.find(p => p.code == this.gpCode)?.name || 'Kukas',
+      villageName: this.villagesList.find(v => v.code == this.villageCode)?.name || 'Kukas Village',
       districtName: this.districts.find(d => d.code == this.districtCode)?.name || 'JAIPUR',
-      town: this.sectorArea === 'Urban' || this.sectorArea === 'U' ? 'Urban Town' : '-',
-      subCategory: this.subCategoriesList.find(s => s.code == this.subCategory)?.name || 'CC Road',
-      executiveDept: this.deptList.find(d => d.id == this.executiveDept)?.name || 'Panchayati Raj',
-      executiveAgency: this.agencyList.find(a => a.id == this.executiveAgency)?.name || 'GP Amer',
-      mlaName: this.mlaList.find(m => m.constCode == this.constCode)?.mlaName || 'Shri Satish Poonia',
-      convergenceScheme: this.isConvergence === 'Yes' ? 'Convergence Scheme' : 'N/A',
-      jShreeYojna: this.jShreeYojna || 'N/A',
-      cmBadpCategory: 'Standard'
+      sectorAreaName: this.sectorArea === 'Urban' || this.sectorArea === 'U' ? 'Urban' : 'Rural',
+      townName: this.sectorArea === 'Urban' || this.sectorArea === 'U' ? 'Urban Town' : '-',
+      workCategoryName: this.categoriesList.find(c => c.code == this.category)?.name || 'Road & Connectivity',
+      workSubCategoryName: this.subCategoriesList.find(s => s.code == this.subCategory)?.name || 'CC Road',
+      departmentName: this.deptList.find(d => d.id == this.executiveDept)?.name || 'Panchayati Raj',
+      agencyName: this.agencyList.find(a => a.id == this.executiveAgency)?.name || 'GP Amer',
+      priorityName: this.priority,
+      mlaName: (this.mlaList as any[]).find(m => m.constCode == this.constCode)?.mlaName || 'Shri Satish Poonia',
+      convergenceSchemeName: this.isConvergence === 'Yes' ? 'Convergence Scheme' : 'N/A',
+      jayshreeCategoryName: this.jShreeYojna || 'N/A',
+      cmbadpSchemeCategoryName: 'Standard',
+      proposedAmount: Number(this.proposedAmount) || 1000000.00,
+      workTypeName: this.workType === 'M' || this.workType === 'Maintenance' ? 'Maintenance' : 'New',
+      planStatus: 'Draft Saved'
     };
 
     this.isSaving = true;
@@ -768,6 +774,50 @@ export class PlanCreateComponent implements OnInit {
     this.priority = 'First';
     this.jShreeYojna = 'Not Applicable';
     this.remarks = '';
+  }
+
+  editPlan(item: PlanModel): void {
+    this.planId = item.id || 0;
+    this.workName = item.workName || '';
+    this.sectorArea = item.sectorArea === 'U' || item.sectorArea === 'Urban' ? 'Urban' : 'Rural';
+    this.workType = item.workType === 'M' || item.workType === 'Maintenance' ? 'M' : 'N';
+    this.blockApprovalDate = item.blockApprovalDate1 || this.getTodayFormatted();
+    this.dlcApprovalDate = item.dlcApprovalDate1 || this.getTodayFormatted();
+    this.proposedAmount = item.schemeAmount || null;
+    
+    if (item.blockCode) this.blockCode = item.blockCode;
+    if (item.panchayatCode) this.gpCode = item.panchayatCode;
+    if (item.villageCode) this.villageCode = item.villageCode;
+    
+    if (item.priority == 1 || item.priority === '1') this.priority = 'First';
+    else if (item.priority == 2 || item.priority === '2') this.priority = 'Second';
+    else if (item.priority == 3 || item.priority === '3') this.priority = 'Third';
+    else if (item.priority == 4 || item.priority === '4') this.priority = 'Fourth';
+    else this.priority = 'First';
+
+    if (item.workCategory) this.category = String(item.workCategory);
+    if (item.workSubCategory) this.subCategory = String(item.workSubCategory);
+    if (item.departmentId) this.executiveDept = String(item.departmentId);
+    if (item.agencyId) this.executiveAgency = String(item.agencyId);
+    if (item.assemblyNo) this.assemblyNo = String(item.assemblyNo);
+    if (item.constCode) this.constCode = item.constCode;
+    
+    if (item.jayShreeCode === 1) this.jShreeYojna = 'J-Shree Phase 1';
+    else if (item.jayShreeCode === 2) this.jShreeYojna = 'J-Shree Phase 2';
+    else this.jShreeYojna = 'Not Applicable';
+
+    this.isConvergence = item.isConvergence ? 'Yes' : 'No';
+
+    this.showAddWorkModal = true;
+  }
+
+  deletePlan(item: PlanModel): void {
+    if (!item.id) return;
+    if (confirm('Are you sure you want to delete this plan?')) {
+      this.planApi.deleteLocalPlan(item.id);
+      this.showToast('Plan deleted successfully', 'success');
+      this.onFilterSubmit();
+    }
   }
 
   private loadMockTableData(): void {

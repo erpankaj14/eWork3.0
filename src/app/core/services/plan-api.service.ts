@@ -66,6 +66,19 @@ export class PlanApiService {
   }
 
   /**
+   * Helper to delete a local plan
+   */
+  public deleteLocalPlan(id: number): void {
+    const plans = this.getLocalPlans();
+    const updated = plans.filter(p => p.id !== id);
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updated));
+    } catch (e) {
+      console.error('Failed to delete plan from localStorage:', e);
+    }
+  }
+
+  /**
    * 1. Get plan list using filters
    */
   getWorkListOfPlan(filter: PlanModel): Observable<ApiListResponse<PlanModel>> {
