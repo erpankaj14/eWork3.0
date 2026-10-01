@@ -67,6 +67,11 @@ export class PlanCreateComponent implements OnInit {
   showAddWorkModal = false;
   showForwardModal = false;
 
+  // State User Approvals & Rejections
+  isApproveMode = false;
+  showRejectModal = false;
+  rejectReason = '';
+
   // Form Fields for "Work Details" Modal (Ref Images 3 & 4)
   planId = 0;
   sectorArea = 'Rural'; // Rural / Urban
@@ -576,7 +581,32 @@ export class PlanCreateComponent implements OnInit {
   openForwardModal(): void {
     this.selectedPdfFile = null;
     this.selectedFileName = '';
+    this.isApproveMode = false;
     this.showForwardModal = true;
+  }
+
+  openApproveModal(): void {
+    if (this.districtCode === '0' || this.districtCode === '00' || !this.districtCode) {
+      this.showToast('Please select a specific district to approve.', 'error');
+      return;
+    }
+    this.selectedPdfFile = null;
+    this.selectedFileName = '';
+    this.isApproveMode = true;
+    this.showForwardModal = true;
+  }
+
+  openRejectModal(): void {
+    if (this.districtCode === '0' || this.districtCode === '00' || !this.districtCode) {
+      this.showToast('Please select a specific district to reject.', 'error');
+      return;
+    }
+    this.rejectReason = '';
+    this.showRejectModal = true;
+  }
+
+  closeRejectModal(): void {
+    this.showRejectModal = false;
   }
 
   closeForwardModal(): void {
@@ -721,25 +751,74 @@ export class PlanCreateComponent implements OnInit {
     }
 
     this.isUploading = true;
-    const fields = {
+    const fields: any = {
       SchemeCode: Number(this.selectedSchemeCode),
       FinYr: this.selectedFinYr,
       DistrictCode: this.districtCode,
       Remarks: this.remarks
     };
 
-    this.planApi.savePlanFileAndForward(this.selectedPdfFile, fields).subscribe({
+    if (this.isApproveMode) {
+      // ----------------------------------------------------
+      // STATE APPROVAL LOGIC
+      // ----------------------------------------------------
+      this.planApi.approvePlanAndUploadFile(this.selectedPdfFile, fields).subscribe({
+        next: (res) => {
+          this.isUploading = false;
+          this.showForwardModal = false;
+          this.showToast(res?.message || 'Plan approved successfully!', 'success');
+          this.onFilterSubmit(); // Reload grid
+        },
+        error: (err) => {
+          this.isUploading = false;
+          console.error('Error approving PDF:', err);
+          this.showToast(err?.error?.message || 'Failed to approve Plan PDF.', 'error');
+        }
+      });
+    } else {
+      // ----------------------------------------------------
+      // DISTRICT FORWARD LOGIC
+      // ----------------------------------------------------
+      this.planApi.savePlanFileAndForward(this.selectedPdfFile, fields).subscribe({
+        next: (res) => {
+          this.isUploading = false;
+          this.showForwardModal = false;
+          this.showToast(res?.message || 'District Plan PDF saved and forwarded to State successfully!', 'success');
+          this.onFilterSubmit();
+        },
+        error: (err) => {
+          this.isUploading = false;
+          console.error('Error uploading PDF:', err);
+          this.showToast(err?.error?.message || 'Failed to forward Plan PDF.', 'error');
+        }
+      });
+    }
+  }
+
+  onRejectPlan(): void {
+    if (!this.rejectReason || this.rejectReason.trim().length < 5) {
+      this.showToast('Please enter a valid rejection reason.', 'error');
+      return;
+    }
+    this.isSaving = true;
+
+    const rejectModel = {
+      schemeCode: Number(this.selectedSchemeCode),
+      finYr: this.selectedFinYr,
+      districtCode: this.districtCode,
+      rejection: this.rejectReason.trim()
+    };
+
+    this.planApi.rejectPlan(rejectModel as any).subscribe({
       next: (res) => {
-        this.isUploading = false;
-        this.showForwardModal = false;
-        const msg = res?.message || 'District Plan PDF saved and forwarded to State successfully!';
-        this.showToast(msg, 'success');
-        this.onFilterSubmit();
+        this.isSaving = false;
+        this.showRejectModal = false;
+        this.showToast(res?.message || 'Plan rejected successfully.', 'success');
+        this.onFilterSubmit(); // Reload grid
       },
       error: (err) => {
-        this.isUploading = false;
-        console.error('Error uploading PDF:', err);
-        this.showToast(err?.error?.message || 'Failed to forward Plan PDF.', 'error');
+        this.isSaving = false;
+        this.showToast('Failed to reject plan.', 'error');
       }
     });
   }
