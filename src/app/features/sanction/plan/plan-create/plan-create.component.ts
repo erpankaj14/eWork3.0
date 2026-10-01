@@ -248,13 +248,17 @@ export class PlanCreateComponent implements OnInit {
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
-    // Fallback to '12' if old session is still active and missing districtCode, unless it's state level
-    const distCode = user?.districtCode || (user?.district === 'State' ? '0' : '12'); 
     
-    if (distCode !== '0' && distCode !== '00') {
-      this.districtCode = distCode;
+    const isStateUser = user?.districtCode === '0' || user?.districtCode === '00' 
+      || user?.district === 'State' 
+      || user?.username?.toLowerCase().includes('state')
+      || user?.role?.toLowerCase().includes('state');
+      
+    if (!isStateUser) {
+      this.districtCode = user?.districtCode || '12';
       this.isDistrictDisabled = true;
     } else {
+      this.districtCode = '0';
       this.isDistrictDisabled = false;
     }
     
@@ -989,6 +993,75 @@ export class PlanCreateComponent implements OnInit {
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const yyyy = today.getFullYear();
     return `${dd}/${mm}/${yyyy}`;
+  }
+
+  // --- PDF Downloads & Revert ---
+
+  downloadDistrictPdf(): void {
+    if (!this.selectedFinYr || !this.selectedSchemeCode) return;
+    this.toastr.info('Generating District PDF...', 'Please wait');
+    
+    // District users download their own; State users can download for the selected district
+    const call = this.isDistrictDisabled 
+      ? this.planApi.downloadPdfPlan(this.selectedFinYr, Number(this.selectedSchemeCode))
+      : this.planApi.viewDownloadPdfPlan(this.districtCode, this.selectedFinYr, Number(this.selectedSchemeCode));
+
+    call.subscribe({
+      next: (res) => this.handlePdfDownload(res, `District_Plan_${this.selectedFinYr}.pdf`),
+      error: (err) => this.showToast('Failed to download District PDF.', 'error')
+    });
+  }
+
+  downloadStatePdf(): void {
+    if (!this.selectedFinYr || !this.selectedSchemeCode || this.districtCode === '0' || !this.districtCode) return;
+    this.toastr.info('Generating State Approved PDF...', 'Please wait');
+    
+    this.planApi.downloadPdfPlanState(this.districtCode, this.selectedFinYr, Number(this.selectedSchemeCode)).subscribe({
+      next: (res) => this.handlePdfDownload(res, `State_Approved_Plan_${this.selectedFinYr}.pdf`),
+      error: (err) => this.showToast('Failed to download State PDF.', 'error')
+    });
+  }
+
+  private handlePdfDownload(response: any, filename: string): void {
+    if (response.body) {
+      const url = window.URL.createObjectURL(response.body);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } else {
+      this.showToast('Invalid PDF response.', 'error');
+    }
+  }
+
+  revertPlan(): void {
+    if (this.districtCode === '0' || this.districtCode === '00' || !this.districtCode) {
+      this.showToast('Please select a specific district plan to revert.', 'error');
+      return;
+    }
+    const reason = prompt('Enter reason for reverting this plan:');
+    if (!reason || reason.trim().length < 5) {
+      this.showToast('A valid reason is required to revert a plan.', 'error');
+      return;
+    }
+
+    const revertModel = {
+      schemeCode: Number(this.selectedSchemeCode),
+      finYr: this.selectedFinYr,
+      districtCode: this.districtCode,
+      reason: reason.trim()
+    };
+
+    this.planApi.revertPlan(revertModel as any).subscribe({
+      next: (res) => {
+        this.showToast(res?.message || 'Plan reverted successfully.', 'success');
+        this.onFilterSubmit();
+      },
+      error: (err) => {
+        this.showToast('Failed to revert plan.', 'error');
+      }
+    });
   }
 }
 
