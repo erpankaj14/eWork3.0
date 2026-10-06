@@ -247,6 +247,31 @@ const PROXY_CONFIG = [
         return true;
       }
 
+      // 11. RequestOTPPlans
+      if (url.includes('requestotpplans')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          message: 'OTP request generated and sent to registered mobile number.',
+          data: {
+            transactionId: 'TXN_' + Math.floor(Math.random() * 899999 + 100000)
+          }
+        }));
+        return true;
+      }
+
+      // 12. VerifyOTPPlans
+      if (url.includes('verifyotpplans')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          message: 'OTP verified successfully!',
+          isVerified: true,
+          data: { isVerified: true }
+        }));
+        return true;
+      }
+
       // Continue to target if not bypassed
       return false;
     }

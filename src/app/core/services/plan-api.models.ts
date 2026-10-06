@@ -121,3 +121,30 @@ export interface BudgetType {
 }
 
 export type MultipartField = string | number | boolean | null | undefined;
+
+export interface OtpRequestModel {
+  schemeCode?: number;
+  finYr?: string;
+  districtCode?: string;
+  mobileNo?: string;
+  ssoId?: string;
+  actionType?: 'APPROVE' | 'REJECT' | 'FORWARD' | 'REVERT' | string;
+}
+
+export interface VerifyOtpRequestModel {
+  otp: string;
+  schemeCode?: number;
+  finYr?: string;
+  districtCode?: string;
+  mobileNo?: string;
+  ssoId?: string;
+  transactionId?: string;
+}
+
+export interface VerifyOtpResponseModel {
+  success: boolean;
+  message?: string;
+  isVerified?: boolean;
+  token?: string;
+}
+

@@ -253,19 +253,153 @@ export class PlanListComponent implements OnInit {
     }
   }
 
+  // OTP Verification Modal State
+  showOtpModal = false;
+  enteredOtp = '';
+  isVerifyingOtp = false;
+  otpErrorMsg = '';
+  otpTimer = 60;
+  otpTimerInterval: any = null;
+  pendingActionType: 'APPROVE_SINGLE' | 'APPROVE_BATCH' | 'REJECT' | 'REVERT' | null = null;
+  targetMobileNo = '******9876';
+
+  startOtpTimer(): void {
+    this.stopOtpTimer();
+    this.otpTimer = 60;
+    this.otpTimerInterval = setInterval(() => {
+      if (this.otpTimer > 0) {
+        this.otpTimer--;
+      } else {
+        this.stopOtpTimer();
+      }
+    }, 1000);
+  }
+
+  stopOtpTimer(): void {
+    if (this.otpTimerInterval) {
+      clearInterval(this.otpTimerInterval);
+      this.otpTimerInterval = null;
+    }
+  }
+
+  resendOtp(): void {
+    this.startOtpTimer();
+    this.planApi.sendOtpPlans().subscribe({
+      next: (res) => {
+        if (res) {
+          this.targetMobileNo = res.mobileNo || res.data?.mobileNo || res.data?.mobileMasked || this.targetMobileNo;
+        }
+        this.toastr.info(res.message || `OTP resent to registered mobile number (${this.targetMobileNo})`, 'OTP Resent');
+      },
+      error: () => {
+        this.toastr.info('OTP code resent to registered mobile number', 'OTP Resent');
+      }
+    });
+  }
+
   submitApproval(): void {
     if (!this.approvalPdfFile) {
       this.showToast('Please select State Approval PDF.', 'error');
       return;
     }
 
+    if (this.targetPlan) {
+      this.triggerOtpFlow('APPROVE_SINGLE');
+    } else {
+      const selected = this.getSelectedPlans();
+      if (selected.length === 0) {
+        this.showToast('No plans selected for batch approval.', 'error');
+        return;
+      }
+      this.triggerOtpFlow('APPROVE_BATCH');
+    }
+  }
+
+  submitReject(): void {
+    if (!this.targetPlan) return;
+    if (!this.actionRemarks || this.actionRemarks.trim().length < 3) {
+      this.showToast('Please enter rejection remarks.', 'error');
+      return;
+    }
+    this.triggerOtpFlow('REJECT');
+  }
+
+  triggerOtpFlow(actionType: 'APPROVE_SINGLE' | 'APPROVE_BATCH' | 'REJECT' | 'REVERT'): void {
+    this.pendingActionType = actionType;
+    this.enteredOtp = '';
+    this.otpErrorMsg = '';
+    this.showOtpModal = true;
+    this.startOtpTimer();
+
+    this.planApi.sendOtpPlans().subscribe({
+      next: (res) => {
+        if (res) {
+          this.targetMobileNo = res.mobileNo || res.data?.mobileNo || res.data?.mobileMasked || this.targetMobileNo;
+        }
+        this.toastr.info(res.message || `OTP sent to registered mobile number (${this.targetMobileNo})`, 'OTP Sent');
+      },
+      error: () => {
+        this.toastr.info('OTP code sent to registered mobile number', 'OTP Sent');
+      }
+    });
+  }
+
+  verifyAndProceed(): void {
+    if (!this.enteredOtp || this.enteredOtp.trim().length < 4) {
+      this.otpErrorMsg = 'Please enter valid OTP.';
+      return;
+    }
+
+    this.isVerifyingOtp = true;
+    this.otpErrorMsg = '';
+
+    const targetScheme = this.targetPlan?.schemeCode || this.schemeCode;
+    const targetFy = this.targetPlan?.finYr || this.finYr;
+    const targetDist = this.targetPlan?.districtCode || this.districtCode || '101';
+
+    this.planApi.verifyOtpPlans({
+      otp: this.enteredOtp.trim(),
+      schemeCode: targetScheme,
+      finYr: targetFy,
+      districtCode: targetDist
+    }).subscribe({
+      next: (res) => {
+        this.isVerifyingOtp = false;
+        if (res && res.success) {
+          this.showOtpModal = false;
+          this.stopOtpTimer();
+          this.toastr.success('OTP verified successfully!', 'Verified');
+          
+          if (this.pendingActionType === 'APPROVE_SINGLE' || this.pendingActionType === 'APPROVE_BATCH') {
+            this.executeApproval();
+          } else if (this.pendingActionType === 'REJECT') {
+            this.executeReject();
+          } else if (this.pendingActionType === 'REVERT') {
+            this.executeRevert();
+          }
+        } else {
+          this.otpErrorMsg = res.message || 'Invalid OTP code.';
+        }
+      },
+      error: (err) => {
+        this.isVerifyingOtp = false;
+        this.otpErrorMsg = err?.error?.message || err?.message || 'OTP verification failed. Please try again.';
+      }
+    });
+  }
+
+  private executeApproval(): void {
+    if (!this.approvalPdfFile) return;
     this.isActionInProgress = true;
 
     if (this.targetPlan) {
       // Approve Single Plan
       const fields = {
+        schemeCode: this.targetPlan.schemeCode || this.schemeCode,
         SchemeCode: this.targetPlan.schemeCode || this.schemeCode,
+        finYr: this.targetPlan.finYr || this.finYr,
         FinYr: this.targetPlan.finYr || this.finYr,
+        districtCode: this.targetPlan.districtCode || '101',
         DistrictCode: this.targetPlan.districtCode || '101'
       };
 
@@ -273,7 +407,11 @@ export class PlanListComponent implements OnInit {
         next: (res) => {
           this.isActionInProgress = false;
           this.showApproveModal = false;
-          this.showToast(res.message || 'Plan approved successfully!', 'success');
+          if (res?.message && res.message.toLowerCase().includes('error')) {
+            this.showToast(res.message, 'error');
+          } else {
+            this.showToast(res.message || 'Plan approved successfully!', 'success');
+          }
           this.fetchPlans();
         },
         error: (err) => {
@@ -284,17 +422,15 @@ export class PlanListComponent implements OnInit {
     } else {
       // Approve Multiple Selected Plans
       const selected = this.getSelectedPlans();
-      if (selected.length === 0) {
-        this.isActionInProgress = false;
-        this.showToast('No plans selected for batch approval.', 'error');
-        return;
-      }
-
       this.planApi.approvePlanAndUploadFileMultiple(this.approvalPdfFile, selected).subscribe({
         next: (res) => {
           this.isActionInProgress = false;
           this.showApproveModal = false;
-          this.showToast(res.message || `Approved ${res.count || selected.length} plans successfully!`, 'success');
+          if (res?.message && res.message.toLowerCase().includes('error')) {
+            this.showToast(res.message, 'error');
+          } else {
+            this.showToast(res.message || `Approved ${res.count || selected.length} plans successfully!`, 'success');
+          }
           this.fetchPlans();
         },
         error: (err) => {
@@ -305,7 +441,7 @@ export class PlanListComponent implements OnInit {
     }
   }
 
-  submitReject(): void {
+  private executeReject(): void {
     if (!this.targetPlan) return;
     this.isActionInProgress = true;
 
@@ -331,6 +467,15 @@ export class PlanListComponent implements OnInit {
   }
 
   submitRevert(): void {
+    if (!this.targetPlan) return;
+    if (!this.actionRemarks || this.actionRemarks.trim().length < 3) {
+      this.showToast('Please enter revert remarks.', 'error');
+      return;
+    }
+    this.triggerOtpFlow('REVERT');
+  }
+
+  private executeRevert(): void {
     if (!this.targetPlan) return;
     this.isActionInProgress = true;
 

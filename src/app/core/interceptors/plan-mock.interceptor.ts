@@ -423,6 +423,35 @@ export const planMockInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }));
     }
+
+    // 19. RequestOTPPlans
+    if (urlLower.includes('requestotpplans')) {
+      return of(new HttpResponse({
+        status: 200,
+        statusText: 'OK',
+        body: {
+          success: true,
+          message: 'OTP request generated and sent to registered mobile number.',
+          data: {
+            transactionId: 'TXN_' + Math.floor(Math.random() * 899999 + 100000)
+          }
+        }
+      }));
+    }
+
+    // 20. VerifyOTPPlans
+    if (urlLower.includes('verifyotpplans')) {
+      return of(new HttpResponse({
+        status: 200,
+        statusText: 'OK',
+        body: {
+          success: true,
+          message: 'OTP verified successfully!',
+          isVerified: true,
+          data: { isVerified: true }
+        }
+      }));
+    }
   }
 
   return next(req);

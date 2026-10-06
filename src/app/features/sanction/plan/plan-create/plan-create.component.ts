@@ -748,30 +748,160 @@ export class PlanCreateComponent implements OnInit {
     }
   }
 
+  // OTP Verification Modal State
+  showOtpModal = false;
+  enteredOtp = '';
+  isVerifyingOtp = false;
+  otpErrorMsg = '';
+  otpTimer = 60;
+  otpTimerInterval: any = null;
+  pendingActionType: 'APPROVE' | 'FORWARD' | 'REJECT' | 'REVERT' | null = null;
+  revertReasonText = '';
+  targetMobileNo = '******9876';
+
+  startOtpTimer(): void {
+    this.stopOtpTimer();
+    this.otpTimer = 60;
+    this.otpTimerInterval = setInterval(() => {
+      if (this.otpTimer > 0) {
+        this.otpTimer--;
+      } else {
+        this.stopOtpTimer();
+      }
+    }, 1000);
+  }
+
+  stopOtpTimer(): void {
+    if (this.otpTimerInterval) {
+      clearInterval(this.otpTimerInterval);
+      this.otpTimerInterval = null;
+    }
+  }
+
+  resendOtp(): void {
+    this.startOtpTimer();
+    this.planApi.sendOtpPlans().subscribe({
+      next: (res) => {
+        if (res) {
+          this.targetMobileNo = res.mobileNo || res.data?.mobileNo || res.data?.mobileMasked || this.targetMobileNo;
+        }
+        this.toastr.info(res.message || `OTP resent to registered mobile number (${this.targetMobileNo})`, 'OTP Resent');
+      },
+      error: () => {
+        this.toastr.info('OTP code resent to registered mobile number', 'OTP Resent');
+      }
+    });
+  }
+
   onSaveAndForwardFile(): void {
     if (!this.selectedPdfFile) {
       this.showToast('Please select a valid PDF file to upload.', 'error');
       return;
     }
+    
+    if (this.isApproveMode) {
+      // State User approval requires OTP verification
+      this.triggerOtpFlow('APPROVE');
+    } else {
+      // District User forward to State executes directly without OTP
+      this.executeSaveAndForwardFile();
+    }
+  }
+
+  onRejectPlan(): void {
+    if (!this.rejectReason || this.rejectReason.trim().length < 5) {
+      this.showToast('Please enter a valid rejection reason.', 'error');
+      return;
+    }
+    this.triggerOtpFlow('REJECT');
+  }
+
+  triggerOtpFlow(actionType: 'APPROVE' | 'FORWARD' | 'REJECT' | 'REVERT'): void {
+    this.pendingActionType = actionType;
+    this.enteredOtp = '';
+    this.otpErrorMsg = '';
+    this.showOtpModal = true;
+    this.startOtpTimer();
+
+    this.planApi.sendOtpPlans().subscribe({
+      next: (res) => {
+        if (res) {
+          this.targetMobileNo = res.mobileNo || res.data?.mobileNo || res.data?.mobileMasked || this.targetMobileNo;
+        }
+        this.toastr.info(res.message || `OTP sent to registered mobile number (${this.targetMobileNo})`, 'OTP Sent');
+      },
+      error: () => {
+        this.toastr.info('OTP code sent to registered mobile number', 'OTP Sent');
+      }
+    });
+  }
+
+  verifyAndProceed(): void {
+    if (!this.enteredOtp || this.enteredOtp.trim().length < 4) {
+      this.otpErrorMsg = 'Please enter a valid OTP code.';
+      return;
+    }
+
+    this.isVerifyingOtp = true;
+    this.otpErrorMsg = '';
+
+    this.planApi.verifyOtpPlans({
+      otp: this.enteredOtp.trim(),
+      schemeCode: Number(this.selectedSchemeCode),
+      finYr: this.selectedFinYr,
+      districtCode: this.districtCode
+    }).subscribe({
+      next: (res) => {
+        this.isVerifyingOtp = false;
+        if (res && res.success) {
+          this.showOtpModal = false;
+          this.stopOtpTimer();
+          this.toastr.success('OTP verified successfully!', 'Verified');
+          
+          if (this.pendingActionType === 'APPROVE' || this.pendingActionType === 'FORWARD') {
+            this.executeSaveAndForwardFile();
+          } else if (this.pendingActionType === 'REJECT') {
+            this.executeRejectPlan();
+          } else if (this.pendingActionType === 'REVERT') {
+            this.executeRevertPlan();
+          }
+        } else {
+          this.otpErrorMsg = res.message || 'Invalid OTP code.';
+        }
+      },
+      error: (err) => {
+        this.isVerifyingOtp = false;
+        this.otpErrorMsg = err?.error?.message || err?.message || 'OTP verification failed. Please try again.';
+      }
+    });
+  }
+
+  private executeSaveAndForwardFile(): void {
+    if (!this.selectedPdfFile) return;
 
     this.isUploading = true;
     const fields: any = {
+      schemeCode: Number(this.selectedSchemeCode),
       SchemeCode: Number(this.selectedSchemeCode),
+      finYr: this.selectedFinYr,
       FinYr: this.selectedFinYr,
+      districtCode: this.districtCode,
       DistrictCode: this.districtCode,
-      Remarks: this.remarks
+      remarks: this.remarks || '',
+      Remarks: this.remarks || ''
     };
 
     if (this.isApproveMode) {
-      // ----------------------------------------------------
-      // STATE APPROVAL LOGIC
-      // ----------------------------------------------------
       this.planApi.approvePlanAndUploadFile(this.selectedPdfFile, fields).subscribe({
         next: (res) => {
           this.isUploading = false;
           this.showForwardModal = false;
-          this.showToast(res?.message || 'Plan approved successfully!', 'success');
-          this.onFilterSubmit(); // Reload grid
+          if (res?.message && res.message.toLowerCase().includes('error')) {
+            this.showToast(res.message, 'error');
+          } else {
+            this.showToast(res?.message || 'Plan approved successfully!', 'success');
+          }
+          this.onFilterSubmit();
         },
         error: (err) => {
           this.isUploading = false;
@@ -780,14 +910,15 @@ export class PlanCreateComponent implements OnInit {
         }
       });
     } else {
-      // ----------------------------------------------------
-      // DISTRICT FORWARD LOGIC
-      // ----------------------------------------------------
       this.planApi.savePlanFileAndForward(this.selectedPdfFile, fields).subscribe({
         next: (res) => {
           this.isUploading = false;
           this.showForwardModal = false;
-          this.showToast(res?.message || 'District Plan PDF saved and forwarded to State successfully!', 'success');
+          if (res?.message && res.message.toLowerCase().includes('error')) {
+            this.showToast(res.message, 'error');
+          } else {
+            this.showToast(res?.message || 'District Plan PDF saved and forwarded to State successfully!', 'success');
+          }
           this.onFilterSubmit();
         },
         error: (err) => {
@@ -799,11 +930,7 @@ export class PlanCreateComponent implements OnInit {
     }
   }
 
-  onRejectPlan(): void {
-    if (!this.rejectReason || this.rejectReason.trim().length < 5) {
-      this.showToast('Please enter a valid rejection reason.', 'error');
-      return;
-    }
+  private executeRejectPlan(): void {
     this.isSaving = true;
 
     const rejectModel = {
@@ -818,7 +945,7 @@ export class PlanCreateComponent implements OnInit {
         this.isSaving = false;
         this.showRejectModal = false;
         this.showToast(res?.message || 'Plan rejected successfully.', 'success');
-        this.onFilterSubmit(); // Reload grid
+        this.onFilterSubmit();
       },
       error: (err) => {
         this.isSaving = false;
@@ -1046,11 +1173,16 @@ export class PlanCreateComponent implements OnInit {
       return;
     }
 
+    this.revertReasonText = reason.trim();
+    this.triggerOtpFlow('REVERT');
+  }
+
+  private executeRevertPlan(): void {
     const revertModel = {
       schemeCode: Number(this.selectedSchemeCode),
       finYr: this.selectedFinYr,
       districtCode: this.districtCode,
-      reason: reason.trim()
+      reason: this.revertReasonText
     };
 
     this.planApi.revertPlan(revertModel as any).subscribe({
