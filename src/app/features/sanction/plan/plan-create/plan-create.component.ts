@@ -100,7 +100,7 @@ export class PlanCreateComponent implements OnInit {
   remarks = '';
 
   // Dropdown Master Lists (Dynamic & Pre-populated from Backend APIs)
-  finYears = ['2026-27', '2025-26', '2024-25', '2023-24'];
+  finYears = this.generateFinancialYears();
   schemes = [
     { code: 60, name: 'MLA Local Area Development Scheme (MLALAD - 60)' },
     { code: 5, name: 'मुख्यमंत्री थार सीमा क्षेत्र विकास कार्यक्रम' },
@@ -118,6 +118,18 @@ export class PlanCreateComponent implements OnInit {
     { code: '15', name: 'BARMER (बाड़मेर)' },
     { code: '16', name: 'Bikaner (बीकानेर)' }
   ];
+
+  generateFinancialYears(): string[] {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    const startYr = currentMonth >= 3 ? currentYear : currentYear - 1;
+    const list: string[] = [];
+    for (let y = startYr; y >= startYr - 4; y--) {
+      const nextY = (y + 1).toString().slice(-2);
+      list.push(`${y}-${nextY}`);
+    }
+    return list;
+  }
 
   // Dynamic API Master Arrays
   blocksList: { code: string; name: string }[] = [];
@@ -275,6 +287,19 @@ export class PlanCreateComponent implements OnInit {
     this.loadAssemblies();
     this.loadDepartments();
     this.loadAgencies();
+  }
+
+  getSchemeName(item: any): string {
+    if (!item) return '-';
+    const code = Number(item.schemeCode);
+    if (code) {
+      const found = this.schemes.find(s => Number(s.code) === code);
+      if (found) return found.name;
+    }
+    if (item.schemeName && !item.schemeName.toLowerCase().includes('building') && !item.schemeName.toLowerCase().includes('road')) {
+      return item.schemeName;
+    }
+    return code ? `Scheme (${code})` : '-';
   }
 
   loadDistricts(): void {
@@ -517,6 +542,9 @@ export class PlanCreateComponent implements OnInit {
     this.loadBlocks();
     this.loadDepartments();
     this.loadAgencies();
+    if (this.isFilterSubmitted) {
+      this.onFilterSubmit();
+    }
   }
 
   onBlockChange(): void {
@@ -961,7 +989,7 @@ export class PlanCreateComponent implements OnInit {
     const q = this.searchQuery.toLowerCase().trim();
     return this.planList.filter(p =>
       (p.workName && p.workName.toLowerCase().includes(q)) ||
-      (p.schemeName && p.schemeName.toLowerCase().includes(q)) ||
+      (this.getSchemeName(p) && this.getSchemeName(p).toLowerCase().includes(q)) ||
       (p.districtName && p.districtName.toLowerCase().includes(q)) ||
       (p.status && p.status.toLowerCase().includes(q))
     );
