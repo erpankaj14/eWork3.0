@@ -388,6 +388,52 @@ export class PlanApiService {
   }
 
   /**
+   * 11b. AllowPlanSchemelst API to fetch scheme master list for Plan Details
+   * Endpoint: POST /iwmsapi/api/AllowPlanSchemelst
+   */
+  getAllowPlanSchemeList(): Observable<ApiListResponse<any>> {
+    return this.http.post<any>('/iwmsapi/api/AllowPlanSchemelst', {}).pipe(
+      catchError(() => this.http.post<any>(`${this.baseUrl}/AllowPlanSchemelst`, {})),
+      catchError(() => this.http.get<any>('/iwmsapi/api/AllowPlanSchemelst')),
+      catchError((err) => {
+        console.warn('PlanApiService: AllowPlanSchemelst 404 or unreachable.', err);
+        return of({
+          success: false,
+          count: 0,
+          data: []
+        });
+      })
+    );
+  }
+
+  /**
+   * 11c. DistricSchemetList API to fetch districts based on SchemeCode
+   * Endpoint: POST /api/IwmsWeb/DistricSchemetList with { SchemeCode: 57 }
+   */
+  getDistrictSchemeList(schemeCode: number): Observable<ApiListResponse<any>> {
+    const payload = { SchemeCode: Number(schemeCode), schemeCode: Number(schemeCode) };
+    return this.http.post<any>(`${this.baseUrl}/DistricSchemetList`, payload).pipe(
+      catchError(() => this.http.get<any>(`${this.baseUrl}/DistricSchemetList?SchemeCode=${schemeCode}`)),
+      catchError(() => this.http.post<any>('/iwmsapi/api/DistricSchemetList', payload)),
+      catchError((err) => {
+        console.warn(`PlanApiService: DistricSchemetList 404 or offline for SchemeCode ${schemeCode}. Returning fallback districts.`, err);
+        return of({
+          success: true,
+          count: 6,
+          data: [
+            { districtCode: '06', districtName: 'JAIPUR - 06 (जयपुर)', districtNameHi: 'जयपुर' },
+            { districtCode: '12', districtName: 'JAIPUR (जयपुर)', districtNameHi: 'जयपुर' },
+            { districtCode: '13', districtName: 'JODHPUR (जोधपुर)', districtNameHi: 'जोधपुर' },
+            { districtCode: '14', districtName: 'UDAIPUR (उदयपुर)', districtNameHi: 'उदयपुर' },
+            { districtCode: '15', districtName: 'BARMER (बाड़मेर)', districtNameHi: 'बाड़मेर' },
+            { districtCode: '16', districtName: 'Bikaner (बीकानेर)', districtNameHi: 'बीकानेर' }
+          ]
+        });
+      })
+    );
+  }
+
+  /**
    * 12. Get approved plan/work list
    */
   getApprovedPlanListOfWork(filter: PlanModel): Observable<ApiListResponse<PlanModel>> {

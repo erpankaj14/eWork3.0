@@ -101,14 +101,7 @@ export class PlanCreateComponent implements OnInit {
 
   // Dropdown Master Lists (Dynamic & Pre-populated from Backend APIs)
   finYears = this.generateFinancialYears();
-  schemes = [
-    { code: 60, name: 'MLA Local Area Development Scheme (MLALAD - 60)' },
-    { code: 5, name: 'मुख्यमंत्री थार सीमा क्षेत्र विकास कार्यक्रम' },
-    { code: 1, name: 'डांग क्षेत्र विकास कार्यक्रम' },
-    { code: 12, name: 'डॉ श्यामा प्रसाद मुखर्जी जिला उत्थान योजना' },
-    { code: 18, name: 'मगरा क्षेत्र विकास कार्यक्रम' },
-    { code: 22, name: 'मेवात क्षेत्र विकास कार्यक्रम' }
-  ];
+  schemes: { code: number; name: string }[] = [];
 
   districts = [
     { code: '06', name: 'JAIPUR - 06 (जयपुर)' },
@@ -274,9 +267,87 @@ export class PlanCreateComponent implements OnInit {
       this.isDistrictDisabled = false;
     }
     
+    this.loadAllowPlanSchemes();
     this.loadBudgetTypeList();
     this.loadAllMasterData();
+    if (this.selectedSchemeCode) {
+      this.loadDistrictsForScheme(this.selectedSchemeCode);
+    }
     this.onFilterSubmit(); // Auto fetch initial table data
+  }
+
+  loadAllowPlanSchemes(): void {
+    this.planApi.getAllowPlanSchemeList().subscribe({
+      next: (res) => {
+        const rawRes = res as any;
+        let items: any[] = [];
+        if (Array.isArray(rawRes)) {
+          items = rawRes;
+        } else if (rawRes && Array.isArray(rawRes.data)) {
+          items = rawRes.data;
+        } else if (rawRes && Array.isArray(rawRes.table)) {
+          items = rawRes.table;
+        } else if (rawRes && Array.isArray(rawRes.result)) {
+          items = rawRes.result;
+        }
+
+        if (items.length > 0) {
+          this.schemes = items.map((s: any) => {
+            const code = Number(s.scheme_code ?? s.schemeCode ?? s.SchemeCode ?? s.code ?? 0);
+            const name = s.scheme_name || s.schemeName || s.schemeNameE || s.SchemeName || s.name || `Scheme (${code})`;
+            return { code, name };
+          }).filter(s => s.code > 0 || s.name);
+
+          // Auto select first scheme if current selection is not in list
+          if (this.schemes.length > 0) {
+            const exists = this.schemes.some(s => s.code === Number(this.selectedSchemeCode));
+            if (!exists) {
+              this.selectedSchemeCode = this.schemes[0].code;
+            }
+            this.loadDistrictsForScheme(this.selectedSchemeCode);
+          }
+        } else {
+          this.schemes = [];
+        }
+      },
+      error: () => {
+        this.schemes = [];
+      }
+    });
+  }
+
+  onSchemeChange(schemeCodeVal: any): void {
+    const code = Number(schemeCodeVal);
+    if (!code) {
+      return;
+    }
+    this.selectedSchemeCode = code;
+    this.loadDistrictsForScheme(code);
+  }
+
+  loadDistrictsForScheme(schemeCode: number): void {
+    if (!schemeCode) return;
+    this.planApi.getDistrictSchemeList(schemeCode).subscribe({
+      next: (res) => {
+        const rawRes = res as any;
+        let items: any[] = [];
+        if (Array.isArray(rawRes)) {
+          items = rawRes;
+        } else if (rawRes && Array.isArray(rawRes.data)) {
+          items = rawRes.data;
+        } else if (rawRes && Array.isArray(rawRes.table)) {
+          items = rawRes.table;
+        }
+
+        if (items.length > 0) {
+          const formatted = items.map((d: any) => ({
+            code: String(d.district_code ?? d.districtCode ?? d.DistrictCode ?? d.code ?? '06'),
+            name: d.district_name || d.districtName || d.districtNameE || d.DistrictName || d.name || 'JAIPUR'
+          }));
+          this.districts = formatted;
+        }
+      }
+    });
   }
 
   loadAllMasterData(): void {
@@ -291,13 +362,14 @@ export class PlanCreateComponent implements OnInit {
 
   getSchemeName(item: any): string {
     if (!item) return '-';
-    const code = Number(item.schemeCode);
+    const code = Number(item.scheme_code ?? item.schemeCode);
     if (code) {
       const found = this.schemes.find(s => Number(s.code) === code);
       if (found) return found.name;
     }
-    if (item.schemeName && !item.schemeName.toLowerCase().includes('building') && !item.schemeName.toLowerCase().includes('road')) {
-      return item.schemeName;
+    const name = item.scheme_name || item.schemeName;
+    if (name && !name.toLowerCase().includes('building') && !name.toLowerCase().includes('road')) {
+      return name;
     }
     return code ? `Scheme (${code})` : '-';
   }
