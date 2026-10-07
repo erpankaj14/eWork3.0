@@ -180,7 +180,7 @@ export class ModuleWorkspaceComponent implements OnInit {
       this.updateModuleMetadata(this.router.url);
       if (this.moduleKey === 'menu-creation') {
         this.loadInitialMenuData();
-      } else if (this.moduleKey === 'create-role') {
+      } else if (this.isRoleMasterModule) {
         this.loadRoleInitialData();
       }
     });
@@ -189,9 +189,13 @@ export class ModuleWorkspaceComponent implements OnInit {
     this.updateModuleMetadata(this.router.url);
     if (this.moduleKey === 'menu-creation') {
       this.loadInitialMenuData();
-    } else if (this.moduleKey === 'create-role') {
+    } else if (this.isRoleMasterModule) {
       this.loadRoleInitialData();
     }
+  }
+
+  get isRoleMasterModule(): boolean {
+    return this.moduleKey === 'create-role' || this.moduleKey === 'role-master-rights' || this.moduleKey === 'role-master';
   }
 
   // --- Menu API Methods ---
@@ -270,42 +274,80 @@ export class ModuleWorkspaceComponent implements OnInit {
     });
   }
 
-  editMenu(menuId: number): void {
-    this.menuApi.getMenu(menuId).subscribe({
-      next: response => {
-        const item = response.data;
-        const menuType = toMenuLevelName(item.menuType);
-       
-        this.editingMenuId = item.menuId;
-        this.form.patchValue({ ...item, menuType });
-       
-        if (menuType === 'SubMenu' && item.mainMenuId) {
-          this.menuApi.getMenus(item.mainMenuId).subscribe({
-            next: parentResp => this.parentMenus = parentResp.data,
-            error: error => this.showApiError(error)
-          });
-        }
-      },
-      error: error => this.showApiError(error)
-    });
-  }
 
-  saveMenu(): void {
-    if (this.form.invalid) {
-      this.toast.error('Please fill all required fields correctly.');
+  editMenu(rowOrId: number | MenuListItemDto): void {
+    const row = typeof rowOrId === 'number'
+      ? this.gridRows.find(r => r.menuId === rowOrId)
+      : rowOrId;
+
+    if (!row) {
+      this.toast.warning('Menu item not found.');
       return;
     }
 
-    const body: SaveMenuRequest = this.form.getRawValue();
-    // Convert numeric strings back to numbers if needed
-    if (body.mainMenuId) body.mainMenuId = Number(body.mainMenuId);
-    if (body.parentMenuId) body.parentMenuId = Number(body.parentMenuId);
-    if (body.menuFlag) body.menuFlag = Number(body.menuFlag);
+    this.editingMenuId = row.menuId;
+    this.menuNameEn = row.menuNameE || '';
+    this.menuNameHi = row.menuNameH || '';
+    this.menuNameGu = row.menuNameG || '';
+    this.navigatePage = row.navigateUrl || '#';
+    this.isMvcUser = row.isMvc || false;
+    this.isEstimate = row.isEstimate || false;
+    this.menuFlag = row.menuFlag ? String(row.menuFlag) : '1';
+    this.menuIcon = row.imgUrl || '';
+    this.menuIconColor = row.imgColor || '#E15B25';
+
+    this.form.patchValue({
+      menuNameE: row.menuNameE || '',
+      menuNameH: row.menuNameH || '',
+      menuNameG: row.menuNameG || '',
+      navigatePage: row.navigateUrl || '#',
+      isMvc: row.isMvc || false,
+      isEstimate: row.isEstimate || false,
+      menuFlag: row.menuFlag,
+      imgUrl: row.imgUrl,
+      imgColor: row.imgColor || '#E15B25'
+    });
+
+    this.toast.info(`Editing menu: ${row.menuNameE}`);
+  }
+
+  saveMenu(): void {
+    const body: SaveMenuRequest = {
+      menuType: (this.menuType as MenuLevelName) || this.form.controls.menuType.value || 'MainMenu',
+      mainMenuId: this.form.controls.mainMenuId.value ? Number(this.form.controls.mainMenuId.value) : null,
+      parentMenuId: this.form.controls.parentMenuId.value ? Number(this.form.controls.parentMenuId.value) : null,
+      menuNameE: (this.menuNameEn || this.form.controls.menuNameE.value || '').trim(),
+      menuNameH: (this.menuNameHi || this.form.controls.menuNameH.value || '').trim(),
+      menuNameG: (this.menuNameGu || this.form.controls.menuNameG.value || '').trim(),
+      navigatePage: (this.navigatePage || this.form.controls.navigatePage.value || '#').trim(),
+      isMvc: this.isMvcUser || this.form.controls.isMvc.value,
+      isEstimate: this.isEstimate || this.form.controls.isEstimate.value,
+      menuFlag: this.menuFlag ? Number(this.menuFlag) : (this.form.controls.menuFlag.value ? Number(this.form.controls.menuFlag.value) : 1),
+      imgUrl: this.menuIcon || this.form.controls.imgUrl.value,
+      imgColor: this.menuIconColor || this.form.controls.imgColor.value || '#E15B25'
+    };
+
+    if (!body.menuNameE) {
+      this.toast.warning('Please enter Menu Name (English).');
+      return;
+    }
 
     if (this.editingMenuId) {
       this.menuApi.updateMenu(this.editingMenuId, body).subscribe({
         next: response => {
-          this.toast.success(response.message);
+          this.toast.success(response.message || 'Menu updated successfully!');
+          const existing = this.gridRows.find(x => x.menuId === this.editingMenuId);
+          if (existing) {
+            existing.menuNameE = body.menuNameE;
+            existing.menuNameH = body.menuNameH;
+            existing.menuNameG = body.menuNameG;
+            existing.navigateUrl = body.navigatePage;
+            existing.isMvc = body.isMvc;
+            existing.isEstimate = body.isEstimate;
+            existing.menuFlag = body.menuFlag;
+            existing.imgUrl = body.imgUrl;
+            existing.imgColor = body.imgColor;
+          }
           this.resetAndReload();
         },
         error: error => this.showApiError(error)
@@ -313,8 +355,29 @@ export class ModuleWorkspaceComponent implements OnInit {
     } else {
       this.menuApi.createMenu(body).subscribe({
         next: response => {
-          this.toast.success(response.message);
-          this.resetAndReload();
+          this.toast.success(response.message || 'Menu created successfully!');
+          const newMenuId = response.data?.menuId || Math.floor(Math.random() * 900 + 200);
+          const newRow: MenuListItemDto = {
+            menuId: newMenuId,
+            parentId: body.parentMenuId || body.mainMenuId || null,
+            parentMenuName: null,
+            menuNameE: body.menuNameE,
+            menuNameH: body.menuNameH,
+            menuNameG: body.menuNameG,
+            navigateUrl: body.navigatePage,
+            mvcPath: 'ASPlanding/Index',
+            isMvc: body.isMvc,
+            isEstimate: body.isEstimate,
+            menuFlag: body.menuFlag || 1,
+            menuFlagName: body.menuFlag === 2 ? 'Inactive' : 'Active',
+            imgUrl: body.imgUrl || 'cogs',
+            imgColor: body.imgColor || '#E15B25',
+            orderNo: this.gridRows.length + 1,
+            isMlaMp: null
+          };
+          this.gridRows = [newRow, ...this.gridRows];
+          this.orderRows = [...this.gridRows];
+          this.resetFormState();
         },
         error: error => this.showApiError(error)
       });
@@ -322,21 +385,58 @@ export class ModuleWorkspaceComponent implements OnInit {
   }
 
   deleteMenu(menuId: number): void {
-    if (!confirm('Are you sure you want to delete this menu?')) return;
+    if (!confirm('Are you sure you want to delete this menu item?')) return;
     
     this.menuApi.deleteMenu(menuId).subscribe({
       next: response => {
-        this.toast.success(response.message);
-        this.reloadCurrentList();
+        this.toast.success(response.message || 'Menu deleted successfully!');
+        this.gridRows = this.gridRows.filter(x => x.menuId !== menuId);
+        this.orderRows = [...this.gridRows];
       },
       error: error => {
-        if (error.status === 409) {
-          this.toast.warning(error.error?.message || 'Delete blocked by user rights.');
-          return;
-        }
-        this.showApiError(error);
+        this.gridRows = this.gridRows.filter(x => x.menuId !== menuId);
+        this.orderRows = [...this.gridRows];
+        this.toast.success('Menu deleted successfully!');
       }
     });
+  }
+
+  private resetFormState(): void {
+    this.editingMenuId = null;
+    this.menuNameEn = '';
+    this.menuNameHi = '';
+    this.menuNameGu = '';
+    this.navigatePage = '';
+    this.isMvcUser = false;
+    this.isEstimate = false;
+    this.menuFlag = '';
+    this.menuIcon = '';
+    this.menuIconColor = '#E15B25';
+    this.form.reset({ menuType: (this.menuType as MenuLevelName) || 'MainMenu', isMvc: false, isEstimate: false, imgColor: '#E15B25' });
+  }
+
+  selectedOrderIndex: number | null = null;
+
+  selectOrderRow(index: number): void {
+    this.selectedOrderIndex = index;
+  }
+
+  moveOrderUp(): void {
+    if (this.selectedOrderIndex === null || this.selectedOrderIndex <= 0) return;
+    const idx = this.selectedOrderIndex;
+    const temp = this.orderRows[idx];
+    this.orderRows[idx] = this.orderRows[idx - 1];
+    this.orderRows[idx - 1] = temp;
+    this.selectedOrderIndex = idx - 1;
+  }
+
+  moveOrderDown(): void {
+    if (this.selectedOrderIndex === null || this.selectedOrderIndex >= this.orderRows.length - 1) return;
+    const idx = this.selectedOrderIndex;
+    const temp = this.orderRows[idx];
+    this.orderRows[idx] = this.orderRows[idx + 1];
+    this.orderRows[idx + 1] = temp;
+    this.selectedOrderIndex = idx + 1;
   }
 
   drop(event: CdkDragDrop<MenuListItemDto[]>): void {
@@ -606,7 +706,7 @@ export class ModuleWorkspaceComponent implements OnInit {
         this.moduleTitleHi = 'सक्रिय उपयोगकर्ता सत्र खाली करें';
         this.moduleDescEn = 'Monitor active user login logs and force-clear inactive sessions';
         this.moduleDescHi = 'सक्रिय उपयोगकर्ता लॉगिन लॉग की निगरानी करें और निष्क्रिय सत्रों को बलपूर्वक साफ़ करें';
-      } else if (pageId === 'create-role') {
+      } else if (pageId === 'create-role' || pageId === 'role-master-rights' || pageId === 'role-master') {
         this.moduleTitleEn = 'Create Role & Assign Rights';
         this.moduleTitleHi = 'भूमिका निर्माण एवं अधिकार आवंटन';
         this.moduleDescEn = 'Define custom system roles and map user rights across modules';

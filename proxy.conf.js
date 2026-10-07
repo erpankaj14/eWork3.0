@@ -136,6 +136,28 @@ const PROXY_CONFIG = [
         return true;
       }
 
+      // 6b. CreateMenu
+      if (url.includes('createmenu')) {
+        const assignedId = Math.floor(Math.random() * 900 + 200);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          message: `Menu created successfully! (ID: #${assignedId})`,
+          data: { menuId: assignedId }
+        }));
+        return true;
+      }
+
+      // 6c. UpdateMenu / UpdateMenuOrder / DeleteMenu
+      if (url.includes('updatemenu') || url.includes('deletemenu')) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          message: 'Menu updated/saved successfully!'
+        }));
+        return true;
+      }
+
       // 7. BudgetTypeList
       if (url.includes('budgettypelist')) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
