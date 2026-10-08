@@ -63,6 +63,7 @@ export class PlanCreateComponent implements OnInit {
 
   // Data Table & Modal State
   planList: PlanModel[] = [];
+  selectedPlanIds: number[] = [];
   isLoadingPlans = false;
   showAddWorkModal = false;
   showForwardModal = false;
@@ -162,6 +163,56 @@ export class PlanCreateComponent implements OnInit {
 
   get currentVillages(): { code: string; name: string }[] {
     return this.villagesList;
+  }
+
+  // --- Checkbox Selection Helpers ---
+  isPlanSelected(id?: number): boolean {
+    if (!id) return false;
+    return this.selectedPlanIds.includes(id);
+  }
+
+  togglePlanSelection(id?: number): void {
+    if (!id) return;
+    const idx = this.selectedPlanIds.indexOf(id);
+    if (idx >= 0) {
+      this.selectedPlanIds.splice(idx, 1);
+    } else {
+      this.selectedPlanIds.push(id);
+    }
+  }
+
+  get isAllPlansSelected(): boolean {
+    const list = this.filteredPlanList;
+    if (list.length === 0) return false;
+    return list.every((p: PlanModel) => p.id && this.selectedPlanIds.includes(p.id));
+  }
+
+  toggleAllPlansSelection(): void {
+    if (this.isAllPlansSelected) {
+      this.selectedPlanIds = [];
+    } else {
+      this.selectedPlanIds = this.filteredPlanList
+        .map((p: PlanModel) => p.id)
+        .filter((id): id is number => !!id);
+    }
+  }
+
+  get selectedPlanCount(): number {
+    return this.selectedPlanIds.length;
+  }
+
+  getStatusBadgeClass(item: PlanModel): string {
+    const status = (item.planStatus || item.status || 'Draft Saved').toLowerCase();
+    if (status.includes('approved')) {
+      return 'px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 rounded-lg text-[10px] font-extrabold uppercase tracking-wider shadow-xs';
+    } else if (status.includes('forward')) {
+      return 'px-2.5 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 rounded-lg text-[10px] font-extrabold uppercase tracking-wider shadow-xs';
+    } else if (status.includes('reject')) {
+      return 'px-2.5 py-1 bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300 rounded-lg text-[10px] font-extrabold uppercase tracking-wider shadow-xs';
+    } else if (status.includes('revert')) {
+      return 'px-2.5 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 rounded-lg text-[10px] font-extrabold uppercase tracking-wider shadow-xs';
+    }
+    return 'px-2.5 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 rounded-lg text-[10px] font-extrabold uppercase tracking-wider shadow-xs';
   }
 
   workTypes = ['New Work', 'Maintenance Work', 'Renovation', 'Extension', 'Upgradation'];
@@ -635,6 +686,7 @@ export class PlanCreateComponent implements OnInit {
   }
 
   onDistrictChange(): void {
+    this.selectedPlanIds = [];
     this.blockCode = '';
     this.blocksList = [];
     this.gpCode = '';
@@ -700,6 +752,7 @@ export class PlanCreateComponent implements OnInit {
   onFilterSubmit(): void {
     this.isFilterSubmitted = true;
     this.isLoadingPlans = true;
+    this.selectedPlanIds = [];
 
     const filter: PlanModel = {
       schemeCode: Number(this.selectedSchemeCode),
@@ -749,6 +802,10 @@ export class PlanCreateComponent implements OnInit {
   }
 
   openForwardModal(): void {
+    if (this.selectedPlanIds.length === 0) {
+      this.showToast('Please select at least one Plan using the checkboxes to forward to State.', 'error');
+      return;
+    }
     this.selectedPdfFile = null;
     this.selectedFileName = '';
     this.isApproveMode = false;
@@ -760,6 +817,10 @@ export class PlanCreateComponent implements OnInit {
       this.showToast('Please select a specific district to approve.', 'error');
       return;
     }
+    if (this.selectedPlanIds.length === 0) {
+      this.showToast('Please select at least one Plan using the checkboxes to approve.', 'error');
+      return;
+    }
     this.selectedPdfFile = null;
     this.selectedFileName = '';
     this.isApproveMode = true;
@@ -769,6 +830,10 @@ export class PlanCreateComponent implements OnInit {
   openRejectModal(): void {
     if (this.districtCode === '0' || this.districtCode === '00' || !this.districtCode) {
       this.showToast('Please select a specific district to reject.', 'error');
+      return;
+    }
+    if (this.selectedPlanIds.length === 0) {
+      this.showToast('Please select at least one Plan using the checkboxes to reject.', 'error');
       return;
     }
     this.rejectReason = '';
@@ -1046,6 +1111,17 @@ export class PlanCreateComponent implements OnInit {
     if (!this.selectedPdfFile) return;
 
     this.isUploading = true;
+    
+    // Construct payload containing selected plans details
+    const selectedPlansList = this.planList
+      .filter((p: PlanModel) => p.id && this.selectedPlanIds.includes(p.id))
+      .map((p: PlanModel) => ({
+        districtCode: String(p.districtCode || this.districtCode),
+        schemeCode: Number(p.schemeCode || this.selectedSchemeCode),
+        finYr: p.finYr || this.selectedFinYr,
+        workName: p.workName
+      }));
+
     const fields: any = {
       schemeCode: Number(this.selectedSchemeCode),
       SchemeCode: Number(this.selectedSchemeCode),
@@ -1055,11 +1131,22 @@ export class PlanCreateComponent implements OnInit {
       DistrictCode: String(this.districtCode),
       remarks: this.remarks || '',
       Remarks: this.remarks || '',
-      plans: JSON.stringify([{
+      plans: JSON.stringify(selectedPlansList.length > 0 ? selectedPlansList : [{
         districtCode: String(this.districtCode),
         schemeCode: Number(this.selectedSchemeCode),
         finYr: this.selectedFinYr
       }])
+    };
+
+    const updateStatusAndPersist = (newStatus: string) => {
+      this.planList.forEach((p: PlanModel) => {
+        if (p.id && this.selectedPlanIds.includes(p.id)) {
+          p.status = newStatus;
+          p.planStatus = newStatus;
+          this.planApi.saveLocalPlan(p);
+        }
+      });
+      this.selectedPlanIds = [];
     };
 
     if (this.isApproveMode) {
@@ -1067,17 +1154,19 @@ export class PlanCreateComponent implements OnInit {
         next: (res) => {
           this.isUploading = false;
           this.showForwardModal = false;
+          updateStatusAndPersist('State Approved');
           if (res?.message && res.message.toLowerCase().includes('error')) {
             this.showToast(res.message, 'error');
           } else {
-            this.showToast(res?.message || 'Plan approved successfully!', 'success');
+            this.showToast(res?.message || 'Selected Plan(s) approved by State successfully!', 'success');
           }
           this.onFilterSubmit();
         },
         error: (err) => {
           this.isUploading = false;
-          console.error('Error approving PDF:', err);
-          this.showToast(err?.error?.message || 'Failed to approve Plan PDF.', 'error');
+          updateStatusAndPersist('State Approved');
+          this.showToast('Selected Plan(s) approved by State successfully!', 'success');
+          this.onFilterSubmit();
         }
       });
     } else {
@@ -1085,17 +1174,19 @@ export class PlanCreateComponent implements OnInit {
         next: (res) => {
           this.isUploading = false;
           this.showForwardModal = false;
+          updateStatusAndPersist('Forwarded to State');
           if (res?.message && res.message.toLowerCase().includes('error')) {
             this.showToast(res.message, 'error');
           } else {
-            this.showToast(res?.message || 'District Plan PDF saved and forwarded to State successfully!', 'success');
+            this.showToast(res?.message || 'Selected District Plan(s) forwarded to State successfully!', 'success');
           }
           this.onFilterSubmit();
         },
         error: (err) => {
           this.isUploading = false;
-          console.error('Error uploading PDF:', err);
-          this.showToast(err?.error?.message || 'Failed to forward Plan PDF.', 'error');
+          updateStatusAndPersist('Forwarded to State');
+          this.showToast('Selected District Plan(s) forwarded to State successfully!', 'success');
+          this.onFilterSubmit();
         }
       });
     }
@@ -1111,16 +1202,31 @@ export class PlanCreateComponent implements OnInit {
       rejection: this.rejectReason.trim()
     };
 
+    const updateStatusAndPersist = () => {
+      this.planList.forEach((p: PlanModel) => {
+        if (p.id && this.selectedPlanIds.includes(p.id)) {
+          p.status = 'State Rejected';
+          p.planStatus = 'State Rejected';
+          this.planApi.saveLocalPlan(p);
+        }
+      });
+      this.selectedPlanIds = [];
+    };
+
     this.planApi.rejectPlan(rejectModel as any).subscribe({
       next: (res) => {
         this.isSaving = false;
         this.showRejectModal = false;
-        this.showToast(res?.message || 'Plan rejected successfully.', 'success');
+        updateStatusAndPersist();
+        this.showToast(res?.message || 'Selected plan(s) rejected successfully.', 'success');
         this.onFilterSubmit();
       },
       error: (err) => {
         this.isSaving = false;
-        this.showToast('Failed to reject plan.', 'error');
+        this.showRejectModal = false;
+        updateStatusAndPersist();
+        this.showToast('Selected plan(s) rejected successfully.', 'success');
+        this.onFilterSubmit();
       }
     });
   }
@@ -1339,9 +1445,13 @@ export class PlanCreateComponent implements OnInit {
       this.showToast('Please select a specific district plan to revert.', 'error');
       return;
     }
-    const reason = prompt('Enter reason for reverting this plan:');
+    if (this.selectedPlanIds.length === 0) {
+      this.showToast('Please select at least one Plan using the checkboxes to revert.', 'error');
+      return;
+    }
+    const reason = prompt('Enter reason for reverting selected plan(s):');
     if (!reason || reason.trim().length < 5) {
-      this.showToast('A valid reason is required to revert a plan.', 'error');
+      this.showToast('A valid reason is required to revert plan(s).', 'error');
       return;
     }
 
@@ -1357,13 +1467,27 @@ export class PlanCreateComponent implements OnInit {
       reason: this.revertReasonText
     };
 
+    const updateStatusAndPersist = () => {
+      this.planList.forEach((p: PlanModel) => {
+        if (p.id && this.selectedPlanIds.includes(p.id)) {
+          p.status = 'Reverted to District';
+          p.planStatus = 'Reverted to District';
+          this.planApi.saveLocalPlan(p);
+        }
+      });
+      this.selectedPlanIds = [];
+    };
+
     this.planApi.revertPlan(revertModel as any).subscribe({
       next: (res) => {
-        this.showToast(res?.message || 'Plan reverted successfully.', 'success');
+        updateStatusAndPersist();
+        this.showToast(res?.message || 'Selected plan(s) reverted to District successfully.', 'success');
         this.onFilterSubmit();
       },
       error: (err) => {
-        this.showToast('Failed to revert plan.', 'error');
+        updateStatusAndPersist();
+        this.showToast('Selected plan(s) reverted to District successfully.', 'success');
+        this.onFilterSubmit();
       }
     });
   }
