@@ -103,14 +103,7 @@ export class PlanCreateComponent implements OnInit {
   finYears = this.generateFinancialYears();
   schemes: { code: number; name: string }[] = [];
 
-  districts = [
-    { code: '06', name: 'JAIPUR - 06 (जयपुर)' },
-    { code: '12', name: 'JAIPUR (जयपुर)' },
-    { code: '13', name: 'JODHPUR (जोधपुर)' },
-    { code: '14', name: 'UDAIPUR (उदयपुर)' },
-    { code: '15', name: 'BARMER (बाड़मेर)' },
-    { code: '16', name: 'Bikaner (बीकानेर)' }
-  ];
+  districts: { code: string; name: string }[] = [];
 
   generateFinancialYears(): string[] {
     const currentYear = new Date().getFullYear();
@@ -325,8 +318,30 @@ export class PlanCreateComponent implements OnInit {
     this.loadDistrictsForScheme(code);
   }
 
+  private formatDistrictItem(d: any): { code: string; name: string } {
+    const code = String(d.districtCode ?? d.district_code ?? d.DistrictCode ?? d.id ?? d.code ?? '').trim();
+    const engName = String(d.distNameEng || d.lgdDistrictNameEnglish || '').trim();
+    const hiName = String(d.distName || d.lgdDistrictNameHindi || d.districtName || d.district_name || d.districtNameE || d.DistrictName || d.name || '').trim();
+
+    let name = '';
+    if (engName && hiName) {
+      name = `${engName} (${hiName})`;
+    } else if (engName) {
+      name = engName;
+    } else if (hiName) {
+      name = hiName;
+    } else {
+      name = code ? `District ${code}` : 'District';
+    }
+
+    return { code, name };
+  }
+
   loadDistrictsForScheme(schemeCode: number): void {
-    if (!schemeCode) return;
+    if (!schemeCode) {
+      this.loadDistricts();
+      return;
+    }
     this.planApi.getDistrictSchemeList(schemeCode).subscribe({
       next: (res) => {
         const rawRes = res as any;
@@ -340,12 +355,19 @@ export class PlanCreateComponent implements OnInit {
         }
 
         if (items.length > 0) {
-          const formatted = items.map((d: any) => ({
-            code: String(d.district_code ?? d.districtCode ?? d.DistrictCode ?? d.code ?? '06'),
-            name: d.district_name || d.districtName || d.districtNameE || d.DistrictName || d.name || 'JAIPUR'
-          }));
-          this.districts = formatted;
+          const formatted = items.map((d: any) => this.formatDistrictItem(d)).filter(d => d.code && d.name);
+
+          if (formatted.length > 0) {
+            this.districts = formatted;
+            return;
+          }
         }
+        // Fallback to loading real dynamic master districts if scheme-filtered API returns empty
+        this.loadDistricts();
+      },
+      error: () => {
+        // Fallback to loading real dynamic master districts if DistricSchemetList is 404
+        this.loadDistricts();
       }
     });
   }
@@ -377,22 +399,32 @@ export class PlanCreateComponent implements OnInit {
   loadDistricts(): void {
     this.masterApi.getDistricts().subscribe({
       next: (res) => {
-        const items = Array.isArray(res) ? res : (res?.data || []);
-        let formattedDistricts = items.map((d: any) => ({
-          code: String(d.districtCode || d.DistrictCode || d.id || d.code || '12'),
-          name: d.districtName || d.districtNameE || d.name || 'JAIPUR (जयपुर)'
-        }));
-
-        const user = this.authService.getCurrentUser();
-        const distCode = user?.districtCode || (user?.district === 'State' ? '0' : '12');
-        
-        // If user is district specific, filter the dropdown to only show that district
-        if (distCode !== '0' && distCode !== '00') {
-          formattedDistricts = formattedDistricts.filter((d: any) => d.code === distCode);
+        const rawRes = res as any;
+        let items: any[] = [];
+        if (Array.isArray(rawRes)) {
+          items = rawRes;
+        } else if (rawRes && Array.isArray(rawRes.data)) {
+          items = rawRes.data;
+        } else if (rawRes && Array.isArray(rawRes.table)) {
+          items = rawRes.table;
+        } else if (rawRes && Array.isArray(rawRes.result)) {
+          items = rawRes.result;
         }
-        
-        if (formattedDistricts.length > 0) {
-          this.districts = formattedDistricts;
+
+        if (items.length > 0) {
+          let formattedDistricts = items.map((d: any) => this.formatDistrictItem(d)).filter(d => d.code && d.name);
+
+          const user = this.authService.getCurrentUser();
+          const distCode = user?.districtCode || (user?.district === 'State' ? '0' : '12');
+          
+          // If user is district specific, filter the dropdown to only show that district
+          if (distCode !== '0' && distCode !== '00') {
+            formattedDistricts = formattedDistricts.filter((d: any) => String(d.code).padStart(2, '0') === String(distCode).padStart(2, '0'));
+          }
+          
+          if (formattedDistricts.length > 0) {
+            this.districts = formattedDistricts;
+          }
         }
       }
     });

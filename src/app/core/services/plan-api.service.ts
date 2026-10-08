@@ -406,28 +406,19 @@ export class PlanApiService {
     );
   }
 
-  /**
-   * 11c. DistricSchemetList API to fetch districts based on SchemeCode
-   * Endpoint: POST /api/IwmsWeb/DistricSchemetList with { SchemeCode: 57 }
-   */
   getDistrictSchemeList(schemeCode: number): Observable<ApiListResponse<any>> {
-    const payload = { SchemeCode: Number(schemeCode), schemeCode: Number(schemeCode) };
+    const payload = { SchemeCode: Number(schemeCode) };
     return this.http.post<any>(`${this.baseUrl}/DistricSchemetList`, payload).pipe(
-      catchError(() => this.http.get<any>(`${this.baseUrl}/DistricSchemetList?SchemeCode=${schemeCode}`)),
+      catchError(() => this.http.post<any>(`${this.baseUrl}/DistricSchemetlist`, payload)),
+      catchError(() => this.http.post<any>(`${this.baseUrl}/DistrictSchemetList`, payload)),
+      catchError(() => this.http.post<any>(`${this.baseUrl}/DistricSchemeList`, payload)),
       catchError(() => this.http.post<any>('/iwmsapi/api/DistricSchemetList', payload)),
       catchError((err) => {
-        console.warn(`PlanApiService: DistricSchemetList 404 or offline for SchemeCode ${schemeCode}. Returning fallback districts.`, err);
+        console.warn(`PlanApiService: DistricSchemetList 404 or unreachable for SchemeCode ${schemeCode}.`, err);
         return of({
-          success: true,
-          count: 6,
-          data: [
-            { districtCode: '06', districtName: 'JAIPUR - 06 (जयपुर)', districtNameHi: 'जयपुर' },
-            { districtCode: '12', districtName: 'JAIPUR (जयपुर)', districtNameHi: 'जयपुर' },
-            { districtCode: '13', districtName: 'JODHPUR (जोधपुर)', districtNameHi: 'जोधपुर' },
-            { districtCode: '14', districtName: 'UDAIPUR (उदयपुर)', districtNameHi: 'उदयपुर' },
-            { districtCode: '15', districtName: 'BARMER (बाड़मेर)', districtNameHi: 'बाड़मेर' },
-            { districtCode: '16', districtName: 'Bikaner (बीकानेर)', districtNameHi: 'बीकानेर' }
-          ]
+          success: false,
+          count: 0,
+          data: []
         });
       })
     );
