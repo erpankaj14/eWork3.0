@@ -80,10 +80,10 @@ export class PlanCreateComponent implements OnInit {
   dlcApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy
   slcApprovalDate = this.getTodayFormatted(); // dd/MM/yyyy
   workName = '';
-  districtCode = '06';
-  blockCode = '0001';
-  gpCode = '0001';
-  villageCode = '0001';
+  districtCode = '';
+  blockCode = '';
+  gpCode = '';
+  villageCode = '';
   proposedAmount: number | null = null;
   category = '';
   subCategory = '';
@@ -129,100 +129,39 @@ export class PlanCreateComponent implements OnInit {
   agencyList: { id: any; name: string }[] = [];
 
   get assemblies(): any[] {
-    return this.assembliesList.length > 0
-      ? this.assembliesList
-      : [
-          { constCode: '001', assemblyNo: 16, constName: 'Amber', mlaName: 'Shri Satish Poonia' },
-          { constCode: '002', assemblyNo: 16, constName: 'Hawa Mahal', mlaName: 'Shri Rajendra Rathore' },
-          { constCode: '003', assemblyNo: 16, constName: 'Vidhyadhar Nagar', mlaName: 'Smt. Diya Kumari' }
-        ];
+    return this.assembliesList;
   }
 
   get mlas(): any[] {
-    return this.mlaList.length > 0
-      ? this.mlaList
-      : [
-          { constCode: '001', assemblyNo: 16, constName: 'Amber', mlaName: 'Shri Satish Poonia' },
-          { constCode: '002', assemblyNo: 16, constName: 'Hawa Mahal', mlaName: 'Shri Rajendra Rathore' },
-          { constCode: '003', assemblyNo: 16, constName: 'Vidhyadhar Nagar', mlaName: 'Smt. Diya Kumari' }
-        ];
+    return this.mlaList;
   }
 
   get executiveDepts(): any[] {
-    return this.deptList.length > 0
-      ? this.deptList
-      : [
-          { id: 1, name: 'Panchayati Raj Department' },
-          { id: 2, name: 'Public Works Department (PWD)' },
-          { id: 3, name: 'Water Resources Dept (WRD)' },
-          { id: 4, name: 'Public Health Engineering Dept (PHED)' }
-        ];
+    return this.deptList;
   }
 
   get executiveAgencies(): any[] {
-    return this.agencyList.length > 0
-      ? this.agencyList
-      : [
-          { id: 1, name: 'Gram Panchayat Amer' },
-          { id: 2, name: 'Block Development Officer Amer' },
-          { id: 3, name: 'Executive Engineer PWD Jaipur' }
-        ];
+    return this.agencyList;
   }
 
   get categories(): any[] {
-    return this.categoriesList.length > 0
-      ? this.categoriesList
-      : [
-          { code: '01', name: 'Road & Connectivity' },
-          { code: '02', name: 'Building & Infra' },
-          { code: '03', name: 'Water & Sanitation' },
-          { code: '04', name: 'Irrigation & Agri' },
-          { code: '05', name: 'Community Development' }
-        ];
+    return this.categoriesList;
   }
 
   get subCategories(): any[] {
-    return this.subCategoriesList.length > 0
-      ? this.subCategoriesList
-      : [
-          { code: '0101', name: 'Concrete Road (CC Road)' },
-          { code: '0201', name: 'Community Hall / Panchayat Ghar' },
-          { code: '0301', name: 'Drinking Water Tube Well' },
-          { code: '0401', name: 'Drainage Pipeline' },
-          { code: '0202', name: 'School Classroom' }
-        ];
+    return this.subCategoriesList;
   }
 
   get currentBlocks(): { code: string; name: string }[] {
-    return this.blocksList.length > 0
-      ? this.blocksList
-      : [
-          { code: '0001', name: 'Amer (आमेर)' },
-          { code: '0002', name: 'Sanganer (सांगानेर)' },
-          { code: '0003', name: 'Luni (लूणी)' },
-          { code: '0004', name: 'Mandore (मंडोर)' }
-        ];
+    return this.blocksList;
   }
 
   get currentPanchayats(): { code: string; name: string }[] {
-    return this.panchayatsList.length > 0
-      ? this.panchayatsList
-      : [
-          { code: '0001', name: 'Kukas (कुकास)' },
-          { code: '0002', name: 'Chandwaji (चंदवाजी)' },
-          { code: '0003', name: 'Boranada (बोरानाडा)' },
-          { code: '0004', name: 'Salawas (सालावास)' }
-        ];
+    return this.panchayatsList;
   }
 
   get currentVillages(): { code: string; name: string }[] {
-    return this.villagesList.length > 0
-      ? this.villagesList
-      : [
-          { code: '0001', name: 'Kukas Village (कुकास गांव)' },
-          { code: '0002', name: 'Syari Village (स्यारी गांव)' },
-          { code: '0003', name: 'Boranada Village (बोरानाडा गांव)' }
-        ];
+    return this.villagesList;
   }
 
   workTypes = ['New Work', 'Maintenance Work', 'Renovation', 'Extension', 'Upgradation'];
@@ -339,7 +278,9 @@ export class PlanCreateComponent implements OnInit {
 
   loadDistrictsForScheme(schemeCode: number): void {
     if (!schemeCode) {
-      this.loadDistricts();
+      this.districts = [];
+      this.districtCode = '';
+      this.onDistrictChange();
       return;
     }
     this.planApi.getDistrictSchemeList(schemeCode).subscribe({
@@ -356,24 +297,39 @@ export class PlanCreateComponent implements OnInit {
 
         if (items.length > 0) {
           const formatted = items.map((d: any) => this.formatDistrictItem(d)).filter(d => d.code && d.name);
+          this.districts = formatted;
 
-          if (formatted.length > 0) {
-            this.districts = formatted;
-            return;
+          const districtExists = this.districts.some(d => String(d.code).padStart(2, '0') === String(this.districtCode).padStart(2, '0'));
+          if (!districtExists) {
+            if (this.isDistrictDisabled) {
+              const user = this.authService.getCurrentUser();
+              const userDist = user?.districtCode || '12';
+              const userDistMatch = this.districts.find(d => String(d.code).padStart(2, '0') === String(userDist).padStart(2, '0'));
+              if (userDistMatch) {
+                this.districtCode = userDistMatch.code;
+              } else {
+                this.districtCode = '';
+              }
+            } else {
+              this.districtCode = '0';
+            }
           }
+        } else {
+          this.districts = [];
+          this.districtCode = '';
         }
-        // Fallback to loading real dynamic master districts if scheme-filtered API returns empty
-        this.loadDistricts();
+
+        this.onDistrictChange();
       },
       error: () => {
-        // Fallback to loading real dynamic master districts if DistricSchemetList is 404
-        this.loadDistricts();
+        this.districts = [];
+        this.districtCode = '';
+        this.onDistrictChange();
       }
     });
   }
 
   loadAllMasterData(): void {
-    this.loadDistricts();
     this.loadBlocks();
     this.loadWorkCategories();
     this.loadWorkSubCategories();
@@ -431,6 +387,16 @@ export class PlanCreateComponent implements OnInit {
   }
 
   loadBlocks(): void {
+    if (!this.districtCode || this.districtCode === '0' || this.districtCode === '00') {
+      this.blocksList = [];
+      this.blockCode = '';
+      this.panchayatsList = [];
+      this.gpCode = '';
+      this.villagesList = [];
+      this.villageCode = '';
+      return;
+    }
+
     this.masterApi.getBlocks(this.districtCode).subscribe({
       next: (res) => {
         let items: any[] = [];
@@ -444,37 +410,44 @@ export class PlanCreateComponent implements OnInit {
 
         if (items.length > 0) {
           this.blocksList = items.map((b: any) => ({
-            code: String(b.blockCode || b.BlockCode || b.code || b.id || '0001'),
-            name: b.blockNameE || b.BlockNameE || b.blockName || b.BlockName || b.name || 'Amer (आमेर)'
-          }));
+            code: String(b.blockCode || b.BlockCode || b.code || b.id || ''),
+            name: b.blockNameE || b.BlockNameE || b.blockName || b.BlockName || b.name || ''
+          })).filter((b: any) => b.code && b.name);
         } else {
-          this.blocksList = [
-            { code: '0001', name: 'Amer (आमेर)' },
-            { code: '0002', name: 'Sanganer (सांगानेर)' },
-            { code: '0003', name: 'Luni (लूणी)' },
-            { code: '0004', name: 'Mandore (मंडोर)' }
-          ];
+          this.blocksList = [];
         }
 
         if (this.blocksList.length > 0) {
           this.blockCode = this.blocksList[0].code;
           this.loadGramPanchayats();
+        } else {
+          this.blockCode = '';
+          this.panchayatsList = [];
+          this.gpCode = '';
+          this.villagesList = [];
+          this.villageCode = '';
         }
       },
       error: () => {
-        this.blocksList = [
-          { code: '0001', name: 'Amer (आमेर)' },
-          { code: '0002', name: 'Sanganer (सांगानेर)' },
-          { code: '0003', name: 'Luni (लूणी)' },
-          { code: '0004', name: 'Mandore (मंडोर)' }
-        ];
-        this.blockCode = '0001';
-        this.loadGramPanchayats();
+        this.blocksList = [];
+        this.blockCode = '';
+        this.panchayatsList = [];
+        this.gpCode = '';
+        this.villagesList = [];
+        this.villageCode = '';
       }
     });
   }
 
   loadGramPanchayats(): void {
+    if (!this.districtCode || this.districtCode === '0' || !this.blockCode) {
+      this.panchayatsList = [];
+      this.gpCode = '';
+      this.villagesList = [];
+      this.villageCode = '';
+      return;
+    }
+
     this.masterApi.getGramPanchayats(this.districtCode, this.blockCode).subscribe({
       next: (res) => {
         let items: any[] = [];
@@ -488,37 +461,38 @@ export class PlanCreateComponent implements OnInit {
 
         if (items.length > 0) {
           this.panchayatsList = items.map((gp: any) => ({
-            code: String(gp.panchayatCode || gp.PanchayatCode || gp.gpCode || gp.code || '0001'),
-            name: gp.panchayatNameE || gp.PanchayatNameE || gp.panchayatName || gp.name || 'Kukas (कुकास)'
-          }));
+            code: String(gp.panchayatCode || gp.PanchayatCode || gp.gpCode || gp.code || ''),
+            name: gp.panchayatNameE || gp.PanchayatNameE || gp.panchayatName || gp.name || ''
+          })).filter((p: any) => p.code && p.name);
         } else {
-          this.panchayatsList = [
-            { code: '0001', name: 'Kukas (कुकास)' },
-            { code: '0002', name: 'Chandwaji (चंदवाजी)' },
-            { code: '0003', name: 'Boranada (बोरानाडा)' },
-            { code: '0004', name: 'Salawas (सालावास)' }
-          ];
+          this.panchayatsList = [];
         }
 
         if (this.panchayatsList.length > 0) {
           this.gpCode = this.panchayatsList[0].code;
           this.loadVillages();
+        } else {
+          this.gpCode = '';
+          this.villagesList = [];
+          this.villageCode = '';
         }
       },
       error: () => {
-        this.panchayatsList = [
-          { code: '0001', name: 'Kukas (कुकास)' },
-          { code: '0002', name: 'Chandwaji (चंदवाजी)' },
-          { code: '0003', name: 'Boranada (बोरानाडा)' },
-          { code: '0004', name: 'Salawas (सालावास)' }
-        ];
-        this.gpCode = '0001';
-        this.loadVillages();
+        this.panchayatsList = [];
+        this.gpCode = '';
+        this.villagesList = [];
+        this.villageCode = '';
       }
     });
   }
 
   loadVillages(): void {
+    if (!this.districtCode || this.districtCode === '0' || !this.blockCode || !this.gpCode) {
+      this.villagesList = [];
+      this.villageCode = '';
+      return;
+    }
+
     this.masterApi.getVillages(this.districtCode, this.blockCode, this.gpCode).subscribe({
       next: (res) => {
         let items: any[] = [];
@@ -532,28 +506,22 @@ export class PlanCreateComponent implements OnInit {
 
         if (items.length > 0) {
           this.villagesList = items.map((v: any) => ({
-            code: String(v.villageCode || v.VillageCode || v.code || '0001'),
-            name: v.villageNameE || v.VillageNameE || v.villageName || v.name || 'Kukas Village (कुकास गांव)'
-          }));
+            code: String(v.villageCode || v.VillageCode || v.code || ''),
+            name: v.villageNameE || v.VillageNameE || v.villageName || v.name || ''
+          })).filter((v: any) => v.code && v.name);
         } else {
-          this.villagesList = [
-            { code: '0001', name: 'Kukas Village (कुकास गांव)' },
-            { code: '0002', name: 'Syari Village (स्यारी गांव)' },
-            { code: '0003', name: 'Boranada Village (बोरानाडा गांव)' }
-          ];
+          this.villagesList = [];
         }
 
         if (this.villagesList.length > 0) {
           this.villageCode = this.villagesList[0].code;
+        } else {
+          this.villageCode = '';
         }
       },
       error: () => {
-        this.villagesList = [
-          { code: '0001', name: 'Kukas Village (कुकास गांव)' },
-          { code: '0002', name: 'Syari Village (स्यारी गांव)' },
-          { code: '0003', name: 'Boranada Village (बोरानाडा गांव)' }
-        ];
-        this.villageCode = '0001';
+        this.villagesList = [];
+        this.villageCode = '';
       }
     });
   }
@@ -564,8 +532,8 @@ export class PlanCreateComponent implements OnInit {
         const items = res?.data || [];
         this.categoriesList = items.map((c: any) => ({
           code: c.sectorCode || c.categoryCode || c.code || '01',
-          name: c.description || c.categoryNameE || c.name || 'Road & Connectivity'
-        }));
+          name: c.description || c.categoryNameE || c.name || ''
+        })).filter((c: any) => c.name);
       }
     });
   }
@@ -576,8 +544,8 @@ export class PlanCreateComponent implements OnInit {
         const items = res?.data || [];
         this.subCategoriesList = items.map((sc: any) => ({
           code: sc.id || sc.subCategoryCode || sc.code || 101,
-          name: sc.description || sc.subCategoryNameE || sc.name || 'Concrete Road (CC Road)'
-        }));
+          name: sc.description || sc.subCategoryNameE || sc.name || ''
+        })).filter((sc: any) => sc.name);
       }
     });
   }
@@ -587,9 +555,9 @@ export class PlanCreateComponent implements OnInit {
       next: (res) => {
         const items = Array.isArray(res) ? res : (res?.data || []);
         this.assembliesList = items.map((a: any) => ({
-          assemblyNo: a.assemblyno || a.assemblyNo || a.id || a.code || 16,
-          name: a.assemblyname || a.assemblyName || a.assemblyNameE || a.name || a.description || `Assembly ${a.assemblyno || 16}`
-        })).filter((a: any) => a.assemblyNo != 0 && a.name !== '--ALL--'); // exclude '--ALL--' option
+          assemblyNo: a.assemblyno || a.assemblyNo || a.id || a.code || '',
+          name: a.assemblyname || a.assemblyName || a.assemblyNameE || a.name || a.description || `Assembly ${a.assemblyno || ''}`
+        })).filter((a: any) => a.assemblyNo && a.assemblyNo != 0 && a.name !== '--ALL--');
         if (this.assembliesList.length > 0 && !this.assemblyNo) {
           this.assemblyNo = String(this.assembliesList[0].assemblyNo);
         }
@@ -599,7 +567,7 @@ export class PlanCreateComponent implements OnInit {
   }
 
   onAssemblyChange(): void {
-    this.constCode = ''; // reset MLA when assembly changes
+    this.constCode = '';
     this.loadMlaList();
   }
 
@@ -609,54 +577,105 @@ export class PlanCreateComponent implements OnInit {
       next: (res) => {
         const items = res?.data || [];
         this.mlaList = items.map((m: any) => ({
-          constCode: m.constCode || '001',
-          assemblyNo: m.assemblyNo || 16,
-          constName: m.constName || 'Amber',
-          mlaName: m.mlaName || m.name || 'Shri Satish Poonia'
+          constCode: m.constCode || '',
+          assemblyNo: m.assemblyNo || '',
+          constName: m.constName || '',
+          mlaName: m.mlaName || m.name || ''
         }));
       }
     });
   }
 
   loadDepartments(): void {
+    if (!this.districtCode || this.districtCode === '0' || this.districtCode === '00') {
+      this.deptList = [];
+      this.executiveDept = '';
+      return;
+    }
     this.masterApi.getDepartments(this.districtCode).subscribe({
       next: (res) => {
         const items = res?.data || [];
         this.deptList = items.map((d: any, index: number) => ({
           id: d.deptId || d.departmentId || d.deptCode || d.id || (index + 1),
-          name: d.deptNameE || d.departmentName || d.deptName || d.name || 'Panchayati Raj Department'
-        }));
+          name: d.deptNameE || d.departmentName || d.deptName || d.name || ''
+        })).filter((d: any) => d.name);
+        if (this.deptList.length > 0 && !this.executiveDept) {
+          this.executiveDept = String(this.deptList[0].id);
+        }
+      },
+      error: () => {
+        this.deptList = [];
+        this.executiveDept = '';
       }
     });
   }
 
   loadAgencies(): void {
+    if (!this.districtCode || this.districtCode === '0' || this.districtCode === '00') {
+      this.agencyList = [];
+      this.executiveAgency = '';
+      return;
+    }
     this.masterApi.getAgencies(this.districtCode, '6').subscribe({
       next: (res) => {
         const items = res?.data || [];
         this.agencyList = items.map((a: any, index: number) => ({
           id: a.agencyId || a.agencyCode || a.id || (index + 1),
-          name: a.agencyNameE || a.agencyName || a.name || 'Gram Panchayat Amer'
-        }));
+          name: a.agencyNameE || a.agencyName || a.name || ''
+        })).filter((a: any) => a.name);
+        if (this.agencyList.length > 0 && !this.executiveAgency) {
+          this.executiveAgency = String(this.agencyList[0].id);
+        }
+      },
+      error: () => {
+        this.agencyList = [];
+        this.executiveAgency = '';
       }
     });
   }
 
   onDistrictChange(): void {
-    this.loadBlocks();
-    this.loadDepartments();
-    this.loadAgencies();
+    this.blockCode = '';
+    this.blocksList = [];
+    this.gpCode = '';
+    this.panchayatsList = [];
+    this.villageCode = '';
+    this.villagesList = [];
+
+    if (this.districtCode && this.districtCode !== '0' && this.districtCode !== '00') {
+      this.loadBlocks();
+      this.loadDepartments();
+      this.loadAgencies();
+    } else {
+      this.deptList = [];
+      this.agencyList = [];
+      this.executiveDept = '';
+      this.executiveAgency = '';
+    }
+
     if (this.isFilterSubmitted) {
       this.onFilterSubmit();
     }
   }
 
   onBlockChange(): void {
-    this.loadGramPanchayats();
+    this.gpCode = '';
+    this.panchayatsList = [];
+    this.villageCode = '';
+    this.villagesList = [];
+
+    if (this.blockCode) {
+      this.loadGramPanchayats();
+    }
   }
 
   onPanchayatChange(): void {
-    this.loadVillages();
+    this.villageCode = '';
+    this.villagesList = [];
+
+    if (this.gpCode) {
+      this.loadVillages();
+    }
   }
 
   loadBudgetTypeList(): void {
@@ -700,12 +719,27 @@ export class PlanCreateComponent implements OnInit {
       error: (err) => {
         this.isLoadingPlans = false;
         console.warn('Error/404 loading work list:', err);
-        this.loadMockTableData();
+        this.planList = [];
       }
     });
   }
 
   openAddWorkModal(): void {
+    if (this.districts.length === 0) {
+      this.showToast('No districts available for the selected scheme. Work cannot be added.', 'error');
+      return;
+    }
+
+    if (!this.isDistrictDisabled && (!this.districtCode || this.districtCode === '0' || this.districtCode === '00')) {
+      this.showToast('Please select a District first.', 'error');
+      return;
+    }
+
+    if (this.isDistrictDisabled && (!this.districtCode || this.districtCode === '0' || this.districtCode === '00')) {
+      this.showToast('Your district is not listed under this scheme.', 'error');
+      return;
+    }
+
     this.resetModalForm();
     this.showAddWorkModal = true;
   }
@@ -1017,10 +1051,15 @@ export class PlanCreateComponent implements OnInit {
       SchemeCode: Number(this.selectedSchemeCode),
       finYr: this.selectedFinYr,
       FinYr: this.selectedFinYr,
-      districtCode: this.districtCode,
-      DistrictCode: this.districtCode,
+      districtCode: String(this.districtCode),
+      DistrictCode: String(this.districtCode),
       remarks: this.remarks || '',
-      Remarks: this.remarks || ''
+      Remarks: this.remarks || '',
+      plans: JSON.stringify([{
+        districtCode: String(this.districtCode),
+        schemeCode: Number(this.selectedSchemeCode),
+        finYr: this.selectedFinYr
+      }])
     };
 
     if (this.isApproveMode) {
@@ -1103,16 +1142,17 @@ export class PlanCreateComponent implements OnInit {
     this.planId = 0;
     this.workName = '';
     this.sectorArea = 'Rural';
-    this.workType = 'New Work';
+    this.workType = 'N';
     this.blockApprovalDate = this.getTodayFormatted();
     this.dlcApprovalDate = this.getTodayFormatted();
+    this.slcApprovalDate = this.getTodayFormatted();
     this.proposedAmount = null;
-    this.category = 'Road & Connectivity';
-    this.subCategory = 'Concrete Road (CC Road)';
-    this.assemblyNo = '101 - Amber';
-    this.mlaName = 'Shri Satish Poonia';
-    this.executiveDept = 'Panchayati Raj Department';
-    this.executiveAgency = 'Gram Panchayat Amer';
+    this.category = this.categoriesList.length > 0 ? this.categoriesList[0].code : '';
+    this.subCategory = this.subCategoriesList.length > 0 ? String(this.subCategoriesList[0].code) : '';
+    this.assemblyNo = this.assembliesList.length > 0 ? String(this.assembliesList[0].assemblyNo) : '';
+    this.constCode = this.mlaList.length > 0 ? this.mlaList[0].constCode : '';
+    this.executiveDept = this.deptList.length > 0 ? String(this.deptList[0].id) : '';
+    this.executiveAgency = this.agencyList.length > 0 ? String(this.agencyList[0].id) : '';
     this.priority = 'First';
     this.jShreeYojna = 'Not Applicable';
     this.remarks = '';
