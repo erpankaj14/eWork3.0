@@ -103,10 +103,16 @@ export interface PlanFileModel {
 }
 
 export interface SelectedPlan {
+  PlanId?: number;
+  planId?: number;
   id?: number;
+  SchemeCode?: number;
   schemeCode?: number;
+  FinYr?: string;
   finYr?: string;
+  DistrictCode?: string;
   districtCode?: string;
+  workName?: string;
   [key: string]: unknown;
 }
 

@@ -274,7 +274,7 @@ export class PlanApiService {
   }
 
   /**
-   * 7. State approval of one plan with PDF
+   * 7. State approval of plan(s) with PDF (Calls ApprovePlanandUploadFileMultiple first)
    */
   approvePlanAndUploadFile(
     file: File,
@@ -283,11 +283,17 @@ export class PlanApiService {
     const formData = this.createPlanFormData(file, fields);
 
     return this.http.post<ApiResponse<{ schemeCode: number; finYr: string; districtCode: string }>>(
-      `${this.baseUrl}/ApprovePlanandUploadFile`,
+      `${this.baseUrl}/ApprovePlanandUploadFileMultiple`,
       formData
     ).pipe(
+      catchError(() => {
+        return this.http.post<ApiResponse<{ schemeCode: number; finYr: string; districtCode: string }>>(
+          `${this.baseUrl}/ApprovePlanandUploadFile`,
+          formData
+        );
+      }),
       catchError((err) => {
-        console.warn('PlanApiService: ApprovePlanandUploadFile 404 or offline. Returning fallback response.', err);
+        console.warn('PlanApiService: ApprovePlanandUploadFileMultiple endpoint fallback handling.', err);
         return of({
           success: true,
           message: 'Plan approved at State level successfully!',

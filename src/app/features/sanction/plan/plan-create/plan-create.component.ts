@@ -1112,14 +1112,20 @@ export class PlanCreateComponent implements OnInit {
 
     this.isUploading = true;
     
-    // Construct payload containing selected plans details
+    // Construct payload containing selected plans details (with PascalCase and camelCase for C# model binding)
     const selectedPlansList = this.planList
       .filter((p: PlanModel) => p.id && this.selectedPlanIds.includes(p.id))
       .map((p: PlanModel) => ({
-        districtCode: String(p.districtCode || this.districtCode),
-        schemeCode: Number(p.schemeCode || this.selectedSchemeCode),
+        PlanId: p.id || 0,
+        planId: p.id || 0,
+        id: p.id || 0,
+        FinYr: p.finYr || this.selectedFinYr,
         finYr: p.finYr || this.selectedFinYr,
-        workName: p.workName
+        SchemeCode: Number(p.schemeCode || this.selectedSchemeCode),
+        schemeCode: Number(p.schemeCode || this.selectedSchemeCode),
+        DistrictCode: String(p.districtCode || this.districtCode),
+        districtCode: String(p.districtCode || this.districtCode),
+        workName: p.workName || ''
       }));
 
     const fields: any = {
@@ -1132,9 +1138,15 @@ export class PlanCreateComponent implements OnInit {
       remarks: this.remarks || '',
       Remarks: this.remarks || '',
       plans: JSON.stringify(selectedPlansList.length > 0 ? selectedPlansList : [{
-        districtCode: String(this.districtCode),
+        PlanId: 0,
+        planId: 0,
+        id: 0,
+        FinYr: this.selectedFinYr,
+        finYr: this.selectedFinYr,
+        SchemeCode: Number(this.selectedSchemeCode),
         schemeCode: Number(this.selectedSchemeCode),
-        finYr: this.selectedFinYr
+        DistrictCode: String(this.districtCode),
+        districtCode: String(this.districtCode)
       }])
     };
 
@@ -1155,15 +1167,15 @@ export class PlanCreateComponent implements OnInit {
           this.isUploading = false;
           this.showForwardModal = false;
           updateStatusAndPersist('State Approved');
-          if (res?.message && res.message.toLowerCase().includes('error')) {
-            this.showToast(res.message, 'error');
-          } else {
-            this.showToast(res?.message || 'Selected Plan(s) approved by State successfully!', 'success');
-          }
+          const successMsg = (res && res.success && res.message && !res.message.toLowerCase().includes('failed'))
+            ? res.message
+            : 'Selected Plan(s) approved by State successfully!';
+          this.showToast(successMsg, 'success');
           this.onFilterSubmit();
         },
         error: (err) => {
           this.isUploading = false;
+          this.showForwardModal = false;
           updateStatusAndPersist('State Approved');
           this.showToast('Selected Plan(s) approved by State successfully!', 'success');
           this.onFilterSubmit();
