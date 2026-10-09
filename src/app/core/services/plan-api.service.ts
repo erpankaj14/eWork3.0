@@ -86,9 +86,9 @@ export class PlanApiService {
    */
   getWorkListOfPlan(filter: PlanModel): Observable<ApiListResponse<PlanModel>> {
     const cleanPayload = {
-      schemeCode: Number(filter.schemeCode || 60),
-      finYr: String(filter.finYr || '2026-27'),
-      districtCode: String(filter.districtCode || '06').padStart(2, '0')
+      schemeCode: Number(filter.schemeCode || 0),
+      finYr: String(filter.finYr || ''),
+      districtCode: String(filter.districtCode || '0').padStart(2, '0')
     };
 
     return this.http.post<ApiListResponse<PlanModel>>(
@@ -102,45 +102,16 @@ export class PlanApiService {
         );
       }),
       tap((res) => {
-        if (res && res.data) {
-          let localPlans = this.getLocalPlans();
-          // Filter local plans to match the current selection
-          localPlans = localPlans.filter(p => {
-            let match = true;
-            if (filter.finYr && p.finYr !== filter.finYr) match = false;
-            if (filter.schemeCode && Number(p.schemeCode) !== Number(filter.schemeCode)) match = false;
-            if (filter.districtCode && filter.districtCode !== '0' && filter.districtCode !== '00') {
-               if (String(p.districtCode).padStart(2, '0') !== String(filter.districtCode).padStart(2, '0')) match = false;
-            }
-            return match;
-          });
-
-          if (localPlans.length > 0) {
-            const existingIds = new Set(res.data.map(p => p.id));
-            const uniqueLocal = localPlans.filter(p => !existingIds.has(p.id));
-            res.data = [...uniqueLocal, ...res.data];
-          }
+        if (res && Array.isArray(res.data)) {
+          res.count = res.data.length;
         }
       }),
       catchError((err) => {
-        console.warn('PlanApiService: GetWorkListofPlan endpoint unreachable or 400/404. Returning combined local/mock data.', err);
-        let localPlans = this.getLocalPlans();
-        localPlans = localPlans.filter(p => {
-          let match = true;
-          if (filter.finYr && p.finYr !== filter.finYr) match = false;
-          if (filter.schemeCode && Number(p.schemeCode) !== Number(filter.schemeCode)) match = false;
-          if (filter.districtCode && filter.districtCode !== '0' && filter.districtCode !== '00') {
-             if (String(p.districtCode).padStart(2, '0') !== String(filter.districtCode).padStart(2, '0')) match = false;
-          }
-          return match;
-        });
-
-        const mockPlans = this.getMockPlans(filter);
-        const combined = [...localPlans, ...mockPlans];
+        console.warn('PlanApiService: GetWorkListofPlan endpoint error:', err);
         return of({
           success: true,
-          count: combined.length,
-          data: combined
+          count: 0,
+          data: []
         });
       })
     );

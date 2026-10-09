@@ -56,8 +56,8 @@ export class PlanCreateComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   // Top Filter Bar State (Ref Images 2 & 5)
-  selectedFinYr = '2026-27';
-  selectedSchemeCode = 60;
+  selectedFinYr = '';
+  selectedSchemeCode: number | null = null;
   isFilterSubmitted = false;
   searchQuery = '';
 
@@ -253,10 +253,6 @@ export class PlanCreateComponent implements OnInit {
     this.loadAllowPlanSchemes();
     this.loadBudgetTypeList();
     this.loadAllMasterData();
-    if (this.selectedSchemeCode) {
-      this.loadDistrictsForScheme(this.selectedSchemeCode);
-    }
-    this.onFilterSubmit(); // Auto fetch initial table data
   }
 
   loadAllowPlanSchemes(): void {
@@ -280,15 +276,6 @@ export class PlanCreateComponent implements OnInit {
             const name = s.scheme_name || s.schemeName || s.schemeNameE || s.SchemeName || s.name || `Scheme (${code})`;
             return { code, name };
           }).filter(s => s.code > 0 || s.name);
-
-          // Auto select first scheme if current selection is not in list
-          if (this.schemes.length > 0) {
-            const exists = this.schemes.some(s => s.code === Number(this.selectedSchemeCode));
-            if (!exists) {
-              this.selectedSchemeCode = this.schemes[0].code;
-            }
-            this.loadDistrictsForScheme(this.selectedSchemeCode);
-          }
         } else {
           this.schemes = [];
         }
@@ -300,8 +287,19 @@ export class PlanCreateComponent implements OnInit {
   }
 
   onSchemeChange(schemeCodeVal: any): void {
+    if (schemeCodeVal === null || schemeCodeVal === '' || schemeCodeVal === undefined) {
+      this.selectedSchemeCode = null;
+      this.districts = [];
+      this.districtCode = '';
+      this.onDistrictChange();
+      return;
+    }
     const code = Number(schemeCodeVal);
     if (!code) {
+      this.selectedSchemeCode = null;
+      this.districts = [];
+      this.districtCode = '';
+      this.onDistrictChange();
       return;
     }
     this.selectedSchemeCode = code;
@@ -327,7 +325,7 @@ export class PlanCreateComponent implements OnInit {
     return { code, name };
   }
 
-  loadDistrictsForScheme(schemeCode: number): void {
+  loadDistrictsForScheme(schemeCode: number | null): void {
     if (!schemeCode) {
       this.districts = [];
       this.districtCode = '';
@@ -750,6 +748,21 @@ export class PlanCreateComponent implements OnInit {
   }
 
   onFilterSubmit(): void {
+    if (!this.selectedFinYr) {
+      this.showToast('Please select Financial Year.', 'error');
+      return;
+    }
+
+    if (!this.selectedSchemeCode) {
+      this.showToast('Please select Scheme.', 'error');
+      return;
+    }
+
+    if (!this.isDistrictDisabled && (!this.districtCode || this.districtCode === '0' || this.districtCode === '00')) {
+      this.showToast('Please select a District.', 'error');
+      return;
+    }
+
     this.isFilterSubmitted = true;
     this.isLoadingPlans = true;
     this.selectedPlanIds = [];
@@ -778,6 +791,16 @@ export class PlanCreateComponent implements OnInit {
   }
 
   openAddWorkModal(): void {
+    if (!this.selectedFinYr) {
+      this.showToast('Please select Financial Year first.', 'error');
+      return;
+    }
+
+    if (!this.selectedSchemeCode) {
+      this.showToast('Please select Scheme first.', 'error');
+      return;
+    }
+
     if (this.districts.length === 0) {
       this.showToast('No districts available for the selected scheme. Work cannot be added.', 'error');
       return;
@@ -1207,11 +1230,41 @@ export class PlanCreateComponent implements OnInit {
   private executeRejectPlan(): void {
     this.isSaving = true;
 
+    const selectedPlansList = this.planList
+      .filter((p: PlanModel) => p.id && this.selectedPlanIds.includes(p.id))
+      .map((p: PlanModel) => ({
+        PlanId: p.id || 0,
+        planId: p.id || 0,
+        id: p.id || 0,
+        FinYr: p.finYr || this.selectedFinYr,
+        finYr: p.finYr || this.selectedFinYr,
+        SchemeCode: Number(p.schemeCode || this.selectedSchemeCode),
+        schemeCode: Number(p.schemeCode || this.selectedSchemeCode),
+        DistrictCode: String(p.districtCode || this.districtCode),
+        districtCode: String(p.districtCode || this.districtCode),
+        workName: p.workName || ''
+      }));
+
+    const firstSelectedId = this.selectedPlanIds.length > 0 ? this.selectedPlanIds[0] : null;
+
     const rejectModel = {
+      id: firstSelectedId,
+      planId: firstSelectedId,
+      PlanId: firstSelectedId,
       schemeCode: Number(this.selectedSchemeCode),
+      SchemeCode: Number(this.selectedSchemeCode),
       finYr: this.selectedFinYr,
-      districtCode: this.districtCode,
-      rejection: this.rejectReason.trim()
+      FinYr: this.selectedFinYr,
+      districtCode: String(this.districtCode),
+      DistrictCode: String(this.districtCode),
+      rejection: this.rejectReason.trim(),
+      Rejection: this.rejectReason.trim(),
+      remarks: this.rejectReason.trim(),
+      Remarks: this.rejectReason.trim(),
+      selectedPlans: selectedPlansList,
+      SelectedPlans: selectedPlansList,
+      plans: selectedPlansList,
+      Plans: selectedPlansList
     };
 
     const updateStatusAndPersist = () => {
@@ -1231,24 +1284,27 @@ export class PlanCreateComponent implements OnInit {
         this.showRejectModal = false;
         updateStatusAndPersist();
         this.showToast(res?.message || 'Selected plan(s) rejected successfully.', 'success');
-        this.onFilterSubmit();
       },
       error: (err) => {
         this.isSaving = false;
         this.showRejectModal = false;
         updateStatusAndPersist();
         this.showToast('Selected plan(s) rejected successfully.', 'success');
-        this.onFilterSubmit();
       }
     });
   }
 
   get filteredPlanList(): PlanModel[] {
+    let list = this.planList.filter((p: PlanModel) => {
+      const st = (p.planStatus || p.status || '').toLowerCase();
+      return !st.includes('reject');
+    });
+
     if (!this.searchQuery.trim()) {
-      return this.planList;
+      return list;
     }
     const q = this.searchQuery.toLowerCase().trim();
-    return this.planList.filter(p =>
+    return list.filter((p: PlanModel) =>
       (p.workName && p.workName.toLowerCase().includes(q)) ||
       (this.getSchemeName(p) && this.getSchemeName(p).toLowerCase().includes(q)) ||
       (p.districtName && p.districtName.toLowerCase().includes(q)) ||
@@ -1472,11 +1528,41 @@ export class PlanCreateComponent implements OnInit {
   }
 
   private executeRevertPlan(): void {
+    const selectedPlansList = this.planList
+      .filter((p: PlanModel) => p.id && this.selectedPlanIds.includes(p.id))
+      .map((p: PlanModel) => ({
+        PlanId: p.id || 0,
+        planId: p.id || 0,
+        id: p.id || 0,
+        FinYr: p.finYr || this.selectedFinYr,
+        finYr: p.finYr || this.selectedFinYr,
+        SchemeCode: Number(p.schemeCode || this.selectedSchemeCode),
+        schemeCode: Number(p.schemeCode || this.selectedSchemeCode),
+        DistrictCode: String(p.districtCode || this.districtCode),
+        districtCode: String(p.districtCode || this.districtCode),
+        workName: p.workName || ''
+      }));
+
+    const firstSelectedId = this.selectedPlanIds.length > 0 ? this.selectedPlanIds[0] : null;
+
     const revertModel = {
+      id: firstSelectedId,
+      planId: firstSelectedId,
+      PlanId: firstSelectedId,
       schemeCode: Number(this.selectedSchemeCode),
+      SchemeCode: Number(this.selectedSchemeCode),
       finYr: this.selectedFinYr,
-      districtCode: this.districtCode,
-      reason: this.revertReasonText
+      FinYr: this.selectedFinYr,
+      districtCode: String(this.districtCode),
+      DistrictCode: String(this.districtCode),
+      reason: this.revertReasonText.trim(),
+      Reason: this.revertReasonText.trim(),
+      remarks: this.revertReasonText.trim(),
+      Remarks: this.revertReasonText.trim(),
+      selectedPlans: selectedPlansList,
+      SelectedPlans: selectedPlansList,
+      plans: selectedPlansList,
+      Plans: selectedPlansList
     };
 
     const updateStatusAndPersist = () => {
@@ -1494,12 +1580,10 @@ export class PlanCreateComponent implements OnInit {
       next: (res) => {
         updateStatusAndPersist();
         this.showToast(res?.message || 'Selected plan(s) reverted to District successfully.', 'success');
-        this.onFilterSubmit();
       },
       error: (err) => {
         updateStatusAndPersist();
         this.showToast('Selected plan(s) reverted to District successfully.', 'success');
-        this.onFilterSubmit();
       }
     });
   }
