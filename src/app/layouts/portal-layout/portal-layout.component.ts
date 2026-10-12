@@ -47,6 +47,31 @@ export class PortalLayoutComponent implements OnInit {
   // Complete menu definition for all Portals and Work Stages
   menus: DropdownMenu[] = [
     {
+      id: 'mla-app',
+      label: 'MLA Recommendation App',
+      labelHi: 'विधायक अनुशंसा मोबाइल पोर्टल',
+      items: [
+        {
+          title: 'MLA Report Dashboard',
+          titleHi: 'विधायक रिपोर्ट डैशबोर्ड (Dashboard)',
+          badge: 'Live',
+          path: 'mla-recommendation-app'
+        },
+        {
+          title: 'Create Recommendation',
+          titleHi: 'नवीन अनुशंसा प्रविष्टि (Create)',
+          badge: 'New',
+          path: 'mla-recommendation-app/create'
+        },
+        {
+          title: 'Recommendation List',
+          titleHi: 'अनुशंसा सूची एवं स्थिति (List)',
+          badge: 'List',
+          path: 'mla-recommendation-app/list'
+        }
+      ]
+    },
+    {
       id: 'monitoring',
       label: 'Work Monitoring & Evaluation',
       labelHi: 'कार्य निगरानी एवं मूल्यांकन पोर्टल',
@@ -320,6 +345,10 @@ export class PortalLayoutComponent implements OnInit {
                 });
 
                 if (loadedCount === parentItems.length) {
+                  const staticMlaApp = this.menus.find(m => m.id === 'mla-app');
+                  if (staticMlaApp && !dynamicMenus.some(m => m.id === 'mla-app')) {
+                    dynamicMenus.unshift(staticMlaApp);
+                  }
                   this.menus = dynamicMenus;
                   this.updateLayoutState(this.router.url);
                 }
@@ -328,6 +357,10 @@ export class PortalLayoutComponent implements OnInit {
                 loadedCount++;
                 if (existingDefault) dynamicMenus.push(existingDefault);
                 if (loadedCount === parentItems.length && dynamicMenus.length > 0) {
+                  const staticMlaApp = this.menus.find(m => m.id === 'mla-app');
+                  if (staticMlaApp && !dynamicMenus.some(m => m.id === 'mla-app')) {
+                    dynamicMenus.unshift(staticMlaApp);
+                  }
                   this.menus = dynamicMenus;
                   this.updateLayoutState(this.router.url);
                 }
@@ -357,7 +390,9 @@ export class PortalLayoutComponent implements OnInit {
   }
 
   private determineActiveModuleMenu(url: string): void {
-    if (url.includes('/work-monitoring')) {
+    if (url.includes('/mla-recommendation-app')) {
+      this.activeSidebarMenu = this.menus.find(m => m.id === 'mla-app') || null;
+    } else if (url.includes('/work-monitoring')) {
       this.activeSidebarMenu = this.menus.find(m => m.id === 'monitoring') || null;
     } else if (url.includes('/sanction')) {
       this.activeSidebarMenu = this.menus.find(m => m.id === 'sanction') || null;

@@ -555,6 +555,8 @@ export class PortalHubComponent implements OnInit, OnDestroy {
       case 'help':
       case 'help-problem':
         return 'theme-rose';
+      case 'mla-app':
+        return 'theme-emerald';
       default:
         // Hash the ID to assign a different colorful theme for dynamic/new menu cards
         const themes = ['theme-orange', 'theme-rose', 'theme-emerald', 'theme-violet', 'theme-blue', 'theme-slate'];
@@ -1037,8 +1039,39 @@ export class PortalHubComponent implements OnInit, OnDestroy {
       });
     });
 
+    // Static MLA Recommendation Mobile Portal Card
+    const mlaAppPortal: CorePortalItem = {
+      id: 'mla-app',
+      titleEn: 'MLA Recommendation (Mobile Portal)',
+      titleHi: 'विधायक अनुशंसा मोबाइल पोर्टल (MLA App)',
+      descEn: 'MLA Report Dashboard, Proposed Work Entry (Rural/Urban) & Status Tracker',
+      descHi: 'विधायक रिपोर्ट डैशबोर्ड, नवीन कार्य अनुशंसा प्रविष्टि (ग्रामीण/शहरी) एवं विस्तृत स्थिति',
+      badgeEn: 'Mobile App',
+      badgeHi: 'मोबाइल ऐप पोर्टल',
+      path: '/portal/mla-recommendation-app',
+      iconType: 'mla-app',
+      colorClass: 'from-[#3F615C] to-[#26413D]',
+      subItemsCount: 1,
+      tags: [
+        { en: 'Rural/Urban', hi: 'ग्रामीण/शहरी' },
+        { en: 'PDF Upload', hi: 'पीडीएफ' },
+        { en: 'MLA-LAD', hi: 'विधायक निधि' }
+      ],
+      accent: {
+        topBar: 'bg-gradient-to-r from-emerald-600 via-teal-600 to-[#3F615C]',
+        badgeBg: 'bg-teal-50 dark:bg-teal-500/10',
+        badgeText: 'text-teal-700 dark:text-teal-300',
+        badgeBorder: 'border-teal-200 dark:border-teal-500/30',
+        hoverBorder: 'group-hover:border-teal-500 dark:group-hover:border-teal-400',
+        hoverShadow: 'group-hover:shadow-teal-500/15',
+        titleHover: 'group-hover:text-teal-700 dark:group-hover:text-teal-400',
+        stepBg: 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white',
+        btnHover: 'group-hover:bg-[#3F615C] group-hover:text-white'
+      }
+    };
+
     // Exclude 'home' to avoid a redundant hub link inside the hub
-    this.corePortals = mappedPortals.filter(p => p.id !== 'home');
+    this.corePortals = [mlaAppPortal, ...mappedPortals.filter(p => p.id !== 'home')];
   }
 
   getDynamicColorClass(menuId: number): string {

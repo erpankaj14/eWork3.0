@@ -1,0 +1,1051 @@
+<div class="space-y-6 pb-12 animate-fadeIn font-sans">
+
+  <!-- ========================================================================= -->
+  <!-- 1. OFFICIAL GOVT MODULE HEADER & ACTION TABS STRIP                         -->
+  <!-- ========================================================================= -->
+  <div class="bg-white dark:bg-dark-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-dark-750 shadow-sm relative overflow-hidden transition-all duration-300">
+    <!-- Top Tricolor Stripe -->
+    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#E15B25] via-amber-400 to-[#0F7A3E]"></div>
+
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pt-1">
+      
+      <!-- Module Title & Breadcrumbs -->
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#E15B25] dark:text-amber-400">
+          <span>स्वीकृति (Sanction)</span>
+          <span>/</span>
+          <span>विधायक स्थानीय क्षेत्र विकास योजना (MLA-LAD)</span>
+          <span>/</span>
+          <span class="text-[#0B2240] dark:text-white underline font-extrabold font-mono">FY {{ selectedFinYear }}</span>
+        </div>
+
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black font-devanagari text-[#0B2240] dark:text-white tracking-tight flex items-center gap-3">
+          <span>विधायक अनुशंसा पोर्टल (MLA Recommendation Module)</span>
+          <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30">
+            ONLINE
+          </span>
+        </h1>
+
+        <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 font-devanagari">
+          माननीय विधायक द्वारा अनुशंसित विकास कार्यों का ऑनलाइन पंजीकरण, रिपोर्ट डैशबोर्ड एवं विस्तृत प्रशासनिक स्वीकृति ट्रेल।
+        </p>
+      </div>
+
+      <!-- Right: MLA Profile Badge & FY Selector -->
+      <div class="flex flex-wrap items-center gap-3 self-start lg:self-center">
+        <!-- Profile Card -->
+        <div class="bg-amber-50/80 dark:bg-dark-800/80 px-4 py-2.5 rounded-2xl border border-amber-200/80 dark:border-dark-700 flex items-center gap-3 shadow-2xs">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3F615C] to-[#2B4743] text-white flex items-center justify-center font-bold text-sm shadow-xs flex-shrink-0">
+            MLA
+          </div>
+          <div>
+            <div class="text-xs font-black text-[#0B2240] dark:text-white font-devanagari">{{ dashboardStats.mlaName }}</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold font-mono">
+              क्षेत्र: {{ dashboardStats.constName }} · ID: {{ formModel.userName }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Main Navigation Tab Strip (Website Tabs) -->
+    <div class="mt-6 pt-4 border-t border-slate-100 dark:border-dark-800 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Primary Module Tabs -->
+      <div class="inline-flex items-center bg-slate-100 dark:bg-dark-800 p-1.5 rounded-2xl border border-slate-200 dark:border-dark-700 text-xs font-bold gap-1">
+        
+        <!-- Tab 1: Dashboard -->
+        <button (click)="switchScreen('dashboard')" 
+          [ngClass]="activeScreen === 'dashboard' ? 'bg-[#3F615C] text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-[#3F615C] dark:hover:text-white'"
+          class="px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer font-devanagari">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
+          </svg>
+          <span>डैशबोर्ड (MLA Report)</span>
+        </button>
+
+        <!-- Tab 2: Create Recommendation -->
+        <button (click)="switchScreen('create')" 
+          [ngClass]="activeScreen === 'create' ? 'bg-[#3F615C] text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-[#3F615C] dark:hover:text-white'"
+          class="px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer font-devanagari">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>नवीन अनुशंसा प्रविष्टि (Create)</span>
+        </button>
+
+        <!-- Tab 3: Recommendation List -->
+        <button (click)="switchScreen('list')" 
+          [ngClass]="activeScreen === 'list' ? 'bg-[#3F615C] text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-[#3F615C] dark:hover:text-white'"
+          class="px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer font-devanagari">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <span>अनुशंसा सूची (List - {{ recommendations.length }})</span>
+        </button>
+
+        <!-- Tab 4: Details (Visible when viewing) -->
+        <button (click)="switchScreen('detail')" 
+          [ngClass]="activeScreen === 'detail' ? 'bg-[#3F615C] text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-[#3F615C] dark:hover:text-white'"
+          class="px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer font-devanagari">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          <span>विस्तृत विवरण (Details)</span>
+        </button>
+
+      </div>
+
+      <!-- Quick Action Buttons on right of tab strip -->
+      <div class="flex items-center gap-2">
+        <button *ngIf="activeScreen !== 'create'" (click)="switchScreen('create')"
+          class="px-4 py-2 rounded-xl bg-[#E15B25] hover:bg-orange-600 text-white font-extrabold text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer">
+          <span>+ नई अनुशंसा जोड़ें</span>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. SCREEN 1: MLA REPORT DASHBOARD (FULL WEBSITE VIEW)                     -->
+  <!-- ========================================================================= -->
+  <div *ngIf="activeScreen === 'dashboard'" class="space-y-6 animate-fadeIn">
+
+    <!-- Top Action Switcher Strip (Matching Top Buttons from Image 1 Screen 1) -->
+    <div class="bg-white dark:bg-dark-900 rounded-2xl p-4 border border-slate-200/80 dark:border-dark-800 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-[#486D67] text-white flex items-center justify-center font-bold">
+          📊
+        </div>
+        <div>
+          <h3 class="text-sm font-extrabold text-[#0B2240] dark:text-white font-devanagari">
+            विधायक रिपोर्ट एवं कार्य प्रगति डैशबोर्ड (MLA Report)
+          </h3>
+          <p class="text-xs text-slate-500 font-medium">नीचे दिए गए बटनों से तुरंत नई अनुशंसा प्रविष्टि दर्ज करें या पूर्व सूची देखें</p>
+        </div>
+      </div>
+
+      <!-- The 2 Primary Action Buttons from Screenshot 1 -->
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <button (click)="switchScreen('create')"
+          class="flex-1 sm:flex-initial bg-[#3D5E58] hover:bg-[#324F4A] text-white py-2.5 px-6 rounded-xl font-bold text-xs tracking-wide transition-all shadow-sm text-center cursor-pointer flex items-center justify-center gap-2">
+          <span>✍ Recommendation</span>
+        </button>
+        <button (click)="switchScreen('list')"
+          class="flex-1 sm:flex-initial bg-[#3D5E58] hover:bg-[#324F4A] text-white py-2.5 px-6 rounded-xl font-bold text-xs tracking-wide transition-all shadow-sm text-center cursor-pointer flex items-center justify-center gap-2">
+          <span>📋 Recommendation List</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main MLA REPORT Card Container (Full-Width Web Layout) -->
+    <div class="bg-white dark:bg-dark-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-dark-750 shadow-md space-y-6">
+      
+      <!-- Card Header: Title + Financial Year Selector Dropdown -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-dark-800">
+        <div>
+          <span class="text-[11px] font-black uppercase tracking-widest text-[#486D67] dark:text-emerald-400">
+            OFFICIAL FINANCIAL ALLOCATION
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black text-[#0B2240] dark:text-white uppercase tracking-wider font-sans mt-0.5">
+            MLA REPORT
+          </h2>
+        </div>
+
+        <div class="flex items-center gap-3 bg-slate-50 dark:bg-dark-850 px-4 py-2 rounded-2xl border border-slate-200 dark:border-dark-700">
+          <label class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider font-sans">
+            FINANCIAL YEAR:
+          </label>
+          <select [(ngModel)]="selectedFinYear" (change)="onFinYearChange()"
+            class="bg-white dark:bg-dark-900 border border-slate-300 dark:border-dark-700 text-xs font-bold text-[#0B2240] dark:text-white rounded-xl px-3 py-1.5 focus:outline-none focus:border-[#486D67] cursor-pointer">
+            <option *ngFor="let opt of finYearOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- MLA Profile Information Card (Soft Olive Green Card from Image 1 & 2) -->
+      <div class="bg-[#E4ECD8] dark:bg-[#1D2B22] rounded-2xl p-5 border border-[#D5E2C4] dark:border-emerald-900/40 text-slate-800 dark:text-slate-100 shadow-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs font-devanagari">
+          
+          <div>
+            <span class="text-slate-600 dark:text-slate-400 font-bold block text-[11px]">MLA Name:</span>
+            <span class="text-sm font-black text-slate-900 dark:text-white mt-0.5 block">{{ dashboardStats.mlaName }}</span>
+          </div>
+
+          <div>
+            <span class="text-slate-600 dark:text-slate-400 font-bold block text-[11px]">Const Name:</span>
+            <span class="text-sm font-bold text-slate-900 dark:text-slate-200 mt-0.5 block">{{ dashboardStats.constName }}</span>
+          </div>
+
+          <div>
+            <span class="text-slate-600 dark:text-slate-400 font-bold block text-[11px]">Fin Year:</span>
+            <span class="text-sm font-black text-slate-900 dark:text-white font-mono mt-0.5 block">{{ selectedFinYear }}</span>
+          </div>
+
+          <div>
+            <span class="text-slate-600 dark:text-slate-400 font-bold block text-[11px]">A.No:</span>
+            <span class="text-sm font-black text-[#E15B25] dark:text-amber-400 font-mono mt-0.5 block">{{ dashboardStats.aNo }}</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 6 Pastel Metric KPI Cards (Full 3-Column Desktop Grid matching Exact Screenshot Tones) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        
+        <!-- 1. Total Allocated Amount (Soft Sky Blue #D8EDFA) -->
+        <div class="bg-[#D8EDFA] dark:bg-[#142C3A] rounded-2xl p-5 border border-[#C6E4F7] dark:border-cyan-900/40 shadow-xs flex flex-col justify-between min-h-[115px] hover:shadow-md transition-shadow">
+          <p class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+            Total Allocated Amount
+          </p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-cyan-200 font-mono">
+              {{ dashboardStats.totalAllocated }}
+            </h3>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">in lacs</span>
+          </div>
+        </div>
+
+        <!-- 2. Available Amount (Soft Mint Green #D9F5E5) -->
+        <div class="bg-[#D9F5E5] dark:bg-[#133224] rounded-2xl p-5 border border-[#C7EFD8] dark:border-emerald-900/40 shadow-xs flex flex-col justify-between min-h-[115px] hover:shadow-md transition-shadow">
+          <p class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+            Available Amount
+          </p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-emerald-200 font-mono">
+              {{ dashboardStats.availableAmount }}
+            </h3>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">in lacs</span>
+          </div>
+        </div>
+
+        <!-- 3. No.Of CC Work (Soft Pastel Cyan/Grey #E2F5F4) -->
+        <div class="bg-[#E2F5F4] dark:bg-[#162F32] rounded-2xl p-5 border border-[#D0F0EE] dark:border-teal-900/40 shadow-xs flex flex-col justify-between min-h-[115px] hover:shadow-md transition-shadow">
+          <p class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+            No.Of CC Work
+          </p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-teal-200 font-mono">
+              {{ dashboardStats.noOfCcWork }}
+            </h3>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">works</span>
+          </div>
+        </div>
+
+        <!-- 4. No.Of Proposed Work (Soft Pastel Rose/Pink #FBDFE5) -->
+        <div class="bg-[#FBDFE5] dark:bg-[#341822] rounded-2xl p-5 border border-[#F8CCD6] dark:border-rose-900/40 shadow-xs flex flex-col justify-between min-h-[115px] hover:shadow-md transition-shadow">
+          <p class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+            No.Of Proposed Work
+          </p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-rose-200 font-mono">
+              {{ dashboardStats.noOfProposedWork }}
+            </h3>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">in lacs</span>
+          </div>
+        </div>
+
+        <!-- 5. No.Of FS Work (Soft Pastel Peach/Orange #FDE7DE) -->
+        <div class="bg-[#FDE7DE] dark:bg-[#361E16] rounded-2xl p-5 border border-[#FAD6C7] dark:border-amber-900/40 shadow-xs flex flex-col justify-between min-h-[115px] hover:shadow-md transition-shadow">
+          <p class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+            No.Of FS Work
+          </p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-amber-200 font-mono">
+              {{ dashboardStats.noOfFsWork }}
+            </h3>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">in lacs</span>
+          </div>
+        </div>
+
+        <!-- 6. FS Amount (Soft Pastel Lavender/Purple #EEDFFE) -->
+        <div class="bg-[#EEDFFE] dark:bg-[#2C193D] rounded-2xl p-5 border border-[#E3CAFD] dark:border-purple-900/40 shadow-xs flex flex-col justify-between min-h-[115px] hover:shadow-md transition-shadow">
+          <p class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+            FS Amount
+          </p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-purple-200 font-mono">
+              {{ dashboardStats.fsAmount }}
+            </h3>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">in lacs</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Recent Works Quick Summary Table right inside Dashboard -->
+    <div class="bg-white dark:bg-dark-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-dark-750 shadow-md space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-dark-800 pb-3">
+        <div>
+          <h3 class="text-base font-extrabold text-[#0B2240] dark:text-white font-devanagari">
+            हाल ही में अनुशंसित विकास कार्य (Recent Recommended Works)
+          </h3>
+          <p class="text-xs text-slate-500">विधानसभा क्षेत्र के नवीनतम कार्य प्रस्ताव</p>
+        </div>
+        <button (click)="switchScreen('list')"
+          class="text-xs font-bold text-[#3F615C] dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer">
+          <span>सभी कार्य देखें (View All)</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-dark-850 text-slate-500 uppercase tracking-wider text-[10px] font-black border-y border-slate-200 dark:border-dark-700">
+              <th class="py-3 px-4">#</th>
+              <th class="py-3 px-4">Work Name (कार्य का नाम)</th>
+              <th class="py-3 px-4">Approval No</th>
+              <th class="py-3 px-4">Sector</th>
+              <th class="py-3 px-4">Proposed Amount</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-dark-800 font-medium">
+            <tr *ngFor="let rec of recommendations.slice(0, 4); let idx = index" class="hover:bg-slate-50 dark:hover:bg-dark-850/60 transition-colors">
+              <td class="py-3 px-4 font-mono font-bold text-slate-400">{{ idx + 1 }}</td>
+              <td class="py-3 px-4">
+                <span class="font-extrabold text-slate-800 dark:text-white block">{{ rec.workName }}</span>
+                <span class="text-[10px] text-slate-400 font-mono">📅 FinYear: {{ rec.finYear }} | Date: {{ rec.date }}</span>
+              </td>
+              <td class="py-3 px-4 font-mono font-bold text-slate-600 dark:text-slate-300">{{ rec.approvalNo }}</td>
+              <td class="py-3 px-4">
+                <span [ngClass]="rec.sector === 'Urban' ? 'bg-cyan-100 text-cyan-800' : 'bg-emerald-100 text-emerald-800'" class="px-2 py-0.5 rounded-full text-[10px] font-bold">
+                  {{ rec.sector }}
+                </span>
+              </td>
+              <td class="py-3 px-4 font-mono font-black text-slate-900 dark:text-white">₹ {{ rec.proposedAmount }} L</td>
+              <td class="py-3 px-4">
+                <span *ngIf="rec.workStatus === 'Deleted'" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700">
+                  Deleted
+                </span>
+                <span *ngIf="rec.workStatus === 'Pending'" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800">
+                  Pending
+                </span>
+                <span *ngIf="rec.workStatus === 'Approved'" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
+                  Approved
+                </span>
+              </td>
+              <td class="py-3 px-4 text-right">
+                <button (click)="switchScreen('detail', rec)" 
+                  class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-750 font-bold text-xs text-[#3F615C] dark:text-emerald-400 cursor-pointer">
+                  विवरण देखें >
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. SCREEN 2: CREATE RECOMMENDATION FORM (RURAL / URBAN MODES)             -->
+  <!-- ========================================================================= -->
+  <div *ngIf="activeScreen === 'create'" class="space-y-6 animate-fadeIn">
+    
+    <div class="bg-white dark:bg-dark-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-dark-750 shadow-md space-y-6">
+      
+      <!-- Form Header -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-dark-800 pb-5">
+        <div>
+          <div class="flex items-center gap-2">
+            <button (click)="switchScreen('dashboard')" class="text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer text-xs font-bold flex items-center gap-1">
+              <span>← डैशबोर्ड पर वापस जाएं</span>
+            </button>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-[#0B2240] dark:text-white font-devanagari mt-1">
+            Create Recommendation (नवीन कार्य अनुशंसा प्रविष्टि)
+          </h2>
+          <p class="text-xs text-slate-500 font-medium">
+            विधायक स्थानीय क्षेत्र विकास योजना के अंतर्गत विकास कार्य का ऑनलाइन प्रस्ताव फॉर्म
+          </p>
+        </div>
+
+        <!-- Recommendation Area Toggle Pills (Matching Image 2 RURAL / URBAN) -->
+        <div class="bg-slate-50 dark:bg-dark-850 p-2 rounded-2xl border border-slate-200 dark:border-dark-700 flex items-center gap-2">
+          <span class="text-xs font-extrabold text-slate-500 px-2 font-devanagari">कार्य क्षेत्र:</span>
+          <button (click)="onAreaChange('Rural')"
+            [ngClass]="formModel.recommendationArea === 'Rural' ? 'bg-[#3D5E58] text-white shadow-xs font-black' : 'text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200/60 dark:hover:bg-dark-800'"
+            class="px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-2">
+            <span>⚪ Rural (ग्रामीण)</span>
+          </button>
+          <button (click)="onAreaChange('Urban')"
+            [ngClass]="formModel.recommendationArea === 'Urban' ? 'bg-[#3D5E58] text-white shadow-xs font-black' : 'text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200/60 dark:hover:bg-dark-800'"
+            class="px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-2">
+            <span>🏙 Urban (शहरी)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Multi-Column Responsive Form matching exact fields from Image 2 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-xs">
+        
+        <!-- Field 1: User Name -->
+        <div>
+          <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+            User Name:
+          </label>
+          <input type="text" [value]="formModel.userName" readonly
+            class="w-full bg-slate-100 dark:bg-dark-800 font-mono font-bold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-750 text-slate-700 dark:text-slate-300 cursor-not-allowed" />
+        </div>
+
+        <!-- Field 2: Financial Year -->
+        <div>
+          <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+            Financial Year:
+          </label>
+          <select [(ngModel)]="formModel.financialYear"
+            class="w-full bg-slate-50 dark:bg-dark-850 font-bold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]">
+            <option *ngFor="let opt of finYearOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </div>
+
+        <!-- Field 3: Proposed Amount in lacs * -->
+        <div>
+          <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+            Proposed Amount in lacs <span class="text-rose-500">*</span>
+          </label>
+          <input type="number" [(ngModel)]="formModel.proposedAmountInLacs" placeholder="उदा. 12.00"
+            class="w-full bg-slate-50 dark:bg-dark-850 font-mono font-bold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]" />
+        </div>
+
+        <!-- Field 4: Name of the work * (Spans 2 columns) -->
+        <div class="md:col-span-2">
+          <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+            Name of the work <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" [(ngModel)]="formModel.nameOfTheWork" placeholder="उदा. Road Construction Work Urban / सीसी सड़क निर्माण कार्य"
+            class="w-full bg-slate-50 dark:bg-dark-850 font-semibold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]" />
+        </div>
+
+        <!-- Field 5: Scheme -->
+        <div>
+          <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+            Scheme:
+          </label>
+          <select [(ngModel)]="formModel.scheme"
+            class="w-full bg-slate-50 dark:bg-dark-850 font-semibold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]">
+            <option value="विधायक स्थानीय क्षेत्र विकास योजना">विधायक स्थानीय क्षेत्र विकास योजना</option>
+            <option value="सांसद स्थानीय क्षेत्र विकास योजना">सांसद स्थानीय क्षेत्र विकास योजना (MPLAD)</option>
+            <option value="मुख्यमंत्री ग्रामीण विकास योजना">मुख्यमंत्री ग्रामीण विकास योजना</option>
+          </select>
+        </div>
+
+        <!-- Work Location Section Header -->
+        <div class="md:col-span-3 pt-3 border-t border-slate-100 dark:border-dark-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#E15B25]"></span>
+            <h4 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 font-sans">
+              Work Location (कार्य का स्थान) · {{ formModel.recommendationArea }}
+            </h4>
+          </div>
+        </div>
+
+        <!-- Field 6: DISTRICT * -->
+        <div>
+          <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+            DISTRICT <span class="text-rose-500">*</span>
+          </label>
+          <select [(ngModel)]="formModel.district"
+            class="w-full bg-slate-50 dark:bg-dark-850 font-bold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]">
+            <option *ngFor="let d of districts" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+
+        <!-- CONDITIONAL 1: IF RURAL (Block, Panchayat, Village) as in Screenshot 2 RURAL -->
+        <ng-container *ngIf="formModel.recommendationArea === 'Rural'">
+          <div>
+            <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+              BLOCK LIST <span class="text-rose-500">*</span>
+            </label>
+            <select [(ngModel)]="formModel.block"
+              class="w-full bg-slate-50 dark:bg-dark-850 font-bold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]">
+              <option value="">Select Block</option>
+              <option *ngFor="let b of blocks" [value]="b">{{ b }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+              PANCHAYAT LIST <span class="text-rose-500">*</span>
+            </label>
+            <select [(ngModel)]="formModel.panchayat"
+              class="w-full bg-slate-50 dark:bg-dark-850 font-bold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]">
+              <option value="">Select Panchayat</option>
+              <option *ngFor="let p of panchayats" [value]="p">{{ p }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+              VILLAGE LIST <span class="text-rose-500">*</span>
+            </label>
+            <select [(ngModel)]="formModel.village"
+              class="w-full bg-slate-50 dark:bg-dark-850 font-bold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]">
+              <option value="">Select Village</option>
+              <option *ngFor="let v of villages" [value]="v">{{ v }}</option>
+            </select>
+          </div>
+        </ng-container>
+
+        <!-- CONDITIONAL 2: IF URBAN (Town List) as in Screenshot 2 URBAN -->
+        <ng-container *ngIf="formModel.recommendationArea === 'Urban'">
+          <div class="md:col-span-2">
+            <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+              TOWN LIST (शहर/नगर निकाय) <span class="text-rose-500">*</span>
+            </label>
+            <select [(ngModel)]="formModel.town"
+              class="w-full bg-slate-50 dark:bg-dark-850 font-bold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]">
+              <option value="">Select Town</option>
+              <option *ngFor="let t of towns" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+        </ng-container>
+
+        <!-- Executing Department * -->
+        <div>
+          <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+            Executing Department <span class="text-rose-500">*</span>
+          </label>
+          <select [(ngModel)]="formModel.executingDepartment"
+            class="w-full bg-slate-50 dark:bg-dark-850 font-semibold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]">
+            <option *ngFor="let dep of departments" [value]="dep">{{ dep }}</option>
+          </select>
+        </div>
+
+        <!-- Executing Agency * -->
+        <div>
+          <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+            Executing Agency <span class="text-rose-500">*</span>
+          </label>
+          <select [(ngModel)]="formModel.executingAgency"
+            class="w-full bg-slate-50 dark:bg-dark-850 font-semibold text-xs p-3 rounded-xl border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#486D67]">
+            <option value="">Select Agency</option>
+            <option *ngFor="let a of agencies" [value]="a">{{ a }}</option>
+          </select>
+        </div>
+
+        <!-- Convergence & PDF Upload Strip -->
+        <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 pt-3 border-t border-slate-100 dark:border-dark-800">
+          
+          <!-- Convergence * (Yes / No) -->
+          <div>
+            <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-2">
+              Convergence <span class="text-rose-500">*</span>
+            </label>
+            <div class="flex items-center gap-6 p-3 rounded-2xl bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-700">
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-xs">
+                <input type="radio" name="convWeb" [value]="'Yes'" [(ngModel)]="formModel.convergence"
+                  class="w-4 h-4 text-[#3D5E58] focus:ring-[#3D5E58] cursor-pointer" />
+                <span>Yes (हाँ)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-xs">
+                <input type="radio" name="convWeb" [value]="'No'" [(ngModel)]="formModel.convergence"
+                  class="w-4 h-4 text-[#3D5E58] focus:ring-[#3D5E58] cursor-pointer" />
+                <span>No (नहीं)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Recommendation PDF File Upload * -->
+          <div>
+            <label class="block font-extrabold text-slate-700 dark:text-slate-300 mb-2">
+              Recommendation PDF File Upload <span class="text-rose-500">*</span>
+            </label>
+            <div class="border-2 border-dashed border-slate-300 dark:border-dark-700 rounded-2xl p-3.5 text-center bg-slate-50/70 dark:bg-dark-850 hover:bg-slate-100/70 cursor-pointer relative transition-colors">
+              <input type="file" accept=".pdf" (change)="onFileSelected($event)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+              <div class="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <span>Upload PDF upto 2MB :</span>
+                <span class="text-base text-[#486D67]">📄</span>
+              </div>
+              <div *ngIf="formModel.pdfFileName" class="mt-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/40 p-2 rounded-xl border border-emerald-200">
+                <span class="truncate">{{ formModel.pdfFileName }}</span>
+                <button type="button" (click)="removeSelectedFile()" class="text-rose-500 font-bold ml-2">✕</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Form Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-6 border-t border-slate-200/80 dark:border-dark-800">
+        <button type="button" (click)="resetForm()"
+          class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-750 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors cursor-pointer">
+          Reset (रीसेट करें)
+        </button>
+        <button type="button" (click)="submitRecommendation()"
+          class="w-full sm:w-auto px-8 py-2.5 rounded-xl bg-[#3D5E58] hover:bg-[#324F4A] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2">
+          <span>Submit Recommendation (अनुशंसा सुरक्षित करें)</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. SCREEN 3: RECOMMENDATION LIST (CARDS + ENTERPRISE TABLE)               -->
+  <!-- ========================================================================= -->
+  <div *ngIf="activeScreen === 'list'" class="space-y-6 animate-fadeIn">
+    
+    <div class="bg-white dark:bg-dark-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-dark-750 shadow-md space-y-6">
+      
+      <!-- List Header & Search Bar -->
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-dark-800 pb-5">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-[#0B2240] dark:text-white font-devanagari">
+            Recommendation List (अनुशंसा सूची)
+          </h2>
+          <p class="text-xs text-slate-500 font-medium mt-0.5">
+            माननीय विधायक द्वारा वित्तीय वर्ष {{ selectedFinYear }} हेतु अनुशंसित कार्यों की सूची
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
+          <!-- Search input -->
+          <div class="relative flex-1 sm:flex-initial w-full sm:w-72">
+            <input type="text" [(ngModel)]="listSearchQuery" placeholder="Search work, approval no, location..."
+              class="w-full bg-slate-50 dark:bg-dark-850 text-xs font-semibold py-2.5 pl-9 pr-3 rounded-xl border border-slate-200 dark:border-dark-700 focus:outline-none focus:border-[#3D5E58]" />
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          <button (click)="switchScreen('create')"
+            class="px-4 py-2.5 rounded-xl bg-[#3D5E58] hover:bg-[#324F4A] text-white font-extrabold text-xs shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+            <span>+ नई अनुशंसा</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Pills: All, Pending, Approved, Deleted -->
+      <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+        <button (click)="selectedFilter = 'all'"
+          [ngClass]="selectedFilter === 'all' ? 'bg-[#3D5E58] text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
+          class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
+          All Works ({{ recommendations.length }})
+        </button>
+        <button (click)="selectedFilter = 'pending'"
+          [ngClass]="selectedFilter === 'pending' ? 'bg-amber-600 text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
+          class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
+          Pending
+        </button>
+        <button (click)="selectedFilter = 'approved'"
+          [ngClass]="selectedFilter === 'approved' ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
+          class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
+          Approved
+        </button>
+        <button (click)="selectedFilter = 'deleted'"
+          [ngClass]="selectedFilter === 'deleted' ? 'bg-rose-600 text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
+          class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
+          Deleted (निरस्त)
+        </button>
+      </div>
+
+      <!-- The Cards Grid (Matching Image 1 Screen 2 Style on Web) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <div *ngFor="let rec of filteredRecommendations; let idx = index" 
+          (click)="switchScreen('detail', rec)"
+          class="bg-slate-50/80 dark:bg-dark-850/80 hover:bg-white dark:hover:bg-dark-800 p-5 rounded-2xl border border-slate-200/80 dark:border-dark-700 hover:border-[#3D5E58] hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between space-y-3">
+          
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3 min-w-0">
+              <span class="w-7 h-7 rounded-lg bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 flex items-center justify-center font-bold text-xs text-slate-600 dark:text-slate-300 flex-shrink-0 mt-0.5">
+                {{ idx + 1 }}
+              </span>
+              <div class="min-w-0">
+                <h4 class="text-sm font-extrabold text-[#0B2240] dark:text-white group-hover:text-[#3D5E58] dark:group-hover:text-emerald-400 transition-colors leading-snug">
+                  {{ rec.workName }}
+                </h4>
+                <div class="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-500 font-medium">
+                  <span class="font-mono">📅 FinYear: {{ rec.finYear }}</span>
+                  <span>|</span>
+                  <span>Date: {{ rec.date }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Status Badge & Arrow matching Image 1 Screen 2 -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <span *ngIf="rec.workStatus === 'Deleted'" 
+                class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200">
+                Deleted
+              </span>
+              <span *ngIf="rec.workStatus === 'Approved'" 
+                class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200">
+                Approved
+              </span>
+              <span *ngIf="rec.workStatus === 'Pending'" 
+                class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200">
+                Pending
+              </span>
+
+              <svg class="w-5 h-5 text-slate-400 group-hover:text-[#3D5E58] group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Bottom Meta Strip -->
+          <div class="pt-3 border-t border-slate-200/60 dark:border-dark-750 flex items-center justify-between text-xs">
+            <span class="font-mono text-slate-500 font-semibold">{{ rec.approvalNo }}</span>
+            <div class="flex items-center gap-3">
+              <span class="font-black text-slate-900 dark:text-emerald-400 font-mono">₹ {{ rec.proposedAmount }} Lakh</span>
+              <span class="font-bold text-slate-600 dark:text-slate-400">({{ rec.sector }})</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredRecommendations.length === 0" class="text-center py-12 space-y-2 bg-slate-50 dark:bg-dark-850 rounded-2xl border border-dashed border-slate-200 dark:border-dark-750">
+        <p class="text-sm font-bold text-slate-500 font-devanagari">कोई कार्य प्रविष्टि नहीं मिली (No recommendations found)</p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 5. SCREEN 4: DETAILED RECOMMENDATION (MATCHING IMAGE 1 SCREEN 3)          -->
+  <!-- ========================================================================= -->
+  <div *ngIf="activeScreen === 'detail'" class="space-y-6 animate-fadeIn">
+    
+    <div *ngIf="selectedRecommendation" class="bg-white dark:bg-dark-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-dark-750 shadow-md space-y-6">
+      
+      <!-- Detailed Header & Navigation -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-dark-800 pb-5">
+        <div>
+          <button (click)="switchScreen('list')" class="text-xs font-bold text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1 mb-1">
+            <span>← सूची पर वापस जाएं (Back to List)</span>
+          </button>
+          <div class="flex items-center gap-3">
+            <h2 class="text-xl sm:text-2xl font-black text-[#0B2240] dark:text-white font-devanagari">
+              Detailed Recommendation (विस्तृत कार्य विवरण)
+            </h2>
+            <span *ngIf="selectedRecommendation.workStatus === 'Deleted'" 
+              class="px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-500 text-white shadow-2xs">
+              Deleted (निरस्त)
+            </span>
+          </div>
+        </div>
+
+        <!-- The 3 Action Buttons from Image 1 Screen 3: [View PDF] [Edit] [Delete] -->
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <!-- 1. View PDF (Green button matching screenshot) -->
+          <button (click)="openPdfModal(selectedRecommendation)"
+            class="px-4 py-2.5 rounded-xl bg-[#2F7E3B] hover:bg-[#256630] text-white font-bold text-xs shadow-sm flex items-center gap-2 transition-all cursor-pointer">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>View PDF</span>
+          </button>
+
+          <!-- 2. Edit (Blue button matching screenshot) -->
+          <button (click)="editRecommendation(selectedRecommendation)"
+            class="px-4 py-2.5 rounded-xl bg-[#4A90C7] hover:bg-[#3B7BB0] text-white font-bold text-xs shadow-sm flex items-center gap-2 transition-all cursor-pointer">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            <span>Edit</span>
+          </button>
+
+          <!-- 3. Delete (Coral/Red button matching screenshot) -->
+          <button (click)="promptDelete(selectedRecommendation)"
+            class="px-4 py-2.5 rounded-xl bg-[#E64D4D] hover:bg-[#D33D3D] text-white font-bold text-xs shadow-sm flex items-center gap-2 transition-all cursor-pointer">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span>Delete</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Parameter Details in Clean 2-Column Full Website Grid matching Image 1 Screen 3 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+        
+        <!-- Left Column Parameters -->
+        <div class="bg-slate-50 dark:bg-dark-850 rounded-2xl p-5 border border-slate-200/80 dark:border-dark-700 space-y-3.5">
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 border-b border-slate-200/60 dark:border-dark-750 pb-2">
+            Work Proposal Parameters
+          </h4>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">MLA Name:</span>
+            <span class="font-extrabold text-slate-900 dark:text-white font-devanagari">{{ selectedRecommendation.mlaName }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">User Name:</span>
+            <span class="font-mono font-bold text-slate-900 dark:text-white">{{ selectedRecommendation.userName }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">Work Status:</span>
+            <span class="font-black" [ngClass]="selectedRecommendation.workStatus === 'Deleted' ? 'text-rose-500' : 'text-amber-600'">
+              {{ selectedRecommendation.workStatus }}
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">Work Id:</span>
+            <span class="font-mono text-slate-700 dark:text-slate-300">{{ selectedRecommendation.workId }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">IsConversion:</span>
+            <span class="font-bold text-slate-700 dark:text-slate-300">{{ selectedRecommendation.isConversion }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">Proposed Amount:</span>
+            <span class="font-black text-slate-900 dark:text-emerald-400 font-mono text-sm">{{ selectedRecommendation.proposedAmount }} Lakh</span>
+          </div>
+
+          <div class="py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500 block mb-1">Work Name:</span>
+            <span class="font-black text-slate-900 dark:text-white leading-snug">{{ selectedRecommendation.workName }}</span>
+          </div>
+
+          <div class="py-1">
+            <span class="font-bold text-slate-500 block mb-1">Scheme Name:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.schemeName }}</span>
+          </div>
+        </div>
+
+        <!-- Right Column Parameters -->
+        <div class="bg-slate-50 dark:bg-dark-850 rounded-2xl p-5 border border-slate-200/80 dark:border-dark-700 space-y-3.5">
+          <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 border-b border-slate-200/60 dark:border-dark-750 pb-2">
+            Sanction & Location Details
+          </h4>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">Fin Year:</span>
+            <span class="font-mono font-bold">{{ selectedRecommendation.finYear }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">Approval No:</span>
+            <span class="font-mono font-bold text-slate-900 dark:text-white">{{ selectedRecommendation.approvalNo }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">Sector:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.sector }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">District Name:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.districtName }}</span>
+          </div>
+
+          <ng-container *ngIf="selectedRecommendation.sector === 'Rural'">
+            <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+              <span class="font-bold text-slate-500">Block Name:</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.blockName || '-' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+              <span class="font-bold text-slate-500">Panchayat Name:</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.panchayatName || '-' }}</span>
+            </div>
+            <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+              <span class="font-bold text-slate-500">Village Name:</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.villageName || '-' }}</span>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="selectedRecommendation.sector === 'Urban'">
+            <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+              <span class="font-bold text-slate-500">Town Name:</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.townName || '-' }}</span>
+            </div>
+          </ng-container>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">Executing Dept:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.executingDept }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">Executing Agency:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.executingAgency }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
+            <span class="font-bold text-slate-500">Platform Through:</span>
+            <span class="font-semibold text-slate-600 dark:text-slate-300">{{ selectedRecommendation.platformThrough }}</span>
+          </div>
+
+          <div class="flex justify-between items-center py-1">
+            <span class="font-bold text-slate-500">Convergence:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedRecommendation.convergence }}</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 6. MODAL: CONFIRM DELETE (MATCHING IMAGE 1 SCREEN 4)                      -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showDeleteModal" 
+    class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
+    
+    <div (click)="$event.stopPropagation()" 
+      class="bg-white dark:bg-dark-900 rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl border border-slate-200 dark:border-dark-750 text-center space-y-4 animate-scaleUp">
+      
+      <!-- Modal Title -->
+      <h3 class="text-base font-black text-slate-800 dark:text-white">
+        Confirm Delete
+      </h3>
+
+      <!-- Modal Body Text -->
+      <p class="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+        Are you sure you want to delete this recommendation?
+      </p>
+
+      <div *ngIf="itemToDelete" class="bg-slate-50 dark:bg-dark-800 p-3 rounded-xl text-xs text-slate-600 dark:text-slate-300 font-mono text-left truncate border border-slate-200 dark:border-dark-700">
+        <strong>#{{ itemToDelete.approvalNo }}</strong><br>
+        <span class="text-[11px] text-slate-500">{{ itemToDelete.workName }}</span>
+      </div>
+
+      <!-- Action Buttons matching Image 1 Screen 4 -->
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button (click)="cancelDelete()"
+          class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer">
+          Cancel
+        </button>
+        <button (click)="confirmDelete()"
+          class="px-5 py-2 rounded-xl bg-[#E64D4D] hover:bg-[#D33D3D] text-white font-extrabold text-xs shadow-md transition-all cursor-pointer">
+          Delete
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 7. MODAL: VIEW PDF RECOMMENDATION SHEET                                   -->
+  <!-- ========================================================================= -->
+  <div *ngIf="showPdfModal && itemToViewPdf" 
+    class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fadeIn">
+    
+    <div (click)="$event.stopPropagation()" 
+      class="bg-white dark:bg-dark-900 rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 dark:border-dark-750 overflow-hidden animate-scaleUp">
+      
+      <!-- Top Modal Toolbar -->
+      <div class="px-6 py-4 bg-gradient-to-r from-[#0B2240] to-[#163660] text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">📄</span>
+          <div>
+            <h4 class="text-xs font-extrabold uppercase tracking-wide">विधायक अनुशंसा पत्र (Official Recommendation PDF)</h4>
+            <span class="text-[10px] text-slate-300 font-mono">{{ itemToViewPdf.approvalNo }}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button (click)="printPdf()" class="px-3.5 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-bold transition-all cursor-pointer">
+            Print / Save
+          </button>
+          <button (click)="closePdfModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-sm font-bold cursor-pointer">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable A4 Format Preview Body -->
+      <div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar space-y-5 bg-white text-slate-800 text-xs font-sans">
+        
+        <!-- Top Letterhead -->
+        <div class="border-b-2 border-slate-800 pb-3 text-center space-y-1">
+          <div class="h-1 bg-gradient-to-r from-[#FF671F] via-amber-400 to-[#046A38] w-full mb-2"></div>
+          <h2 class="text-base font-black uppercase text-[#0B2240] tracking-wider">राजस्थान सरकार · विधान सभा सचिवालय</h2>
+          <h3 class="text-sm font-extrabold text-[#0B2240] font-devanagari">{{ itemToViewPdf.mlaName }}</h3>
+          <p class="text-[11px] font-bold text-slate-600">सदस्य राजस्थान विधान सभा · क्षेत्र: {{ itemToViewPdf.districtName }}</p>
+        </div>
+
+        <div class="flex justify-between items-center text-[11px] font-semibold text-slate-600 border-b border-slate-200 pb-2">
+          <span>पत्रांक: <strong>{{ itemToViewPdf.approvalNo }}</strong></span>
+          <span>दिनांक: <strong>{{ itemToViewPdf.date }}</strong></span>
+        </div>
+
+        <div class="space-y-1.5 font-medium leading-relaxed">
+          <p>सेवा में,</p>
+          <p class="font-bold">जिला कलेक्टर एवं जिला कार्यक्रम समन्वयक (E-Work),</p>
+          <p>जिला: {{ itemToViewPdf.districtName }}, राजस्थान</p>
+        </div>
+
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-slate-900 font-bold leading-normal">
+          विषय: विधायक स्थानीय क्षेत्र विकास योजना (वर्ष {{ itemToViewPdf.finYear }}) के अंतर्गत कार्य की अनुशंसा बाबत।
+        </div>
+
+        <div class="space-y-3 leading-relaxed">
+          <p>महोदय,</p>
+          <p>
+            उपर्युक्त विषयांतर्गत लेख है कि मेरे विधान सभा क्षेत्र के सर्वांगीण विकास हेतु निम्नलिखित निर्माण/विकास कार्य की अनुशंसा की जाती है:
+          </p>
+
+          <table class="w-full border-collapse border border-slate-300 text-[11px]">
+            <tr class="bg-slate-100 font-bold">
+              <td class="border border-slate-300 p-2.5">कार्य का नाम</td>
+              <td class="border border-slate-300 p-2.5 font-extrabold text-slate-900">{{ itemToViewPdf.workName }}</td>
+            </tr>
+            <tr>
+              <td class="border border-slate-300 p-2.5 font-semibold">प्रस्तावित राशि (लाख में)</td>
+              <td class="border border-slate-300 p-2.5 font-mono font-bold text-emerald-700">₹ {{ itemToViewPdf.proposedAmount }} लाख</td>
+            </tr>
+            <tr class="bg-slate-50">
+              <td class="border border-slate-300 p-2.5 font-semibold">क्षेत्र / स्थान</td>
+              <td class="border border-slate-300 p-2.5 font-bold">{{ itemToViewPdf.sector }} ({{ itemToViewPdf.blockName || itemToViewPdf.townName || itemToViewPdf.districtName }})</td>
+            </tr>
+            <tr>
+              <td class="border border-slate-300 p-2.5 font-semibold">कार्यकारी विभाग</td>
+              <td class="border border-slate-300 p-2.5 font-bold">{{ itemToViewPdf.executingDept }}</td>
+            </tr>
+          </table>
+
+          <p class="text-[11px] text-slate-600">
+            अतः अनुरोध है कि उक्त कार्य की प्रशासनिक एवं वित्तीय स्वीकृति नियमानुसार जारी कर अग्रिम कार्यवाही संपादित करावें।
+          </p>
+        </div>
+
+        <div class="pt-8 flex justify-between items-end text-right">
+          <div class="text-left text-[10px] text-slate-400 font-mono">
+            जनरेटेड: eWork 3.0 Platform<br>सत्यापित डिजिटल हस्ताक्षर
+          </div>
+          <div>
+            <div class="text-xs font-black text-[#0B2240]">{{ itemToViewPdf.mlaName }}</div>
+            <div class="text-[10px] text-slate-500 font-bold">हस्ताक्षर विधायक</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

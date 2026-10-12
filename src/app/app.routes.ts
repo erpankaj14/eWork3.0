@@ -39,6 +39,16 @@ export const routes: Routes = [
         data: { animation: 'PortalHub' }
       },
       {
+        path: 'mla-recommendation-app',
+        loadComponent: () => import('./features/mla-recommendation-app/mla-recommendation-app.component').then(m => m.MlaRecommendationAppComponent),
+        data: { animation: 'MlaRecommendationApp' }
+      },
+      {
+        path: 'mla-recommendation-app/:view',
+        loadComponent: () => import('./features/mla-recommendation-app/mla-recommendation-app.component').then(m => m.MlaRecommendationAppComponent),
+        data: { animation: 'MlaRecommendationApp' }
+      },
+      {
         path: 'work-monitoring',
         loadComponent: () => import('./features/work-monitoring/work-monitoring.component').then(m => m.WorkMonitoringComponent),
         data: { animation: 'WorkMonitoring' }
@@ -163,6 +173,8 @@ export const routes: Routes = [
   },
 
   // Root-Level Module Catchers redirecting to Portal Layout
+  { path: 'mla-recommendation-app/:view', redirectTo: '/portal/mla-recommendation-app/:view' },
+  { path: 'mla-recommendation-app', redirectTo: '/portal/mla-recommendation-app', pathMatch: 'full' },
   { path: 'work-monitoring', redirectTo: '/portal/work-monitoring', pathMatch: 'full' },
   { path: 'hub', redirectTo: '/portal/hub', pathMatch: 'full' },
   { path: 'sanction/:p1/:p2/:p3', redirectTo: '/portal/sanction/:p1/:p2/:p3' },
