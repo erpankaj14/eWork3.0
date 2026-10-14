@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { LanguageService } from '../../core/services/language.service';
 import { AuthService, UserSession } from '../../core/services/auth.service';
+import { MlaRecommendationService } from '../../core/services/mla-recommendation.service';
 
 export interface RecommendationItem {
   id: number;
@@ -50,6 +51,7 @@ export class MlaRecommendationAppComponent implements OnInit {
   private toastr = inject(ToastrService);
   public languageService = inject(LanguageService);
   private authService = inject(AuthService);
+  private mlaService = inject(MlaRecommendationService);
 
   user: UserSession | null = null;
 
@@ -105,29 +107,14 @@ export class MlaRecommendationAppComponent implements OnInit {
     pdfFileName: ''
   };
 
-  // Dropdown Master Data
-  districts = ['जयपुर', 'दौसा', 'अजमेर', 'जोधपुर', 'अलवर', 'कोटा', 'बीकानेर', 'उदयपुर'];
-  blocks = ['जोड़ी', 'बस्सी', 'चाकसू', 'आमेर', 'सांगानेर', 'जमवारामगढ़', 'कोटपूतली', 'दूदू'];
-  panchayats = ['जोड़ी', 'कुकस', 'चंदवाजी', 'बस्सी ग्रामीण', 'तुंगा', 'फागी'];
-  villages = ['जोड़ी', 'कुकस कलां', 'कुकस खुर्द', 'मोहनपुरा', 'रामपुरा'];
-  towns = ['Jaipur (M Corp.) (Part)', 'Sanganer Town', 'Chaksu (M)', 'Bagru Town', 'Kotputli (M)'];
-  departments = [
-    'आयुर्वेद विभाग',
-    'सार्वजनिक निर्माण विभाग (PWD)',
-    'पंचायती राज विभाग',
-    'जन स्वास्थ्य अभियांत्रिकी विभाग (PHED)',
-    'चिकित्सा एवं स्वास्थ्य विभाग',
-    'शिक्षा विभाग (माध्यमिक/प्रारंभिक)',
-    'जल संसाधन विभाग'
-  ];
-  agencies = [
-    'अधिशाषी अभियंता आयुर्वेद',
-    'अधिशाषी अभियंता PWD',
-    'विकास अधिकारी (BDO)',
-    'सहायक अभियंता PHED',
-    'अधिशाषी अधिकारी (नगर पालिका)',
-    'कनिष्ठ अभियंता पंचायती राज'
-  ];
+  // Dropdown Master Data – populated from backend APIs on init/change
+  districts: { code: string; name: string }[] = [];
+  blocks: { code: string; name: string }[] = [];
+  panchayats: { code: string; name: string }[] = [];
+  villages: { code: string; name: string }[] = [];
+  towns: { code: string; name: string }[] = [];
+  departments: { id: any; name: string }[] = [];
+  agencies: { id: any; name: string }[] = [];
 
   // Active item in Detailed View
   selectedRecommendation: RecommendationItem | null = null;
@@ -255,7 +242,18 @@ export class MlaRecommendationAppComponent implements OnInit {
       this.user = session || this.authService.getCurrentUser();
     });
 
-    // Check route parameter :view (e.g., /portal/mla-recommendation-app/create or /portal/mla-recommendation-app/list)
+    // Get district code from logged-in user (same as plan-create)
+    const user = this.authService.getCurrentUser();
+    const districtCode = user?.districtCode || '12';
+    this.formModel.district = districtCode;
+
+    // Load departments and agencies for the user's district
+    this.loadDepartments(districtCode);
+    this.loadAgencies(districtCode);
+    // Default is Rural — pre-load blocks
+    this.loadBlocks(districtCode);
+
+    // Existing route handling (unchanged)
     this.route.params.subscribe(params => {
       if (params['view']) {
         const v = params['view'].toLowerCase();
@@ -264,8 +262,6 @@ export class MlaRecommendationAppComponent implements OnInit {
         }
       }
     });
-
-    // Check query params: ?tab=create, ?tab=list, ?id=1
     this.route.queryParams.subscribe(params => {
       if (params['tab']) {
         const tab = params['tab'].toLowerCase();
@@ -281,8 +277,6 @@ export class MlaRecommendationAppComponent implements OnInit {
         }
       }
     });
-
-    // Default detailed recommendation
     if (!this.selectedRecommendation && this.recommendations.length > 0) {
       this.selectedRecommendation = this.recommendations[0];
     }
@@ -303,62 +297,128 @@ export class MlaRecommendationAppComponent implements OnInit {
   }
 
   onFinYearChange(): void {
-    if (this.selectedFinYear === '2026-27') {
-      this.dashboardStats.totalAllocated = '600.00000';
-      this.dashboardStats.availableAmount = '520.10000';
-      this.dashboardStats.noOfProposedWork = '18';
-      this.dashboardStats.noOfFsWork = '9';
-      this.dashboardStats.fsAmount = '79.90000';
-    } else if (this.selectedFinYear === '2024-25') {
-      this.dashboardStats.totalAllocated = '500.00000';
-      this.dashboardStats.availableAmount = '45.12000';
-      this.dashboardStats.noOfProposedWork = '32';
-      this.dashboardStats.noOfFsWork = '28';
-      this.dashboardStats.fsAmount = '454.88000';
-    } else {
-      this.dashboardStats.totalAllocated = '500.00000';
-      this.dashboardStats.availableAmount = '400.43631';
-      this.dashboardStats.noOfProposedWork = '25';
-      this.dashboardStats.noOfFsWork = '12';
-      this.dashboardStats.fsAmount = '99.56369';
-    }
-    this.formModel.financialYear = this.selectedFinYear;
+    // Placeholder for any logic when financial year changes.
   }
 
+  // ─── Master Data Loading (same pattern as plan-create) ─────────────────
+
+  loadDepartments(districtCode: string): void {
+    if (!districtCode) { this.departments = []; return; }
+    this.mlaService.getDepartment(districtCode).subscribe({
+      next: (res) => {
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        this.departments = items.map((d: any, i: number) => ({
+          id: d.deptId || d.departmentId || d.deptCode || d.id || (i + 1),
+          name: d.deptNameE || d.departmentName || d.deptName || d.name || ''
+        })).filter((d: any) => d.name);
+      },
+      error: () => { this.departments = []; }
+    });
+  }
+
+  loadAgencies(districtCode: string): void {
+    if (!districtCode) { this.agencies = []; return; }
+    this.mlaService.getAgency(districtCode, '6').subscribe({
+      next: (res) => {
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        this.agencies = items.map((a: any, i: number) => ({
+          id: a.agencyId || a.agencyCode || a.id || (i + 1),
+          name: a.agencyNameE || a.agencyName || a.name || ''
+        })).filter((a: any) => a.name);
+      },
+      error: () => { this.agencies = []; }
+    });
+  }
+
+  loadBlocks(districtCode: string): void {
+    if (!districtCode) { this.blocks = []; return; }
+    this.mlaService.getBlocks(districtCode).subscribe({
+      next: (res) => {
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        this.blocks = items.map((b: any) => ({
+          code: String(b.blockCode || b.BlockCode || b.code || ''),
+          name: b.blockNameE || b.BlockNameE || b.blockName || b.name || ''
+        })).filter((b: any) => b.code && b.name);
+      },
+      error: () => { this.blocks = []; }
+    });
+  }
+
+  loadGramPanchayats(districtCode: string, blockCode: string): void {
+    if (!districtCode || !blockCode) { this.panchayats = []; return; }
+    this.mlaService.getGramPanchayats(districtCode, blockCode).subscribe({
+      next: (res) => {
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        this.panchayats = items.map((gp: any) => ({
+          code: String(gp.panchayatCode || gp.PanchayatCode || gp.gpCode || gp.code || ''),
+          name: gp.panchayatNameE || gp.PanchayatNameE || gp.panchayatName || gp.name || ''
+        })).filter((p: any) => p.code && p.name);
+      },
+      error: () => { this.panchayats = []; }
+    });
+  }
+
+  loadVillages(districtCode: string, blockCode: string, panchayatCode: string): void {
+    if (!districtCode || !blockCode || !panchayatCode) { this.villages = []; return; }
+    this.mlaService.getVillages(districtCode, blockCode, panchayatCode).subscribe({
+      next: (res) => {
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        this.villages = items.map((v: any) => ({
+          code: String(v.villageCode || v.VillageCode || v.code || ''),
+          name: v.villageNameE || v.VillageNameE || v.villageName || v.name || ''
+        })).filter((v: any) => v.code && v.name);
+      },
+      error: () => { this.villages = []; }
+    });
+  }
+
+  loadTowns(districtCode: string): void {
+    if (!districtCode) { this.towns = []; return; }
+    this.mlaService.getTown(districtCode).subscribe({
+      next: (res) => {
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        this.towns = items.map((t: any) => ({
+          code: String(t.townCode || t.TownCode || t.code || ''),
+          name: t.townNameE || t.TownNameE || t.townName || t.name || ''
+        })).filter((t: any) => t.code && t.name);
+      },
+      error: () => { this.towns = []; }
+    });
+  }
+
+  // Area toggle — load towns OR blocks based on selection
   onAreaChange(area: 'Rural' | 'Urban'): void {
     this.formModel.recommendationArea = area;
-  }
-
-  onFileSelected(event: any): void {
-    const file = event.target?.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        this.toastr.warning('फ़ाइल का आकार 2MB से अधिक नहीं होना चाहिए (File size must not exceed 2MB).');
-        return;
-      }
-      this.formModel.pdfFile = file;
-      this.formModel.pdfFileName = file.name;
-      this.toastr.info(`फ़ाइल संलग्न की गई: ${file.name}`);
-    }
-  }
-
-  removeSelectedFile(): void {
-    this.formModel.pdfFile = null;
-    this.formModel.pdfFileName = '';
-  }
-
-  resetForm(): void {
-    this.formModel.nameOfTheWork = '';
-    this.formModel.proposedAmountInLacs = '';
     this.formModel.block = '';
     this.formModel.panchayat = '';
     this.formModel.village = '';
     this.formModel.town = '';
-    this.formModel.executingAgency = '';
-    this.formModel.convergence = 'No';
-    this.formModel.pdfFile = null;
-    this.formModel.pdfFileName = '';
-    this.toastr.info('फॉर्म रीसेट कर दिया गया है।');
+    const districtCode = this.formModel.district || this.authService.getCurrentUser()?.districtCode || '12';
+    if (area === 'Rural') {
+      this.loadBlocks(districtCode);
+    } else {
+      this.loadTowns(districtCode);
+    }
+  }
+
+  onBlockChange(): void {
+    this.formModel.panchayat = '';
+    this.formModel.village = '';
+    this.panchayats = [];
+    this.villages = [];
+    if (this.formModel.block) {
+      const districtCode = this.formModel.district || this.authService.getCurrentUser()?.districtCode || '12';
+      this.loadGramPanchayats(districtCode, this.formModel.block);
+    }
+  }
+
+  onPanchayatChange(): void {
+    this.formModel.village = '';
+    this.villages = [];
+    if (this.formModel.panchayat) {
+      const districtCode = this.formModel.district || this.authService.getCurrentUser()?.districtCode || '12';
+      this.loadVillages(districtCode, this.formModel.block, this.formModel.panchayat);
+    }
   }
 
   submitRecommendation(): void {
@@ -370,71 +430,48 @@ export class MlaRecommendationAppComponent implements OnInit {
       this.toastr.warning('कृपया मान्य प्रस्तावित राशि दर्ज करें (Please enter valid Proposed Amount).');
       return;
     }
-
-    if (this.formModel.recommendationArea === 'Rural') {
-      if (!this.formModel.block) {
-        this.toastr.warning('कृपया ब्लॉक का चयन करें (Please select Block).');
-        return;
-      }
-    } else {
-      if (!this.formModel.town) {
-        this.toastr.warning('कृपया शहर/कस्बे का चयन करें (Please select Town).');
-        return;
-      }
+    if (this.formModel.recommendationArea === 'Rural' && !this.formModel.block) {
+      this.toastr.warning('कृपया ब्लॉक का चयन करें (Please select Block).');
+      return;
     }
-
-    const newId = this.recommendations.length + 1;
-    const approvalNumber = `${this.formModel.financialYear}/16-050/${newId}`;
-    const today = new Date().toISOString().split('T')[0];
-
-    const newItem: RecommendationItem = {
-      id: newId,
-      workName: this.formModel.nameOfTheWork.trim(),
-      workNameHi: this.formModel.nameOfTheWork.trim(),
-      finYear: this.formModel.financialYear,
-      date: today,
-      mlaName: this.dashboardStats.mlaName,
-      userName: this.formModel.userName,
-      workStatus: 'Pending',
-      workId: `WRK-2025-0${Math.floor(100 + Math.random() * 900)}`,
-      isConversion: 'No',
-      proposedAmount: parseFloat(this.formModel.proposedAmountInLacs),
-      schemeName: this.formModel.scheme,
-      approvalNo: approvalNumber,
-      sector: this.formModel.recommendationArea,
-      districtName: this.formModel.district,
-      blockName: this.formModel.recommendationArea === 'Rural' ? (this.formModel.block || 'जोड़ी') : undefined,
-      panchayatName: this.formModel.recommendationArea === 'Rural' ? (this.formModel.panchayat || 'जोड़ी') : undefined,
-      villageName: this.formModel.recommendationArea === 'Rural' ? (this.formModel.village || 'जोड़ी') : undefined,
-      townName: this.formModel.recommendationArea === 'Urban' ? (this.formModel.town || 'Jaipur (M Corp.)') : undefined,
-      executingDept: this.formModel.executingDepartment,
-      executingAgency: this.formModel.executingAgency || 'अधिशाषी अभियंता आयुर्वेद',
-      convergence: this.formModel.convergence,
-      pdfFileName: this.formModel.pdfFileName || 'Recommendation_Document.pdf',
-      pdfFileSize: '1.2 MB',
-      revertRequested: '-',
-      deletedStatus: '-',
-      revertCompleted: '-',
-      platformThrough: 'Web Portal'
+    if (this.formModel.recommendationArea === 'Urban' && !this.formModel.town) {
+      this.toastr.warning('कृपया शहर/कस्बे का चयन करें (Please select Town).');
+      return;
+    }
+    // Build payload matching backend fields
+    const payload = {
+      BlockCode: this.formModel.recommendationArea === 'Rural' ? this.formModel.block : undefined,
+      PanchayatCode: this.formModel.recommendationArea === 'Rural' ? this.formModel.panchayat : undefined,
+      VillageCode: this.formModel.recommendationArea === 'Rural' ? this.formModel.village : undefined,
+      TownCode: this.formModel.recommendationArea === 'Urban' ? this.formModel.town : undefined,
+      FinYr: this.formModel.financialYear,
+      Sector: this.formModel.recommendationArea,
+      WorkName: this.formModel.nameOfTheWork.trim(),
+      UserName: this.formModel.userName,
+      SchemeCode: this.formModel.scheme,
+      DistrictCode: this.formModel.district,
+      WorkRecptDate: new Date().toISOString().split('T')[0],
+      AgencyId: this.formModel.executingAgency,
+      SubAgencyId: this.formModel.executingDepartment,
+      IsConvergence: this.formModel.convergence,
+      ProposedAmt: this.formModel.proposedAmountInLacs,
     };
-
-    this.recommendations.unshift(newItem);
-    this.selectedRecommendation = newItem;
-
-    // Increment proposed count
-    const count = parseInt(this.dashboardStats.noOfProposedWork) || 25;
-    this.dashboardStats.noOfProposedWork = String(count + 1);
-
-    this.toastr.success(`अनुशंसा क्रमांक #${approvalNumber} सफलतापूर्वक दर्ज की गई!`);
-
-    // Reset form
+    this.mlaService.saveRecommendation(payload, this.formModel.pdfFile || undefined).subscribe(res => {
+      // Assuming backend returns the saved recommendation object
+      const saved: RecommendationItem = res?.data || payload as any;
+      // Push to local list for immediate UI feedback
+      this.recommendations.unshift(saved);
+      this.selectedRecommendation = saved;
+      this.toastr.success('अनुशंसा सफलतापुर्वक सहेजी गई!');
+      this.switchScreen('detail', saved);
+    }, err => {
+      this.toastr.error('सहेजने में त्रुटि: ' + err.message);
+    });
+    // Reset form fields locally
     this.formModel.nameOfTheWork = '';
     this.formModel.proposedAmountInLacs = '';
     this.formModel.pdfFile = null;
     this.formModel.pdfFileName = '';
-
-    // Switch to detail
-    this.switchScreen('detail', newItem);
   }
 
   // Delete Action & Modal Handling
@@ -446,13 +483,18 @@ export class MlaRecommendationAppComponent implements OnInit {
 
   confirmDelete(): void {
     if (!this.itemToDelete) return;
-
-    this.itemToDelete.workStatus = 'Deleted';
-    this.itemToDelete.deletedStatus = 'Yes';
-    this.showDeleteModal = false;
-
-    this.toastr.info(`अनुशंसा #${this.itemToDelete.approvalNo} को निरस्त (Deleted) चिह्नित कर दिया गया है।`);
-    this.itemToDelete = null;
+    // Call backend to delete
+    this.mlaService.deleteRecommendation(this.itemToDelete.id.toString()).subscribe(() => {
+      this.itemToDelete!.workStatus = 'Deleted';
+      this.itemToDelete!.deletedStatus = 'Yes';
+      this.toastr.info(`अनुशंसा #${this.itemToDelete!.approvalNo} को निरस्त (Deleted) चिह्नित कर दिया गया है।`);
+      // Remove from local array
+      this.recommendations = this.recommendations.filter(r => r.id !== this.itemToDelete!.id);
+      this.itemToDelete = null;
+      this.showDeleteModal = false;
+    }, err => {
+      this.toastr.error('डिलीट करने में त्रुटि: ' + err.message);
+    });
   }
 
   cancelDelete(): void {
@@ -464,7 +506,7 @@ export class MlaRecommendationAppComponent implements OnInit {
   editRecommendation(item: RecommendationItem): void {
     this.formModel.nameOfTheWork = item.workName;
     this.formModel.proposedAmountInLacs = String(item.proposedAmount);
-    this.formModel.recommendationArea = item.sector;
+    this.formModel.recommendationArea = item.sector as any;
     this.formModel.financialYear = item.finYear;
     this.formModel.district = item.districtName;
     if (item.sector === 'Rural') {
@@ -476,9 +518,10 @@ export class MlaRecommendationAppComponent implements OnInit {
     }
     this.formModel.executingDepartment = item.executingDept;
     this.formModel.executingAgency = item.executingAgency;
-    this.formModel.convergence = item.convergence;
+    this.formModel.convergence = item.convergence as any;
     this.formModel.pdfFileName = item.pdfFileName || '';
-
+    // Call backend to fetch latest data if needed (optional)
+    this.mlaService.fetchMlaIndividualReport(item.userName, item.finYear, '0', '16').subscribe();
     this.toastr.info(`संपादन हेतु फॉर्म लोड किया गया: ${item.workName}`);
     this.switchScreen('create');
   }
@@ -494,8 +537,46 @@ export class MlaRecommendationAppComponent implements OnInit {
     this.itemToViewPdf = null;
   }
 
+
   printPdf(): void {
     window.print();
+  }
+
+
+  // File selection handler for PDF upload
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      if (file.type !== 'application/pdf') {
+        this.toastr.warning('कृपया केवल PDF फ़ाइल अपलोड करें।');
+        return;
+      }
+      this.formModel.pdfFile = file;
+      this.formModel.pdfFileName = file.name;
+    }
+  }
+
+  // Remove selected PDF file
+  removeSelectedFile(): void {
+    this.formModel.pdfFile = null;
+    this.formModel.pdfFileName = '';
+  }
+
+  // Reset the create-recommendation form
+  resetForm(): void {
+    this.formModel.nameOfTheWork = '';
+    this.formModel.proposedAmountInLacs = '';
+    this.formModel.recommendationArea = 'Rural';
+    this.formModel.block = '';
+    this.formModel.panchayat = '';
+    this.formModel.village = '';
+    this.formModel.town = '';
+    this.formModel.executingDepartment = 'आयुर्वेद विभाग';
+    this.formModel.executingAgency = '';
+    this.formModel.convergence = 'No';
+    this.formModel.pdfFile = null;
+    this.formModel.pdfFileName = '';
   }
 
   // Filtered recommendations list
@@ -503,16 +584,16 @@ export class MlaRecommendationAppComponent implements OnInit {
     let result = this.recommendations;
 
     if (this.selectedFilter === 'pending') {
-      result = result.filter(r => r.workStatus === 'Pending');
+      result = result.filter((r: RecommendationItem) => r.workStatus === 'Pending');
     } else if (this.selectedFilter === 'approved') {
-      result = result.filter(r => r.workStatus === 'Approved');
+      result = result.filter((r: RecommendationItem) => r.workStatus === 'Approved');
     } else if (this.selectedFilter === 'deleted') {
-      result = result.filter(r => r.workStatus === 'Deleted');
+      result = result.filter((r: RecommendationItem) => r.workStatus === 'Deleted');
     }
 
-    if (this.listSearchQuery.trim()) {
+    if (this.listSearchQuery && this.listSearchQuery.trim()) {
       const q = this.listSearchQuery.toLowerCase().trim();
-      result = result.filter(r =>
+      result = result.filter((r: RecommendationItem) =>
         r.workName.toLowerCase().includes(q) ||
         (r.workNameHi && r.workNameHi.toLowerCase().includes(q)) ||
         r.approvalNo.toLowerCase().includes(q) ||
