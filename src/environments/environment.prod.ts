@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiHost: 'http://10.68.28.93',
+  apiHost: 'http://10.130.3.10',
   iwmsApiBaseUrl: '/iwmsapi/api/IwmsWeb',
   masterApiBaseUrl: '/iwmsapi/api',
   rdWebApiBaseUrl: '/api/IwmsWeb',

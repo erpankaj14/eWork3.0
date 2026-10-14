@@ -1,7 +1,7 @@
 const PROXY_CONFIG = [
   {
     context: ['/api', '/iwmsapi'],
-    target: 'http://10.68.28.93',
+    target: 'http://10.130.3.10',
     secure: false,
     changeOrigin: true,
     bypass: function (req, res) {
