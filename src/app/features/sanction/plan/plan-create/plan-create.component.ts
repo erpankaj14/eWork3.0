@@ -101,22 +101,11 @@ export class PlanCreateComponent implements OnInit {
   remarks = '';
 
   // Dropdown Master Lists (Dynamic & Pre-populated from Backend APIs)
-  finYears = this.generateFinancialYears();
+  finYears: string[] = [];
+  isLoadingFinYears = false;
   schemes: { code: number; name: string }[] = [];
 
   districts: { code: string; name: string }[] = [];
-
-  generateFinancialYears(): string[] {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth();
-    const startYr = currentMonth >= 3 ? currentYear : currentYear - 1;
-    const list: string[] = [];
-    for (let y = startYr; y >= startYr - 4; y--) {
-      const nextY = (y + 1).toString().slice(-2);
-      list.push(`${y}-${nextY}`);
-    }
-    return list;
-  }
 
   // Dynamic API Master Arrays
   blocksList: { code: string; name: string }[] = [];
@@ -235,6 +224,7 @@ export class PlanCreateComponent implements OnInit {
   isDistrictDisabled = false;
 
   ngOnInit(): void {
+    this.loadFinancialYears();
     const user = this.authService.getCurrentUser();
     
     const isStateUser = user?.districtCode === '0' || user?.districtCode === '00' 
@@ -253,6 +243,59 @@ export class PlanCreateComponent implements OnInit {
     this.loadAllowPlanSchemes();
     this.loadBudgetTypeList();
     this.loadAllMasterData();
+  }
+
+  private loadFinancialYears(): void {
+    this.isLoadingFinYears = true;
+    this.planApi.getFinancialYears().subscribe({
+      next: (response: any) => {
+        const rows = this.getFinancialYearRows(response);
+        this.finYears = rows.map(row => {
+          const value = typeof row === 'string' || typeof row === 'number'
+            ? row
+            : row?.finYr ?? row?.FinYr ?? row?.finYear ?? row?.FinYear
+              ?? row?.financialYear ?? row?.FinancialYear ?? row?.year ?? row?.Year;
+          return String(value ?? '').trim();
+        }).filter((year, index, years) => !!year && years.indexOf(year) === index);
+
+        const currentYear = this.currentFinancialYear();
+        this.selectedFinYr = this.finYears.includes(currentYear) ? currentYear : (this.finYears[0] || '');
+        this.isLoadingFinYears = false;
+      },
+      error: error => {
+        this.finYears = [];
+        this.selectedFinYr = '';
+        this.isLoadingFinYears = false;
+        console.warn('Financial year API failed', error);
+      }
+    });
+  }
+
+  private getFinancialYearRows(response: any): any[] {
+    if (Array.isArray(response)) return response;
+    if (!response || typeof response !== 'object') return [];
+    for (const key of ['data', 'Data', 'result', 'Result', 'items', 'Items', 'table', 'Table']) {
+      const value = response[key];
+      if (Array.isArray(value)) return value;
+      if (value && typeof value === 'object') {
+        const rows = this.getFinancialYearRows(value);
+        if (rows.length) return rows;
+      }
+    }
+    for (const value of Object.values(response)) {
+      if (Array.isArray(value)) return value;
+      if (value && typeof value === 'object') {
+        const rows = this.getFinancialYearRows(value);
+        if (rows.length) return rows;
+      }
+    }
+    return [];
+  }
+
+  private currentFinancialYear(): string {
+    const now = new Date();
+    const start = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    return `${start}-${String(start + 1).slice(-2)}`;
   }
 
   loadAllowPlanSchemes(): void {

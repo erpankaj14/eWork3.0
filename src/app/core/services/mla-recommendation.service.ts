@@ -22,12 +22,21 @@ export class MlaRecommendationService {
   /** Same as MasterApiService - /iwmsapi/api */
   private readonly masterBaseUrl = environment.masterApiBaseUrl;
 
-  /** For recommendation CRUD endpoints */
-  private readonly apiHost = environment.apiHost;
-
   /** form-urlencoded headers (no auth) — matches MasterApiService */
   private get formHeaders(): HttpHeaders {
     return new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
+  }
+
+  getDistricts(): Observable<any> {
+    return this.http.post<any>(`${this.masterBaseUrl}/District`, null, { headers: this.formHeaders });
+  }
+
+  getFinancialYears(): Observable<any> {
+    return this.http.post<any>(`${this.masterBaseUrl}/FinYrListWithoutAll`, null, { headers: this.formHeaders });
+  }
+
+  getSchemeMaster(): Observable<any> {
+    return this.http.post<any>(`${this.masterBaseUrl}/SchemeMaster`, {}, { headers: this.authHeaders });
   }
 
   /** Bearer token headers for CRUD endpoints only */
@@ -80,13 +89,11 @@ export class MlaRecommendationService {
     );
   }
 
-  getAgency(districtCode: string, agencyId: string = '6'): Observable<any> {
+  getAgency(districtCode: string, agencyId: string): Observable<any> {
     const payload = new HttpParams()
       .set('DistrictCode', districtCode)
       .set('AgencyId', agencyId);
-    return this.http.post<any>(`${this.masterBaseUrl}/Agency`, payload.toString(), { headers: this.formHeaders }).pipe(
-      catchError(err => { console.warn('Agency API error', err); return of({ data: [] }); })
-    );
+    return this.http.post<any>(`${this.masterBaseUrl}/Agency`, payload.toString(), { headers: this.formHeaders });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -103,13 +110,13 @@ export class MlaRecommendationService {
     if (file) {
       formData.append('UploadFile', file, file.name);
     }
-    return this.http.post<any>(`${this.apiHost}/api/SaveRecommendation`, formData, { headers: this.authHeaders });
+    return this.http.post<any>(`${this.masterBaseUrl}/SaveRecommendation`, formData, { headers: this.authHeaders });
   }
 
   deleteRecommendation(id: string): Observable<any> {
     const payload = new HttpParams().set('id', id);
     return this.http.post<any>(
-      `${this.apiHost}/api/Delete`,
+      `${this.masterBaseUrl}/Delete`,
       payload.toString(),
       { headers: this.authHeaders.set('Content-Type', 'application/x-www-form-urlencoded') }
     );
@@ -126,13 +133,13 @@ export class MlaRecommendationService {
     if (file) {
       formData.append('UploadFile', file, file.name);
     }
-    return this.http.post<any>(`${this.apiHost}/api/UpdateRecommendation`, formData, { headers: this.authHeaders });
+    return this.http.post<any>(`${this.masterBaseUrl}/UpdateRecommendation`, formData, { headers: this.authHeaders });
   }
 
   reportRecommendation(userName: string): Observable<any> {
     const payload = new HttpParams().set('UserName', userName);
     return this.http.post<any>(
-      `${this.apiHost}/api/ReportRecommendation`,
+      `${this.masterBaseUrl}/ReportRecommendation`,
       payload.toString(),
       { headers: this.authHeaders.set('Content-Type', 'application/x-www-form-urlencoded') }
     );
@@ -145,7 +152,7 @@ export class MlaRecommendationService {
       .set('DistrictCode', districtCode)
       .set('a_no', aNo);
     return this.http.post<any>(
-      `${this.apiHost}/api/MLAindividualreport`,
+      `${this.masterBaseUrl}/MLAindividualreport`,
       payload.toString(),
       { headers: this.authHeaders.set('Content-Type', 'application/x-www-form-urlencoded') }
     );
@@ -154,7 +161,7 @@ export class MlaRecommendationService {
   fetchPdf(id: string): Observable<any> {
     const payload = new HttpParams().set('Id', id);
     return this.http.post<any>(
-      `${this.apiHost}/api/SendPdf`,
+      `${this.masterBaseUrl}/SendPdf`,
       payload.toString(),
       { headers: this.authHeaders.set('Content-Type', 'application/x-www-form-urlencoded'), responseType: 'blob' as 'json' }
     );

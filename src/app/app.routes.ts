@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router'; // triggers rebuild
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { PortalLayoutComponent } from './layouts/portal-layout/portal-layout.component';
+import { mlaUserGuard } from './core/guards/mla-user.guard';
 
 export const routes: Routes = [
   {
@@ -40,11 +41,13 @@ export const routes: Routes = [
       },
       {
         path: 'mla-recommendation-app',
+        canActivate: [mlaUserGuard],
         loadComponent: () => import('./features/mla-recommendation-app/mla-recommendation-app.component').then(m => m.MlaRecommendationAppComponent),
         data: { animation: 'MlaRecommendationApp' }
       },
       {
         path: 'mla-recommendation-app/:view',
+        canActivate: [mlaUserGuard],
         loadComponent: () => import('./features/mla-recommendation-app/mla-recommendation-app.component').then(m => m.MlaRecommendationAppComponent),
         data: { animation: 'MlaRecommendationApp' }
       },

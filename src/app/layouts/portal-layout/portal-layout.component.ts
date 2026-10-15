@@ -300,6 +300,7 @@ export class PortalLayoutComponent implements OnInit {
 
     this.authService.currentUser$.subscribe(session => {
       this.user = session || this.authService.getCurrentUser();
+      this.applyMlaMenuVisibility();
     });
 
     this.loadDynamicSidebarMenus();
@@ -350,6 +351,7 @@ export class PortalLayoutComponent implements OnInit {
                     dynamicMenus.unshift(staticMlaApp);
                   }
                   this.menus = dynamicMenus;
+                  this.applyMlaMenuVisibility();
                   this.updateLayoutState(this.router.url);
                 }
               },
@@ -362,6 +364,7 @@ export class PortalLayoutComponent implements OnInit {
                     dynamicMenus.unshift(staticMlaApp);
                   }
                   this.menus = dynamicMenus;
+                  this.applyMlaMenuVisibility();
                   this.updateLayoutState(this.router.url);
                 }
               }
@@ -373,6 +376,17 @@ export class PortalLayoutComponent implements OnInit {
         console.warn('PortalLayoutComponent: Failed to load dynamic sidebar menus from API:', err);
       }
     });
+  }
+
+  private applyMlaMenuVisibility(): void {
+    const isMlaUser = Number(this.user?.usertype) === 9;
+    if (!isMlaUser) {
+      this.menus = this.menus.filter(menu => {
+        const identity = `${menu.id} ${menu.label}`.toLowerCase();
+        return menu.id !== 'mla-app' && !identity.includes('mla recommendation');
+      });
+      if (this.activeSidebarMenu && !this.menus.includes(this.activeSidebarMenu)) this.activeSidebarMenu = null;
+    }
   }
 
   updateLayoutState(url: string): void {

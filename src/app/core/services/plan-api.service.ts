@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -27,6 +27,12 @@ export class PlanApiService {
   }
 
   private readonly baseUrl = environment.rdWebApiBaseUrl;
+
+  getFinancialYears(): Observable<any> {
+    return this.http.post<any>(`${environment.masterApiBaseUrl}/FinYrListWithoutAll`, null, {
+      headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
+    });
+  }
 
   /**
    * Helper to retrieve locally saved plans from browser storage

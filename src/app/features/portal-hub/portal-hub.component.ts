@@ -1071,7 +1071,14 @@ export class PortalHubComponent implements OnInit, OnDestroy {
     };
 
     // Exclude 'home' to avoid a redundant hub link inside the hub
-    this.corePortals = [mlaAppPortal, ...mappedPortals.filter(p => p.id !== 'home')];
+    const visiblePortals = mappedPortals.filter(p => {
+      if (p.id === 'home') return false;
+      if (Number(this.user?.usertype) === 9) return true;
+      return p.id !== 'mla-app' && !`${p.id} ${p.titleEn}`.toLowerCase().includes('mla recommendation');
+    });
+    this.corePortals = Number(this.user?.usertype) === 9
+      ? [mlaAppPortal, ...visiblePortals]
+      : visiblePortals;
   }
 
   getDynamicColorClass(menuId: number): string {

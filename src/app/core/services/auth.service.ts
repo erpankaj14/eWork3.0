@@ -8,6 +8,7 @@ export interface UserSession {
   username: string;
   district: string;
   districtCode?: string;
+  usertype?: number | string;
   districtHi: string;
   role: string;
   roleHi: string;
@@ -53,6 +54,7 @@ export class AuthService {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        parsed.usertype = parsed.usertype ?? parsed.userType ?? parsed.UserType ?? this.readUserTypeClaim(parsed.token || localStorage.getItem('access_token'));
         this.currentUserSubject.next(parsed);
         this.isLoggedInSubject.next(true);
       } catch (e) {
@@ -212,6 +214,7 @@ export class AuthService {
         }
         const customUser: Partial<UserSession> = {
           username: response.result?.user_name || response.username || ssoId.trim(),
+          usertype: response.result?.usertype ?? response.result?.userType ?? response.result?.UserType ?? response.result?.user_type ?? response.usertype ?? response.userType ?? response.UserType ?? response.user_type ?? this.readUserTypeClaim(token),
           district: response.district || 'JAIPUR',
           districtCode: response.result?.distict_code || '12',
           districtHi: response.districtHi || 'जयपुर',
@@ -230,6 +233,23 @@ export class AuthService {
     } catch (error: any) {
       console.error('SSO Backend Auth Error:', error);
       throw error;
+    }
+  }
+
+  private readUserTypeClaim(token?: string | null): number | string | undefined {
+    if (!token) return undefined;
+    try {
+      const encodedPayload = token.split('.')[1];
+      if (!encodedPayload) return undefined;
+      const base64 = encodedPayload.replace(/-/g, '+').replace(/_/g, '/');
+      const paddedBase64 = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+      const payload = JSON.parse(atob(paddedBase64));
+      const claim = Object.entries(payload).find(([key]) =>
+        (key.split(/[\/#]/).pop() || key).toLowerCase().replace(/[^a-z]/g, '') === 'usertype'
+      )?.[1];
+      return typeof claim === 'number' || typeof claim === 'string' ? claim : undefined;
+    } catch {
+      return undefined;
     }
   }
 }
