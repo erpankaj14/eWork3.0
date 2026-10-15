@@ -650,17 +650,17 @@
         <button (click)="selectedFilter = 'pending'"
           [ngClass]="selectedFilter === 'pending' ? 'bg-amber-600 text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
           class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
-          Pending
+          Pending ({{ statusCount('Pending') }})
         </button>
         <button (click)="selectedFilter = 'approved'"
           [ngClass]="selectedFilter === 'approved' ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
           class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
-          Approved
+          Approved ({{ statusCount('Approved') }})
         </button>
         <button (click)="selectedFilter = 'deleted'"
           [ngClass]="selectedFilter === 'deleted' ? 'bg-rose-600 text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
           class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
-          Deleted (निरस्त)
+          Deleted (निरस्त) ({{ statusCount('Deleted') }})
         </button>
       </div>
 
@@ -684,6 +684,10 @@
                   <span class="font-mono">📅 FinYear: {{ rec.finYear }}</span>
                   <span>|</span>
                   <span>Date: {{ rec.date }}</span>
+                </div>
+                <div class="mt-1 text-xs text-slate-500 font-medium truncate">
+                  {{ rec.districtName }}<span *ngIf="rec.sector === 'Urban' && rec.townName"> · {{ rec.townName }}</span><span *ngIf="rec.sector === 'Rural' && rec.villageName"> · {{ rec.villageName }}</span>
+                  <span *ngIf="rec.executingDept && rec.executingDept !== '-'"> · {{ rec.executingDept }}</span>
                 </div>
               </div>
             </div>
@@ -812,7 +816,7 @@
 
           <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
             <span class="font-bold text-slate-500">Work Status:</span>
-            <span class="font-black" [ngClass]="selectedRecommendation.workStatus === 'Deleted' ? 'text-rose-500' : 'text-amber-600'">
+            <span class="font-black" [ngClass]="selectedRecommendation.workStatus === 'Deleted' ? 'text-rose-500' : selectedRecommendation.workStatus === 'Approved' ? 'text-emerald-600' : selectedRecommendation.workStatus === 'In Progress' ? 'text-sky-600' : 'text-amber-600'">
               {{ selectedRecommendation.workStatus }}
             </span>
           </div>

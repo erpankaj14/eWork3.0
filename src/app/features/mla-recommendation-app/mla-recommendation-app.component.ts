@@ -324,9 +324,10 @@ export class MlaRecommendationAppComponent implements OnInit {
     const get = (keys: string[], fallback: any = '') => this.apiValue(row, keys, fallback);
     const id = get(['Id', 'RecommendationId', 'RecId'], index + 1);
     const sector = String(get(['Sector'], 'R')).toUpperCase();
-    const state = String(get(['Status', 'WorkStatus', 'RecommendationStatus'], 'Pending'));
+    const state = String(get(['Status', 'WorkStatus', 'RecommendationStatus'], ''));
     const isDeleted = this.toBoolean(get(['IsDeleted', 'Deleted'], false));
-    const isApproved = this.toBoolean(get(['AgencyIsApproved', 'IsApproved', 'Approved'], false));
+    const approvalValue = get(['AgencyIsApproved', 'IsApproved', 'Approved'], null);
+    const isApproved = this.toBoolean(approvalValue) || /^(approved|sanctioned)$/i.test(String(approvalValue ?? '').trim());
     const isRevertRequested = this.toBoolean(get(['IsRevertRequested'], false));
     const isRevertCompleted = this.toBoolean(get(['RevertCompleted', 'IsRevertCompleted'], false));
     const isWeb = this.toBoolean(get(['IsWeb'], false));
@@ -338,6 +339,9 @@ export class MlaRecommendationAppComponent implements OnInit {
       date: this.displayDate(get(['WorkRecptDate', 'Date', 'CreatedDate'], '')),
       mlaName: String(get(['MlaName', 'H_MLAName', 'MLAName'], this.formModel.userName)),
       userName: String(get(['UserName'], this.formModel.userName)),
+      // ReportRecommendation has no dedicated status field in the supplied response.
+      // Derive the visible state from its workflow flags, with undeleted/unapproved
+      // recommendations shown as Pending.
       workStatus: isDeleted || /delet/i.test(state) ? 'Deleted' : isApproved || /approv|sanction/i.test(state) ? 'Approved' : /progress/i.test(state) ? 'In Progress' : 'Pending',
       workId: String(get(['WorkId'], '-')),
       isConversion: /^(yes|true|1)$/i.test(String(get(['IsConvergence'], 'No'))) ? 'Yes' : 'No',
@@ -353,7 +357,7 @@ export class MlaRecommendationAppComponent implements OnInit {
       executingDept: String(get(['AgencyName', 'DepartmentName'], '-')),
       executingAgency: String(get(['SubAgencyName'], '-')),
       convergence: /^(yes|true|1)$/i.test(String(get(['IsConvergence', 'Convergence'], 'No'))) ? 'Yes' : 'No',
-      pdfFileName: String(get(['FileName', 'PdfFileName'], '')),
+      pdfFileName: String(get(['FileName', 'PdfFileName', 'UploadFile'], '')),
       platformThrough: isWeb ? 'Web' : 'Mobile',
       revertRequested: isRevertRequested ? (get(['RevertRequestedDate']) ? this.displayDate(get(['RevertRequestedDate'])) : 'Yes') : 'No',
       deletedStatus: isDeleted ? (get(['DeletedDate']) ? this.displayDate(get(['DeletedDate'])) : 'Yes') : 'No',
@@ -769,6 +773,10 @@ export class MlaRecommendationAppComponent implements OnInit {
     }
 
     return result;
+  }
+
+  statusCount(status: RecommendationItem['workStatus']): number {
+    return this.recommendations.filter(item => item.workStatus === status).length;
   }
 }
 
