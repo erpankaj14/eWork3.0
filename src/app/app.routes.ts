@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router'; // triggers rebuild
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { PortalLayoutComponent } from './layouts/portal-layout/portal-layout.component';
+import { authGuard } from './core/guards/auth.guard';
 import { mlaUserGuard } from './core/guards/mla-user.guard';
 
 export const routes: Routes = [
@@ -33,6 +34,7 @@ export const routes: Routes = [
   {
     path: 'portal',
     component: PortalLayoutComponent,
+    canActivate: [authGuard],
     children: [
       {
         path: 'hub',

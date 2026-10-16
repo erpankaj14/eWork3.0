@@ -39,7 +39,7 @@ export class AuthService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
-  private currentUserSubject = new BehaviorSubject<UserSession | null>(this.defaultSession);
+  private currentUserSubject = new BehaviorSubject<UserSession | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
@@ -50,7 +50,7 @@ export class AuthService {
   }
 
   private checkInitialSession() {
-    const saved = localStorage.getItem('ework_user_session');
+    const saved = localStorage.getItem('ework_user_session') ?? sessionStorage.getItem('ework_user_session');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -58,10 +58,15 @@ export class AuthService {
         this.currentUserSubject.next(parsed);
         this.isLoggedInSubject.next(true);
       } catch (e) {
-        // Fallback to default
+        localStorage.removeItem('ework_user_session');
+        this.currentUserSubject.next(null);
         this.isLoggedInSubject.next(false);
       }
     }
+  }
+
+  isAuthenticated(): boolean {
+    return this.isLoggedInSubject.value;
   }
 
   login(customUser?: Partial<UserSession>): void {
@@ -84,12 +89,16 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('ework_user_session');
+    sessionStorage.removeItem('ework_user_session');
+    localStorage.removeItem('access_token');
+    sessionStorage.removeItem('access_token');
+    this.currentUserSubject.next(null);
     this.isLoggedInSubject.next(false);
-    this.router.navigate(['/dashboard']);
+    this.router.navigateByUrl('/dashboard', { replaceUrl: true });
   }
 
-  getCurrentUser(): UserSession {
-    return this.currentUserSubject.value || this.defaultSession;
+  getCurrentUser(): UserSession | null {
+    return this.currentUserSubject.value;
   }
 
   // ═══ AES-GCM 256-BIT ENCRYPTION HELPERS ═══

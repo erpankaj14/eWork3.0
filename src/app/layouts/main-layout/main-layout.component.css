@@ -1,0 +1,14 @@
+.sso-login-modal input:not([type='checkbox']) {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='32' viewBox='0 0 24 32'%3E%3Cpath d='M5 4h14M12 4v24M5 28h14' stroke='white' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M5 4h14M12 4v24M5 28h14' stroke='%230f172a' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") 12 16, text !important;
+  caret-color: #0f172a;
+}
+
+.sso-login-modal input[type='checkbox'],
+.sso-login-modal button {
+  cursor: pointer !important;
+}
+
+.sso-login-modal button:disabled,
+.sso-login-modal input:disabled {
+  cursor: not-allowed !important;
+}
