@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../../../core/services/language.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { MlaRecommendationService } from '../../../../core/services/mla-recommendation.service';
 
 interface MlaRecommendationRecord {
   sno: number;
@@ -11,7 +13,7 @@ interface MlaRecommendationRecord {
   constituency: string;
   workName: string;
   workNameHi: string;
-  sector: 'Urban' | 'Rural';
+  sector: string;
   district: string;
   block: string;
   panchayat: string;
@@ -22,8 +24,8 @@ interface MlaRecommendationRecord {
   receiptDate: string;
   createdDate: string;
   updatedDate: string;
-  convergence: 'Yes' | 'No';
-  proposedAmountLacs: number;
+  convergence: string;
+  proposedAmountLacs: number | null;
   approvalNo: string;
   workId: string;
 }
@@ -35,121 +37,174 @@ interface MlaRecommendationRecord {
   templateUrl: './mla-recommendation-list.component.html',
   styleUrls: ['./mla-recommendation-list.component.css']
 })
-export class MlaRecommendationListComponent {
+export class MlaRecommendationListComponent implements OnInit {
+  public languageService = inject(LanguageService);
+  private readonly mlaService = inject(MlaRecommendationService);
+  private readonly authService = inject(AuthService);
+
   financialYear = '--All--';
+  financialYears: string[] = [];
   selectedMla = '--All MLA--';
   searchQuery = '';
+  districtLabel = this.authService.getCurrentUser()?.district || this.authService.getCurrentUser()?.districtCode || '-';
+  records: MlaRecommendationRecord[] = [];
+  isLoading = false;
+  loadError = '';
+  currentPage = 1;
+  readonly pageSize = 15;
 
-  totalCount = 782;
+  ngOnInit(): void {
+    this.loadFinancialYears();
+  }
 
-  records: MlaRecommendationRecord[] = [
-    {
-      sno: 1,
-      mlaName: 'Sh रफीक खान (Sh. Rafeek Khan)',
-      aNo: '16',
-      constituency: 'आदर्श नगर (Adarsh Nagar)',
-      workName: 'Ramp construction and maintenance work with barricading gate near ward 14',
-      workNameHi: 'रेम्प निर्माण/मरम्मत कार्य बैरिक एवं गेट व अन्य मरम्मत कार्य',
-      sector: 'Urban',
-      district: 'जयपुर',
-      block: 'जयपुर (नगर निगम)',
-      panchayat: '-',
-      village: '-',
-      town: 'Jaipur (M Corp.) (Part)',
-      agency: 'नगर निगम',
-      subAgency: 'आयुक्त नगर निगम जयपुर',
-      receiptDate: '20/06/2026',
-      createdDate: '20/06/2026',
-      updatedDate: '21/06/2026',
-      convergence: 'No',
-      proposedAmountLacs: 20.00,
-      approvalNo: '2026-27/16-053/3',
-      workId: 'WRK-2026-0091'
-    },
-    {
-      sno: 2,
-      mlaName: 'Sh रफीक खान (Sh. Rafeek Khan)',
-      aNo: '16',
-      constituency: 'आदर्श नगर (Adarsh Nagar)',
-      workName: 'Hall construction and toilet complex work in primary school premises',
-      workNameHi: 'हॉल निर्माण एवं शौचालय निर्माण कार्य',
-      sector: 'Urban',
-      district: 'जयपुर',
-      block: 'जयपुर (नगर निगम)',
-      panchayat: '-',
-      village: '-',
-      town: 'Jaipur (M Corp.) (Part)',
-      agency: 'नगर निगम',
-      subAgency: 'आयुक्त नगर निगम जयपुर',
-      receiptDate: '20/06/2026',
-      createdDate: '20/06/2026',
-      updatedDate: '20/06/2026',
-      convergence: 'No',
-      proposedAmountLacs: 10.00,
-      approvalNo: '2026-27/16-053/2',
-      workId: 'WRK-2026-0092'
-    },
-    {
-      sno: 3,
-      mlaName: 'Sh गोपाल शर्मा (Sh. Gopal Sharma)',
-      aNo: '17',
-      constituency: 'सिविल लाइन्स (Civil Lines)',
-      workName: 'Ward 37 Banipark Dharmik Sanstha Seva Dwar operating Maharshi Raman CC road',
-      workNameHi: 'वार्ड नं 37 स्थित बनीपार्क धार्मिक संस्था सेवा द्वारा संचालित महर्षि रमण सीसी सड़क',
-      sector: 'Urban',
-      district: 'जयपुर',
-      block: 'जयपुर (सार्वजनिक निर्माण)',
-      panchayat: '-',
-      village: '-',
-      town: 'Jaipur (M Corp.) (Part)',
-      agency: 'सार्वजनिक निर्माण',
-      subAgency: 'अधिशाषी अभियंता सार्वजनिक निर्माण',
-      receiptDate: '19/06/2026',
-      createdDate: '19/06/2026',
-      updatedDate: '19/06/2026',
-      convergence: 'No',
-      proposedAmountLacs: 18.00,
-      approvalNo: '2026-27/17-081/1',
-      workId: 'WRK-2026-0078'
-    },
-    {
-      sno: 4,
-      mlaName: 'Sh अमीन कागजी (Sh. Amin Kagzi)',
-      aNo: '18',
-      constituency: 'किशनपोल (Kishanpole)',
-      workName: 'Tube-well boring and high mast solar light installation at community square',
-      workNameHi: 'सामुदायिक चौक पर ट्यूबवेल बोरिंग एवं हाई मास्ट सोलर लाइट स्थापना कार्य',
-      sector: 'Rural',
-      district: 'जयपुर',
-      block: 'आमेर',
-      panchayat: 'कुकस',
-      village: 'कुकस गाँव',
-      town: '-',
-      agency: 'पंचायती राज',
-      subAgency: 'विकास अधिकारी आमेर',
-      receiptDate: '15/06/2026',
-      createdDate: '15/06/2026',
-      updatedDate: '16/06/2026',
-      convergence: 'Yes',
-      proposedAmountLacs: 12.50,
-      approvalNo: '2026-27/18-022/4',
-      workId: 'WRK-2026-0064'
+  private loadFinancialYears(): void {
+    this.mlaService.getFinancialYears().subscribe({
+      next: response => {
+        this.financialYears = this.apiRows(response).map(row => {
+          const value = typeof row === 'string' || typeof row === 'number'
+            ? row
+            : this.value(row, ['FinYr', 'FinYear', 'FinancialYear', 'Year'], '');
+          return String(value ?? '').trim();
+        }).filter((year, index, years) => !!year && years.indexOf(year) === index);
+        const now = new Date();
+        const yearStart = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+        const currentYear = `${yearStart}-${String(yearStart + 1).slice(-2)}`;
+        this.financialYear = this.financialYears.includes(currentYear) ? currentYear : this.financialYears[0] || '--All--';
+        this.loadRecommendations();
+      },
+      error: () => {
+        this.financialYears = [];
+        this.financialYear = '--All--';
+        this.loadRecommendations();
+      }
+    });
+  }
+
+  onFinancialYearChange(): void {
+    this.currentPage = 1;
+    this.selectedMla = '--All MLA--';
+    this.loadRecommendations();
+  }
+
+  loadRecommendations(): void {
+    this.isLoading = true;
+    this.loadError = '';
+    this.mlaService.getRecommendations(this.financialYear === '--All--' ? undefined : this.financialYear).subscribe({
+      next: response => {
+        if (response?.status === false || response?.success === false) {
+          this.records = [];
+          this.loadError = response?.message || 'Recommendations could not be loaded.';
+        } else {
+          this.records = this.apiRows(response).map((row, index) => this.mapRecord(row, index));
+        }
+        this.currentPage = 1;
+        this.isLoading = false;
+      },
+      error: error => {
+        this.records = [];
+        this.loadError = error?.error?.message || error?.error?.title || `Recommendation API failed${error?.status ? ` (HTTP ${error.status})` : ''}.`;
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private apiRows(value: any): any[] {
+    if (Array.isArray(value)) return value;
+    if (!value || typeof value !== 'object') return [];
+    for (const [key, nested] of Object.entries(value)) {
+      if (/^(data|result|items|records|table)$/i.test(key)) {
+        if (Array.isArray(nested)) return nested;
+        const rows = this.apiRows(nested);
+        if (rows.length) return rows;
+      }
     }
-  ];
+    for (const nested of Object.values(value)) {
+      if (nested && typeof nested === 'object') {
+        const rows = this.apiRows(nested);
+        if (rows.length) return rows;
+      }
+    }
+    return [];
+  }
 
-  constructor(public languageService: LanguageService) {}
+  private value(row: any, keys: string[], fallback: any = '-'): any {
+    const wanted = new Set(keys.map(key => key.toLowerCase().replace(/[^a-z0-9]/g, '')));
+    const match = Object.entries(row || {}).find(([key]) => wanted.has(key.toLowerCase().replace(/[^a-z0-9]/g, '')));
+    return match?.[1] ?? fallback;
+  }
+
+  private mapRecord(row: any, index: number): MlaRecommendationRecord {
+    const get = (keys: string[], fallback: any = '-') => this.value(row, keys, fallback);
+    const sectorValue = String(get(['Sector'], '')).trim().toUpperCase();
+    const convergenceValue = get(['IsConvergence', 'Convergence'], null);
+    const amountValue = get(['ProposedAmt', 'ProposedAmount', 'Amount'], null);
+    const amount = amountValue === null || amountValue === '' ? null : Number(amountValue);
+    return {
+      sno: index + 1,
+      mlaName: String(get(['MlaName', 'H_MLAName', 'MLAName'])),
+      aNo: String(get(['ANo', 'A_No', 'AssemblyNo', 'a_no'])),
+      constituency: String(get(['ConstituencyName', 'ConstName', 'Const_Name', 'AssemblyName'])),
+      workName: String(get(['WorkName', 'NameOfWork'])),
+      workNameHi: String(get(['WorkNameHi', 'WorkNameHindi'], '')),
+      sector: sectorValue === 'U' || sectorValue === 'URBAN' ? 'Urban' : sectorValue === 'R' || sectorValue === 'RURAL' ? 'Rural' : '-',
+      district: String(get(['DistrictName', 'District'])),
+      block: String(get(['BlockName', 'Block'])),
+      panchayat: String(get(['PanchayatName', 'GramPanchayatName'])),
+      village: String(get(['VillageName'])),
+      town: String(get(['TownName'])),
+      agency: String(get(['AgencyName', 'DepartmentName'])),
+      subAgency: String(get(['SubAgencyName'])),
+      receiptDate: this.displayDate(get(['WorkRecptDate', 'ReceiptDate', 'Date'], '')),
+      createdDate: this.displayDate(get(['CreatedDate', 'EntryDate'], '')),
+      updatedDate: this.displayDate(get(['UpdatedDate', 'ModifiedDate'], '')),
+      convergence: convergenceValue === null ? '-' : this.toBoolean(convergenceValue) ? 'Yes' : 'No',
+      proposedAmountLacs: amount !== null && Number.isFinite(amount) ? amount : null,
+      approvalNo: String(get(['ApprovalNo', 'RecommendationNo', 'LetterNo'])),
+      workId: String(get(['WorkId']))
+    };
+  }
+
+  private toBoolean(value: any): boolean {
+    return value === true || value === 1 || /^(true|1|yes)$/i.test(String(value));
+  }
+
+  private displayDate(value: any): string {
+    if (!value) return '-';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? String(value)
+      : new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+  }
+
+  get mlaOptions(): string[] {
+    return [...new Set(this.records.map(record => record.mlaName).filter(name => name && name !== '-'))].sort((a, b) => a.localeCompare(b));
+  }
 
   get filteredRecords(): MlaRecommendationRecord[] {
-    if (!this.searchQuery.trim()) {
-      return this.records;
+    let rows = this.records;
+    if (this.selectedMla !== '--All MLA--') rows = rows.filter(record => record.mlaName === this.selectedMla);
+    const query = this.searchQuery.trim().toLowerCase();
+    if (query) {
+      rows = rows.filter(record => [record.workName, record.workNameHi, record.mlaName, record.constituency, record.approvalNo, record.district, record.block, record.town]
+        .some(value => value.toLowerCase().includes(query)));
     }
-    const q = this.searchQuery.toLowerCase();
-    return this.records.filter(r =>
-      r.workName.toLowerCase().includes(q) ||
-      r.workNameHi.toLowerCase().includes(q) ||
-      r.mlaName.toLowerCase().includes(q) ||
-      r.constituency.toLowerCase().includes(q) ||
-      r.approvalNo.toLowerCase().includes(q)
-    );
+    return rows;
+  }
+
+  get totalCount(): number { return this.filteredRecords.length; }
+  get pageCount(): number { return Math.max(1, Math.ceil(this.totalCount / this.pageSize)); }
+  get showingFrom(): number { return this.totalCount ? (this.currentPage - 1) * this.pageSize + 1 : 0; }
+  get showingTo(): number { return Math.min(this.currentPage * this.pageSize, this.totalCount); }
+  get pageNumbers(): number[] {
+    const start = Math.max(1, Math.min(this.currentPage - 2, this.pageCount - 4));
+    return Array.from({ length: Math.min(5, this.pageCount) }, (_, index) => start + index);
+  }
+  get pageRecords(): MlaRecommendationRecord[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredRecords.slice(start, start + this.pageSize);
+  }
+
+  setPage(page: number): void {
+    this.currentPage = Math.max(1, Math.min(page, this.pageCount));
   }
 }

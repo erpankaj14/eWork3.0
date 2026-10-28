@@ -100,6 +100,10 @@
 
       <!-- Quick Action Buttons on right of tab strip -->
       <div class="flex items-center gap-2">
+        <button type="button" (click)="openRevertRequests()"
+          class="px-4 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-extrabold text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer">
+          <span>रिवर्ट अनुरोध (Revert Requests)</span>
+        </button>
         <button *ngIf="activeScreen !== 'create'" (click)="switchScreen('create')"
           class="px-4 py-2 rounded-xl bg-[#E15B25] hover:bg-orange-600 text-white font-extrabold text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer">
           <span>+ नई अनुशंसा जोड़ें</span>
@@ -308,7 +312,6 @@
               <th class="py-3 px-4">Approval No</th>
               <th class="py-3 px-4">Sector</th>
               <th class="py-3 px-4">Proposed Amount</th>
-              <th class="py-3 px-4">Status</th>
               <th class="py-3 px-4 text-right">Action</th>
             </tr>
           </thead>
@@ -321,25 +324,11 @@
               </td>
               <td class="py-3 px-4 font-mono font-bold text-slate-600 dark:text-slate-300">{{ rec.approvalNo }}</td>
               <td class="py-3 px-4">
-                <span [ngClass]="rec.sector === 'Urban' ? 'bg-cyan-100 text-cyan-800' : 'bg-emerald-100 text-emerald-800'" class="px-2 py-0.5 rounded-full text-[10px] font-bold">
+                <span [ngClass]="rec.sector === 'Urban' ? 'bg-cyan-100 text-cyan-800' : rec.sector === 'Rural' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'" class="px-2 py-0.5 rounded-full text-[10px] font-bold">
                   {{ rec.sector }}
                 </span>
               </td>
-              <td class="py-3 px-4 font-mono font-black text-slate-900 dark:text-white">₹ {{ rec.proposedAmount }} L</td>
-              <td class="py-3 px-4">
-                <span *ngIf="rec.workStatus === 'Deleted'" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700">
-                  Deleted
-                </span>
-                <span *ngIf="rec.workStatus === 'Pending'" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800">
-                  Pending
-                </span>
-                <span *ngIf="rec.workStatus === 'Approved'" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
-                  Approved
-                </span>
-                <span *ngIf="rec.workStatus === 'In Progress'" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-100 text-sky-800">
-                  In Progress
-                </span>
-              </td>
+              <td class="py-3 px-4 font-mono font-black text-slate-900 dark:text-white">₹ {{ rec.proposedAmount === null ? '-' : rec.proposedAmount }} L</td>
               <td class="py-3 px-4 text-right">
                 <button (click)="switchScreen('detail', rec)" 
                   class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-750 font-bold text-xs text-[#3F615C] dark:text-emerald-400 cursor-pointer">
@@ -624,6 +613,14 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
+          <label class="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-dark-700 bg-slate-50 dark:bg-dark-850 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+            <span>Financial Year</span>
+            <select [(ngModel)]="selectedFinYear" (change)="onFinYearChange()" [disabled]="isLoadingFinYears || !finYearOptions.length"
+              class="rounded-lg border border-slate-300 dark:border-dark-600 bg-white dark:bg-dark-900 px-2 py-1 text-xs font-bold text-[#0B2240] dark:text-white">
+              <option *ngIf="!finYearOptions.length" value="">{{ isLoadingFinYears ? 'Loading…' : (finYearLoadError || 'Unavailable') }}</option>
+              <option *ngFor="let opt of finYearOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </label>
           <!-- Search input -->
           <div class="relative flex-1 sm:flex-initial w-full sm:w-72">
             <input type="text" [(ngModel)]="listSearchQuery" placeholder="Search work, approval no, location..."
@@ -638,30 +635,6 @@
             <span>+ नई अनुशंसा</span>
           </button>
         </div>
-      </div>
-
-      <!-- Filter Pills: All, Pending, Approved, Deleted -->
-      <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
-        <button (click)="selectedFilter = 'all'"
-          [ngClass]="selectedFilter === 'all' ? 'bg-[#3D5E58] text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
-          class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
-          All Works ({{ recommendations.length }})
-        </button>
-        <button (click)="selectedFilter = 'pending'"
-          [ngClass]="selectedFilter === 'pending' ? 'bg-amber-600 text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
-          class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
-          Pending ({{ statusCount('Pending') }})
-        </button>
-        <button (click)="selectedFilter = 'approved'"
-          [ngClass]="selectedFilter === 'approved' ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
-          class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
-          Approved ({{ statusCount('Approved') }})
-        </button>
-        <button (click)="selectedFilter = 'deleted'"
-          [ngClass]="selectedFilter === 'deleted' ? 'bg-rose-600 text-white shadow-2xs' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300'"
-          class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer">
-          Deleted (निरस्त) ({{ statusCount('Deleted') }})
-        </button>
       </div>
 
       <!-- The Cards Grid (Matching Image 1 Screen 2 Style on Web) -->
@@ -692,25 +665,8 @@
               </div>
             </div>
 
-            <!-- Status Badge & Arrow matching Image 1 Screen 2 -->
+            <!-- Card navigation -->
             <div class="flex items-center gap-2 flex-shrink-0">
-              <span *ngIf="rec.workStatus === 'Deleted'" 
-                class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200">
-                Deleted
-              </span>
-              <span *ngIf="rec.workStatus === 'Approved'" 
-                class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200">
-                Approved
-              </span>
-              <span *ngIf="rec.workStatus === 'Pending'" 
-                class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200">
-                Pending
-              </span>
-              <span *ngIf="rec.workStatus === 'In Progress'" 
-                class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-100 text-sky-800 border border-sky-200">
-                In Progress
-              </span>
-
               <svg class="w-5 h-5 text-slate-400 group-hover:text-[#3D5E58] group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
               </svg>
@@ -721,7 +677,7 @@
           <div class="pt-3 border-t border-slate-200/60 dark:border-dark-750 flex items-center justify-between text-xs">
             <span class="font-mono text-slate-500 font-semibold">{{ rec.approvalNo }}</span>
             <div class="flex items-center gap-3">
-              <span class="font-black text-slate-900 dark:text-emerald-400 font-mono">₹ {{ rec.proposedAmount }} Lakh</span>
+              <span class="font-black text-slate-900 dark:text-emerald-400 font-mono">₹ {{ rec.proposedAmount === null ? '-' : rec.proposedAmount }} Lakh</span>
               <span class="font-bold text-slate-600 dark:text-slate-400">({{ rec.sector }})</span>
             </div>
           </div>
@@ -731,7 +687,9 @@
       </div>
 
       <!-- Empty State -->
-      <div *ngIf="filteredRecommendations.length === 0" class="text-center py-12 space-y-2 bg-slate-50 dark:bg-dark-850 rounded-2xl border border-dashed border-slate-200 dark:border-dark-750">
+      <div *ngIf="isLoadingRecommendations" class="text-center py-8 text-sm font-semibold text-slate-500">Loading recommendations from API…</div>
+      <div *ngIf="!isLoadingRecommendations && recommendationLoadError" class="text-center py-8 text-sm font-semibold text-rose-600">{{ recommendationLoadError }}</div>
+      <div *ngIf="!isLoadingRecommendations && !recommendationLoadError && filteredRecommendations.length === 0" class="text-center py-12 space-y-2 bg-slate-50 dark:bg-dark-850 rounded-2xl border border-dashed border-slate-200 dark:border-dark-750">
         <p class="text-sm font-bold text-slate-500 font-devanagari">कोई कार्य प्रविष्टि नहीं मिली (No recommendations found)</p>
       </div>
 
@@ -756,10 +714,6 @@
             <h2 class="text-xl sm:text-2xl font-black text-[#0B2240] dark:text-white font-devanagari">
               Detailed Recommendation (विस्तृत कार्य विवरण)
             </h2>
-            <span *ngIf="selectedRecommendation.workStatus === 'Deleted'" 
-              class="px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-500 text-white shadow-2xs">
-              Deleted (निरस्त)
-            </span>
           </div>
         </div>
 
@@ -767,6 +721,7 @@
         <div class="flex items-center gap-3 w-full sm:w-auto">
           <!-- 1. View PDF (Green button matching screenshot) -->
           <button (click)="openPdfModal(selectedRecommendation)"
+            [disabled]="!selectedRecommendation.id"
             class="px-4 py-2.5 rounded-xl bg-[#2F7E3B] hover:bg-[#256630] text-white font-bold text-xs shadow-sm flex items-center gap-2 transition-all cursor-pointer">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -777,6 +732,7 @@
 
           <!-- 2. Edit (Blue button matching screenshot) -->
           <button (click)="editRecommendation(selectedRecommendation)"
+            [disabled]="!selectedRecommendation.id"
             class="px-4 py-2.5 rounded-xl bg-[#4A90C7] hover:bg-[#3B7BB0] text-white font-bold text-xs shadow-sm flex items-center gap-2 transition-all cursor-pointer">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -786,6 +742,7 @@
 
           <!-- 3. Delete (Coral/Red button matching screenshot) -->
           <button (click)="promptDelete(selectedRecommendation)"
+            [disabled]="!selectedRecommendation.id"
             class="px-4 py-2.5 rounded-xl bg-[#E64D4D] hover:bg-[#D33D3D] text-white font-bold text-xs shadow-sm flex items-center gap-2 transition-all cursor-pointer">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -815,13 +772,6 @@
           </div>
 
           <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
-            <span class="font-bold text-slate-500">Work Status:</span>
-            <span class="font-black" [ngClass]="selectedRecommendation.workStatus === 'Deleted' ? 'text-rose-500' : selectedRecommendation.workStatus === 'Approved' ? 'text-emerald-600' : selectedRecommendation.workStatus === 'In Progress' ? 'text-sky-600' : 'text-amber-600'">
-              {{ selectedRecommendation.workStatus }}
-            </span>
-          </div>
-
-          <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
             <span class="font-bold text-slate-500">Work Id:</span>
             <span class="font-mono text-slate-700 dark:text-slate-300">{{ selectedRecommendation.workId }}</span>
           </div>
@@ -833,7 +783,7 @@
 
           <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-dark-800">
             <span class="font-bold text-slate-500">Proposed Amount:</span>
-            <span class="font-black text-slate-900 dark:text-emerald-400 font-mono text-sm">{{ selectedRecommendation.proposedAmount }} Lakh</span>
+            <span class="font-black text-slate-900 dark:text-emerald-400 font-mono text-sm">{{ selectedRecommendation.proposedAmount === null ? '-' : selectedRecommendation.proposedAmount }} Lakh</span>
           </div>
 
           <div class="py-1 border-b border-slate-100 dark:border-dark-800">
@@ -1042,7 +992,7 @@
             </tr>
             <tr>
               <td class="border border-slate-300 p-2.5 font-semibold">प्रस्तावित राशि (लाख में)</td>
-              <td class="border border-slate-300 p-2.5 font-mono font-bold text-emerald-700">₹ {{ itemToViewPdf?.proposedAmount }} लाख</td>
+              <td class="border border-slate-300 p-2.5 font-mono font-bold text-emerald-700">₹ {{ itemToViewPdf?.proposedAmount ?? '-' }} लाख</td>
             </tr>
             <tr class="bg-slate-50">
               <td class="border border-slate-300 p-2.5 font-semibold">क्षेत्र / स्थान</td>

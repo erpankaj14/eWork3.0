@@ -16,13 +16,12 @@ export interface RecommendationItem {
   date: string;
   mlaName: string;
   userName: string;
-  workStatus: 'Pending' | 'Approved' | 'Deleted' | 'In Progress';
   workId: string;
-  isConversion: 'Yes' | 'No';
-  proposedAmount: number; // in lacs
+  isConversion: string;
+  proposedAmount: number | null; // in lacs
   schemeName: string;
   approvalNo: string;
-  sector: 'Rural' | 'Urban';
+  sector: string;
   districtName: string;
   blockName?: string;
   panchayatName?: string;
@@ -30,7 +29,7 @@ export interface RecommendationItem {
   townName?: string;
   executingDept: string;
   executingAgency: string;
-  convergence: 'Yes' | 'No';
+  convergence: string;
   pdfFileName?: string;
   pdfFileSize?: string;
   revertRequested?: string;
@@ -70,7 +69,6 @@ export class MlaRecommendationAppComponent implements OnInit {
 
   // Search & filter for list
   listSearchQuery = '';
-  selectedFilter: 'all' | 'pending' | 'deleted' | 'approved' = 'all';
 
   // Dashboard Financial Year Selection
   selectedFinYear = '';
@@ -149,7 +147,6 @@ export class MlaRecommendationAppComponent implements OnInit {
     this.loadDistricts(districtCode);
     this.loadSchemes();
     this.loadFinancialYears();
-    this.loadRecommendations();
 
     // Load departments and agencies for the user's district
     this.loadDepartments(districtCode);
@@ -197,10 +194,14 @@ export class MlaRecommendationAppComponent implements OnInit {
     });
   }
 
+  openRevertRequests(): void {
+    this.router.navigateByUrl('/portal/sanction/proposed-work/revert-requests');
+  }
+
   onFinYearChange(): void {
     this.formModel.financialYear = this.selectedFinYear;
     this.loadMlaReport();
-    this.loadRecommendations();
+    this.loadRecommendations(true);
   }
 
   private loadDistricts(defaultCode: string): void {
@@ -225,7 +226,7 @@ export class MlaRecommendationAppComponent implements OnInit {
       next: response => {
         this.schemes = this.apiRows(response).map(item => ({
           code: String(this.apiValue(item, ['SchemeCode', 'schemeCode', 'scheme_code', 'Code'])),
-          name: String(this.apiValue(item, ['SchemeName', 'schemeName', 'scheme_name', 'Name'], 'MLA Recommendation'))
+          name: String(this.apiValue(item, ['SchemeName', 'schemeName', 'scheme_name', 'Name'], ''))
         })).filter(item => Number(item.code) === 9);
         this.formModel.scheme = this.schemes[0]?.code || '';
         this.isLoadingSchemes = false;
@@ -258,7 +259,10 @@ export class MlaRecommendationAppComponent implements OnInit {
           : (this.finYearOptions[0] || '');
         this.formModel.financialYear = this.selectedFinYear;
         this.isLoadingFinYears = false;
-        if (this.selectedFinYear) this.loadMlaReport();
+        if (this.selectedFinYear) {
+          this.loadMlaReport();
+          this.loadRecommendations();
+        }
         else this.finYearLoadError = 'Financial year list is empty.';
       },
       error: error => {
@@ -297,18 +301,19 @@ export class MlaRecommendationAppComponent implements OnInit {
     return match?.[1] ?? fallback;
   }
 
-  private loadRecommendations(): void {
-    const username = this.formModel.userName || this.user?.username;
-    if (!username) return;
+  private loadRecommendations(useSearch = false): void {
     this.isLoadingRecommendations = true;
     this.recommendationLoadError = '';
-    this.mlaService.reportRecommendation(username).subscribe({
+    const request = useSearch
+      ? this.mlaService.searchRecommendations(this.selectedFinYear || undefined)
+      : this.mlaService.getRecommendations(this.selectedFinYear || undefined);
+    request.subscribe({
       next: response => {
         if (response?.status === false) {
           this.recommendations = [];
           this.recommendationLoadError = response.message || 'Recommendations could not be loaded.';
         } else {
-          this.recommendations = this.apiRows(response).map((row, index) => this.mapRecommendation(row, index));
+          this.recommendations = this.apiRows(response).map(row => this.mapRecommendation(row));
         }
         this.isLoadingRecommendations = false;
       },
@@ -320,35 +325,26 @@ export class MlaRecommendationAppComponent implements OnInit {
     });
   }
 
-  private mapRecommendation(row: any, index: number): RecommendationItem {
+  private mapRecommendation(row: any): RecommendationItem {
     const get = (keys: string[], fallback: any = '') => this.apiValue(row, keys, fallback);
-    const id = get(['Id', 'RecommendationId', 'RecId'], index + 1);
-    const sector = String(get(['Sector'], 'R')).toUpperCase();
-    const state = String(get(['Status', 'WorkStatus', 'RecommendationStatus'], ''));
-    const isDeleted = this.toBoolean(get(['IsDeleted', 'Deleted'], false));
-    const approvalValue = get(['AgencyIsApproved', 'IsApproved', 'Approved'], null);
-    const isApproved = this.toBoolean(approvalValue) || /^(approved|sanctioned)$/i.test(String(approvalValue ?? '').trim());
-    const isRevertRequested = this.toBoolean(get(['IsRevertRequested'], false));
-    const isRevertCompleted = this.toBoolean(get(['RevertCompleted', 'IsRevertCompleted'], false));
-    const isWeb = this.toBoolean(get(['IsWeb'], false));
+    const id = get(['Id', 'RecommendationId', 'RecId'], '');
+    const sector = String(get(['Sector'], '')).toUpperCase();
+    const deletedValue = get(['IsDeleted', 'Deleted'], null);
+    const isDeleted = this.toBoolean(deletedValue);
     return {
-      id: Number(id) || index + 1,
-      workName: String(get(['WorkName', 'NameOfWork'], '—')),
+      id: Number(id) || 0,
+      workName: String(get(['WorkName', 'NameOfWork'], '-')),
       workNameHi: get(['WorkNameHi', 'WorkNameHindi'], undefined),
       finYear: String(get(['FinYr', 'FinYear', 'FinancialYear'], this.selectedFinYear)),
       date: this.displayDate(get(['WorkRecptDate', 'Date', 'CreatedDate'], '')),
       mlaName: String(get(['MlaName', 'H_MLAName', 'MLAName'], this.formModel.userName)),
       userName: String(get(['UserName'], this.formModel.userName)),
-      // ReportRecommendation has no dedicated status field in the supplied response.
-      // Derive the visible state from its workflow flags, with undeleted/unapproved
-      // recommendations shown as Pending.
-      workStatus: isDeleted || /delet/i.test(state) ? 'Deleted' : isApproved || /approv|sanction/i.test(state) ? 'Approved' : /progress/i.test(state) ? 'In Progress' : 'Pending',
       workId: String(get(['WorkId'], '-')),
-      isConversion: /^(yes|true|1)$/i.test(String(get(['IsConvergence'], 'No'))) ? 'Yes' : 'No',
-      proposedAmount: Number(get(['ProposedAmt', 'ProposedAmount', 'Amount'], 0)) || 0,
+      isConversion: get(['IsConvergence'], null) === null ? '-' : this.toBoolean(get(['IsConvergence'])) ? 'Yes' : 'No',
+      proposedAmount: get(['ProposedAmt', 'ProposedAmount', 'Amount'], null) === null || get(['ProposedAmt', 'ProposedAmount', 'Amount'], null) === '' ? null : Number(get(['ProposedAmt', 'ProposedAmount', 'Amount'])) || 0,
       schemeName: String(get(['SchemeName', 'SchemeCode'], '-')),
-      approvalNo: String(get(['ApprovalNo', 'RecommendationNo', 'LetterNo'], id)),
-      sector: sector === 'U' || sector === 'URBAN' ? 'Urban' : 'Rural',
+      approvalNo: String(get(['ApprovalNo', 'RecommendationNo', 'LetterNo'], '-')),
+      sector: sector === 'U' || sector === 'URBAN' ? 'Urban' : sector === 'R' || sector === 'RURAL' ? 'Rural' : '-',
       districtName: String(get(['DistrictName', 'District'], '-')),
       blockName: String(get(['BlockName'], '')),
       panchayatName: String(get(['PanchayatName', 'GramPanchayatName'], '')),
@@ -356,12 +352,12 @@ export class MlaRecommendationAppComponent implements OnInit {
       townName: String(get(['TownName'], '')),
       executingDept: String(get(['AgencyName', 'DepartmentName'], '-')),
       executingAgency: String(get(['SubAgencyName'], '-')),
-      convergence: /^(yes|true|1)$/i.test(String(get(['IsConvergence', 'Convergence'], 'No'))) ? 'Yes' : 'No',
+      convergence: get(['IsConvergence', 'Convergence'], null) === null ? '-' : this.toBoolean(get(['IsConvergence', 'Convergence'])) ? 'Yes' : 'No',
       pdfFileName: String(get(['FileName', 'PdfFileName', 'UploadFile'], '')),
-      platformThrough: isWeb ? 'Web' : 'Mobile',
-      revertRequested: isRevertRequested ? (get(['RevertRequestedDate']) ? this.displayDate(get(['RevertRequestedDate'])) : 'Yes') : 'No',
-      deletedStatus: isDeleted ? (get(['DeletedDate']) ? this.displayDate(get(['DeletedDate'])) : 'Yes') : 'No',
-      revertCompleted: isRevertCompleted ? 'Yes' : 'No',
+      platformThrough: get(['IsWeb'], null) === null ? '-' : this.toBoolean(get(['IsWeb'])) ? 'Web' : 'Mobile',
+      revertRequested: get(['IsRevertRequested'], null) === null ? '-' : this.toBoolean(get(['IsRevertRequested'])) ? (get(['RevertRequestedDate']) ? this.displayDate(get(['RevertRequestedDate'])) : 'Yes') : 'No',
+      deletedStatus: deletedValue === null ? '-' : isDeleted ? (get(['DeletedDate']) ? this.displayDate(get(['DeletedDate'])) : 'Yes') : 'No',
+      revertCompleted: get(['RevertCompleted', 'IsRevertCompleted'], null) === null ? '-' : this.toBoolean(get(['RevertCompleted', 'IsRevertCompleted'])) ? 'Yes' : 'No',
       ...( { backendId: String(id), rawWorkRecptDate: get(['WorkRecptDate']), districtCode: String(get(['DistrictCode'])), blockCode: String(get(['BlockCode'])), panchayatCode: String(get(['PanchayatCode'])), villageCode: String(get(['VillageCode', 'VillagCode'])), townCode: String(get(['TownCode'])), departmentId: String(get(['AgencyId', 'DepartmentId'])), subAgencyId: String(get(['SubAgencyId'])), schemeCode: String(get(['SchemeCode'])) } as any )
     };
   }
@@ -676,21 +672,39 @@ export class MlaRecommendationAppComponent implements OnInit {
 
   // PDF Preview Action
   openPdfModal(item: RecommendationItem): void {
+    const recommendationId = Number((item as any).backendId || item.id);
     this.itemToViewPdf = item;
     this.showPdfModal = true;
     this.isLoadingPdf = true;
     this.pdfLoadError = '';
-    this.mlaService.fetchPdf(String((item as any).backendId || item.id)).subscribe({
+    if (!Number.isInteger(recommendationId) || recommendationId <= 0) {
+      this.isLoadingPdf = false;
+      this.pdfLoadError = 'This recommendation has no valid backend ID, so its PDF cannot be requested.';
+      return;
+    }
+    this.mlaService.downloadRecommendationPdf(recommendationId).subscribe({
       next: (blob: Blob) => {
         this.isLoadingPdf = false;
+        const contentType = blob.type.split(';', 1)[0].trim().toLowerCase();
+        if (!blob.size || (contentType && contentType !== 'application/pdf' && contentType !== 'application/octet-stream')) {
+          this.pdfLoadError = 'The server did not return a PDF file.';
+          return;
+        }
         if (this.pdfObjectUrl) URL.revokeObjectURL(this.pdfObjectUrl);
         this.pdfObjectUrl = URL.createObjectURL(blob);
         this.pdfSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfObjectUrl);
       },
       error: error => {
         this.isLoadingPdf = false;
-        this.pdfLoadError = error?.error?.message || 'PDF could not be fetched.';
-        this.toastr.error(error?.error?.message || 'PDF could not be fetched.');
+        const message = error?.status === 404
+          ? 'PDF is unavailable for this recommendation or district access was denied (HTTP 404). Check that the stored file exists and that the JWT district matches the recommendation.'
+          : error?.status === 401
+            ? 'Your login token is missing required claims or has expired. Please sign in again.'
+            : error?.status === 403
+              ? 'The server rejected access to this PDF (HTTP 403).'
+              : `PDF request failed${error?.status ? ` (HTTP ${error.status})` : ''}.`;
+        this.pdfLoadError = message;
+        this.toastr.error(message);
       }
     });
   }
@@ -749,17 +763,9 @@ export class MlaRecommendationAppComponent implements OnInit {
     this.formModel.pdfFileName = '';
   }
 
-  // Filtered recommendations list
+  // Search the API-backed recommendations without inventing status filters.
   get filteredRecommendations(): RecommendationItem[] {
     let result = this.recommendations;
-
-    if (this.selectedFilter === 'pending') {
-      result = result.filter((r: RecommendationItem) => r.workStatus === 'Pending');
-    } else if (this.selectedFilter === 'approved') {
-      result = result.filter((r: RecommendationItem) => r.workStatus === 'Approved');
-    } else if (this.selectedFilter === 'deleted') {
-      result = result.filter((r: RecommendationItem) => r.workStatus === 'Deleted');
-    }
 
     if (this.listSearchQuery && this.listSearchQuery.trim()) {
       const q = this.listSearchQuery.toLowerCase().trim();
@@ -773,10 +779,6 @@ export class MlaRecommendationAppComponent implements OnInit {
     }
 
     return result;
-  }
-
-  statusCount(status: RecommendationItem['workStatus']): number {
-    return this.recommendations.filter(item => item.workStatus === status).length;
   }
 }
 

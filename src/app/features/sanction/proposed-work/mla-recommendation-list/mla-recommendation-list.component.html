@@ -34,7 +34,7 @@
         <div class="bg-white/80 dark:bg-white/10 backdrop-blur-md px-5 py-3 rounded-xl border border-amber-300 dark:border-white/20 text-center flex-shrink-0 shadow-xs">
           <p class="text-[10px] text-[#E15B25] dark:text-amber-300 uppercase tracking-widest font-extrabold">Total Recommended</p>
           <p class="text-2xl font-black text-[#0B2240] dark:text-white tracking-tight">{{ totalCount }}</p>
-          <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-0.5">District JAIPUR</p>
+          <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-0.5">District {{ districtLabel }}</p>
         </div>
       </div>
     </div>
@@ -49,21 +49,18 @@
       <!-- Financial Year Dropdown -->
       <div class="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
         <label class="text-xs font-extrabold text-[#0B2240] dark:text-slate-200 uppercase font-devanagari flex-shrink-0">Financial Year:</label>
-        <select [(ngModel)]="financialYear" class="flex-1 sm:flex-initial w-full sm:w-auto bg-slate-50 dark:bg-dark-850 border border-slate-300 dark:border-dark-750 rounded-xl px-3 py-1.5 text-xs font-bold text-[#0B2240] dark:text-amber-300">
+        <select [(ngModel)]="financialYear" (ngModelChange)="onFinancialYearChange()" class="flex-1 sm:flex-initial w-full sm:w-auto bg-slate-50 dark:bg-dark-850 border border-slate-300 dark:border-dark-750 rounded-xl px-3 py-1.5 text-xs font-bold text-[#0B2240] dark:text-amber-300">
           <option value="--All--">-- All --</option>
-          <option value="2026-27">2026-27</option>
-          <option value="2025-26">2025-26</option>
+          <option *ngFor="let year of financialYears" [value]="year">{{ year }}</option>
         </select>
       </div>
 
       <!-- MLA Name Dropdown -->
       <div class="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
         <label class="text-xs font-extrabold text-[#0B2240] dark:text-slate-200 uppercase font-devanagari flex-shrink-0">MLA Name:</label>
-        <select [(ngModel)]="selectedMla" class="flex-1 sm:flex-initial w-full sm:w-auto bg-slate-50 dark:bg-dark-850 border border-slate-300 dark:border-dark-750 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 dark:text-white">
+        <select [(ngModel)]="selectedMla" (ngModelChange)="currentPage = 1" class="flex-1 sm:flex-initial w-full sm:w-auto bg-slate-50 dark:bg-dark-850 border border-slate-300 dark:border-dark-750 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 dark:text-white">
           <option value="--All MLA--">-- All MLA --</option>
-          <option value="Sh रफीक खान">Sh रफीक खान (Sh. Rafeek Khan)</option>
-          <option value="Sh गोपाल शर्मा">Sh गोपाल शर्मा (Sh. Gopal Sharma)</option>
-          <option value="Sh अमीन कागजी">Sh अमीन कागजी (Sh. Amin Kagzi)</option>
+          <option *ngFor="let mla of mlaOptions" [value]="mla">{{ mla }}</option>
         </select>
       </div>
     </div>
@@ -74,7 +71,7 @@
         {{ totalCount }}
       </span>
       <div class="relative flex-1 sm:flex-initial w-full sm:w-auto">
-        <input type="text" [(ngModel)]="searchQuery" placeholder="Search works, MLA, constituency..."
+        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="currentPage = 1" placeholder="Search works, MLA, constituency..."
           class="bg-slate-50 dark:bg-dark-850 border border-slate-300 dark:border-dark-750 rounded-xl pl-8 pr-4 py-1.5 text-xs text-slate-800 dark:text-white w-full sm:w-64 focus:outline-none focus:border-[#E15B25]" />
         <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -111,7 +108,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
-          <tr *ngFor="let rec of filteredRecords" class="hover:bg-amber-50/40 dark:hover:bg-white/5 transition-colors">
+          <tr *ngFor="let rec of pageRecords" class="hover:bg-amber-50/40 dark:hover:bg-white/5 transition-colors">
             
             <td class="p-3.5 text-center font-bold text-slate-500">{{ rec.sno }}</td>
 
@@ -133,7 +130,7 @@
             </td>
 
             <td class="p-3.5 text-center">
-              <span [ngClass]="rec.sector === 'Urban' ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'"
+              <span [ngClass]="rec.sector === 'Urban' ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300' : rec.sector === 'Rural' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-slate-100 text-slate-600'"
                 class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase">
                 {{ rec.sector }}
               </span>
@@ -162,7 +159,7 @@
             </td>
 
             <td class="p-3.5 text-right font-mono font-black text-[#0B2240] dark:text-amber-300">
-              ₹{{ rec.proposedAmountLacs.toFixed(2) }}
+              {{ rec.proposedAmountLacs === null ? '-' : rec.proposedAmountLacs.toFixed(2) }}
             </td>
 
             <td class="p-3.5 font-mono font-bold text-slate-700 dark:text-slate-200">
@@ -178,19 +175,19 @@
       </table>
     </div>
 
+    <div *ngIf="isLoading" class="p-8 text-center text-sm font-semibold text-slate-500">Loading recommendations…</div>
+    <div *ngIf="!isLoading && loadError" class="p-8 text-center text-sm font-semibold text-rose-600">{{ loadError }}</div>
+    <div *ngIf="!isLoading && !loadError && !filteredRecords.length" class="p-8 text-center text-sm font-semibold text-slate-500">No recommendations found.</div>
+
     <!-- Pagination Footer -->
     <div class="p-4 bg-slate-50 dark:bg-dark-850 border-t border-slate-200/80 dark:border-dark-800 flex items-center justify-between text-xs">
       <span class="font-semibold text-slate-500">
-        Showing 1 to {{ filteredRecords.length }} of {{ totalCount }} entries
+        Showing {{ showingFrom }} to {{ showingTo }} of {{ totalCount }} entries
       </span>
       <div class="flex items-center gap-1">
-        <button class="px-3 py-1 rounded bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 font-bold text-slate-500 hover:bg-slate-100">Previous</button>
-        <button class="px-3 py-1 rounded bg-[#E15B25] text-white font-extrabold shadow-2xs">1</button>
-        <button class="px-3 py-1 rounded bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100">2</button>
-        <button class="px-3 py-1 rounded bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100">3</button>
-        <span class="px-2 text-slate-400">...</span>
-        <button class="px-3 py-1 rounded bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100">79</button>
-        <button class="px-3 py-1 rounded bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100">Next</button>
+        <button (click)="setPage(currentPage - 1)" [disabled]="currentPage <= 1" class="px-3 py-1 rounded bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 font-bold text-slate-500 disabled:opacity-40">Previous</button>
+        <button *ngFor="let page of pageNumbers" (click)="setPage(page)" [ngClass]="page === currentPage ? 'bg-[#E15B25] text-white' : 'bg-white dark:bg-dark-800 text-slate-700 dark:text-slate-300'" class="px-3 py-1 rounded border border-slate-300 dark:border-dark-700 font-extrabold">{{ page }}</button>
+        <button (click)="setPage(currentPage + 1)" [disabled]="currentPage >= pageCount" class="px-3 py-1 rounded bg-white dark:bg-dark-800 border border-slate-300 dark:border-dark-700 font-bold text-slate-500 disabled:opacity-40">Next</button>
       </div>
     </div>
 

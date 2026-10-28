@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
@@ -21,6 +21,45 @@ export class MlaRecommendationService {
 
   /** Same as MasterApiService - /iwmsapi/api */
   private readonly masterBaseUrl = environment.masterApiBaseUrl;
+  /** RdWeb APIs documented in MLA_Recommendation_API_Integration_Guide.docx. */
+  private readonly rdWebBaseUrl = environment.rdWebApiBaseUrl;
+
+  getRecommendations(finYr?: string): Observable<any> {
+    let params = new HttpParams();
+    if (finYr) params = params.set('finYr', finYr);
+    return this.withRdWebAuthHandling(this.http.get<any>(`${this.rdWebBaseUrl}/GetRecommendations`, { params }));
+  }
+
+  searchRecommendations(finYr?: string): Observable<any> {
+    return this.withRdWebAuthHandling(this.http.post<any>(`${this.rdWebBaseUrl}/SearchRecommendations`, { finYr: finYr || null }));
+  }
+
+  downloadRecommendationPdf(id: number): Observable<Blob> {
+    return this.withRdWebAuthHandling(this.http.get(`${this.rdWebBaseUrl}/DownloadRecommendationPdf/${id}`, { responseType: 'blob' }));
+  }
+
+  getRevertRequests(): Observable<any> {
+    return this.withRdWebAuthHandling(this.http.get<any>(`${this.rdWebBaseUrl}/GetRevertRequests`), false);
+  }
+
+  finishRevert(id: number): Observable<any> {
+    return this.withRdWebAuthHandling(this.http.post<any>(`${this.rdWebBaseUrl}/FinishRevert/${id}`, null), false);
+  }
+
+  getRecommendationPdf(id: number): Observable<Blob> {
+    return this.withRdWebAuthHandling(this.http.get(`${this.rdWebBaseUrl}/GetRecommendationPdf/${id}`, { responseType: 'blob' }), false);
+  }
+
+  getRevertPdf(id: number): Observable<Blob> {
+    return this.withRdWebAuthHandling(this.http.get(`${this.rdWebBaseUrl}/GetRevertPdf/${id}`, { responseType: 'blob' }), false);
+  }
+
+  private withRdWebAuthHandling<T>(request: Observable<T>, logoutOnUnauthorized = true): Observable<T> {
+    return request.pipe(catchError(error => {
+      if (error?.status === 401 && logoutOnUnauthorized) this.auth.logout();
+      return throwError(() => error);
+    }));
+  }
 
   /** form-urlencoded headers (no auth) — matches MasterApiService */
   private get formHeaders(): HttpHeaders {

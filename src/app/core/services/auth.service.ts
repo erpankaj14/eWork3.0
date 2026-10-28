@@ -24,16 +24,15 @@ export interface UserSession {
 })
 export class AuthService {
   private defaultSession: UserSession = {
-    username: 'jaipur',
-    district: 'JAIPUR',
-    districtHi: 'जयपुर',
-    role: 'District Administrator',
-    roleHi: 'जिला अधिकारी',
-    department: 'Rural Development and Panchayati Raj Department',
-    departmentHi: 'ग्रामीण विकास एवं पंचायती राज विभाग',
-    loginTime: '27/07/2026, 10:59 AM',
+    username: '',
+    district: '',
+    districtHi: '',
+    role: '',
+    roleHi: '',
+    department: '',
+    departmentHi: '',
+    loginTime: '',
     portalVersion: 'e-Work Integrated Work Monitoring System (Version 3.0)',
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mocktoken'
   };
 
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
@@ -70,6 +69,14 @@ export class AuthService {
   }
 
   login(customUser?: Partial<UserSession>): void {
+    const sessionToken = typeof customUser?.token === 'string' ? customUser.token.trim() : '';
+    if (sessionToken) {
+      localStorage.setItem('access_token', sessionToken);
+      sessionStorage.removeItem('access_token');
+    } else {
+      localStorage.removeItem('access_token');
+      sessionStorage.removeItem('access_token');
+    }
     const session = {
       ...this.defaultSession,
       ...customUser,
@@ -200,8 +207,6 @@ export class AuthService {
       const primaryUrl = environment.ssoLoginUrl; // /api/SsoLogin
       const secondaryUrl = '/iwmsapi/api/SsoLogin';
 
-      console.log('Sending SSO Login request payload to primary endpoint...', { url: primaryUrl, bodyString });
-
       try {
         response = await firstValueFrom(
           this.http.post(primaryUrl, bodyString, { headers })
@@ -213,24 +218,27 @@ export class AuthService {
         );
       }
 
-      console.log('SSO Login backend response received:', response);
-
       // 3. Check response status strictly
-      if (response && (response.isSuccessful === true || response.success === true || response.token || response.result?.app_auth_token)) {
-        const token = response.result?.app_auth_token || response.token || response.app_auth_token || '';
-        if (token) {
-          localStorage.setItem('access_token', token);
+      if (response && (response.isSuccessful === true || response.success === true || response.token || response.access_token || response.result?.app_auth_token)) {
+        const token = String(response.result?.app_auth_token || response.result?.AppAuthToken || response.token || response.access_token || response.app_auth_token || '')
+          .trim()
+          .replace(/^Bearer\s+/i, '');
+        if (!token) {
+          localStorage.removeItem('access_token');
+          sessionStorage.removeItem('access_token');
+          throw new Error('SSO login succeeded but did not return an access token.');
         }
+        localStorage.setItem('access_token', token);
         const customUser: Partial<UserSession> = {
           username: response.result?.user_name || response.username || ssoId.trim(),
           usertype: response.result?.usertype ?? response.result?.userType ?? response.result?.UserType ?? response.result?.user_type ?? response.usertype ?? response.userType ?? response.UserType ?? response.user_type ?? this.readUserTypeClaim(token),
-          district: response.district || 'JAIPUR',
-          districtCode: response.result?.distict_code || '12',
-          districtHi: response.districtHi || 'जयपुर',
-          role: response.result?.userTypeName || response.role || 'District Administrator',
-          roleHi: response.roleHi || 'जिला अधिकारी',
-          department: response.department || 'Rural Development and Panchayati Raj Department',
-          departmentHi: response.departmentHi || 'ग्रामीण विकास एवं पंचायती राज विभाग',
+          district: response.district || response.result?.district_name || response.result?.DistrictName || '',
+          districtCode: String(response.result?.DistrictCode ?? response.result?.districtCode ?? response.result?.district_code ?? response.result?.distict_code ?? this.readDistrictCodeClaim(token) ?? ''),
+          districtHi: response.districtHi || response.result?.district_name_hi || '',
+          role: response.result?.userTypeName || response.role || '',
+          roleHi: response.roleHi || response.result?.userTypeNameHi || '',
+          department: response.department || response.result?.departmentName || '',
+          departmentHi: response.departmentHi || response.result?.departmentNameHi || '',
           token: token
         };
         this.login(customUser);
@@ -257,6 +265,23 @@ export class AuthService {
         (key.split(/[\/#]/).pop() || key).toLowerCase().replace(/[^a-z]/g, '') === 'usertype'
       )?.[1];
       return typeof claim === 'number' || typeof claim === 'string' ? claim : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private readDistrictCodeClaim(token?: string | null): string | undefined {
+    if (!token) return undefined;
+    try {
+      const encodedPayload = token.split('.')[1];
+      if (!encodedPayload) return undefined;
+      const base64 = encodedPayload.replace(/-/g, '+').replace(/_/g, '/');
+      const paddedBase64 = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+      const payload = JSON.parse(atob(paddedBase64));
+      const claim = Object.entries(payload).find(([key]) =>
+        (key.split(/[\/#]/).pop() || key).toLowerCase().replace(/[^a-z]/g, '') === 'districtcode'
+      )?.[1];
+      return typeof claim === 'number' || typeof claim === 'string' ? String(claim) : undefined;
     } catch {
       return undefined;
     }

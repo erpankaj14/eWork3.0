@@ -26,7 +26,7 @@
       <!-- District Badge -->
       <div class="bg-white/80 dark:bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-amber-300 dark:border-white/20 text-right flex-shrink-0 shadow-xs">
         <p class="text-[10px] text-[#E15B25] dark:text-amber-300 uppercase tracking-widest font-extrabold">Revert Tracking</p>
-        <p class="text-sm font-black text-[#0B2240] dark:text-white uppercase tracking-wide">JAIPUR</p>
+        <p class="text-sm font-black text-[#0B2240] dark:text-white uppercase tracking-wide">{{ districtLabel }}</p>
       </div>
     </div>
   </div>
@@ -82,6 +82,7 @@
             <th class="p-3.5 text-center">Recommendation Via</th>
             <th class="p-3.5 text-center">Revert Requested</th>
             <th class="p-3.5 text-center">Revert Status</th>
+            <th class="p-3.5 text-center">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
@@ -138,7 +139,18 @@
               </span>
             </td>
 
+            <td class="p-3.5">
+              <div class="flex flex-wrap justify-center gap-1.5">
+                <button type="button" (click)="openPdf(rec, false)" class="rounded-md bg-blue-700 px-2 py-1 text-[10px] font-bold text-white">Original PDF</button>
+                <button type="button" (click)="openPdf(rec, true)" class="rounded-md bg-purple-700 px-2 py-1 text-[10px] font-bold text-white">Revert PDF</button>
+                <button type="button" (click)="finishRevert(rec)" [disabled]="busyId !== null" class="rounded-md bg-emerald-700 px-2 py-1 text-[10px] font-bold text-white disabled:opacity-50">{{ busyId === rec.id ? 'Saving…' : 'Finish revert' }}</button>
+              </div>
+            </td>
+
           </tr>
+          <tr *ngIf="isLoading"><td colspan="11" class="p-8 text-center text-slate-500">Loading revert requests…</td></tr>
+          <tr *ngIf="!isLoading && loadError"><td colspan="11" class="p-8 text-center text-rose-600">{{ loadError }} <button type="button" (click)="loadRequests()" class="ml-2 font-bold underline">Retry</button></td></tr>
+          <tr *ngIf="!isLoading && !loadError && filteredRecords.length === 0"><td colspan="11" class="p-8 text-center text-slate-500">No revert requests found.</td></tr>
         </tbody>
       </table>
     </div>
