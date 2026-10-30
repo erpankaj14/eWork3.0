@@ -6,6 +6,7 @@ import { PlanFileModel, PlanModel, SelectedPlan } from '../../../../core/service
 import { LanguageService } from '../../../../core/services/language.service';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-plan-list',
@@ -19,26 +20,31 @@ export class PlanListComponent implements OnInit {
   public readonly languageService = inject(LanguageService);
   private readonly toastr = inject(ToastrService);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   // Tab Selection
   activeTab: 'all' | 'approved' = 'all';
 
   // Filters
-  schemeCode = 5;
-  finYr = '2026-27';
-  districtCode = ''; // empty or '101' or '0'
+  schemeCode = 0;
+  finYr = '';
+  districtCode = '';
+  isStateUser = false;
+  isLoadingSchemes = false;
+  isLoadingFinYears = false;
+  isLoadingDistricts = false;
 
   // Master lists
-  schemes = [
+  schemes: { code: number; name: string }[] = [
     { code: 1, name: 'MPLAD - Member of Parliament Local Area Development' },
     { code: 5, name: 'MLALAD - Member of Legislative Assembly Local Area Development' },
     { code: 12, name: 'DDUGMGY - Deen Dayal Upadhyaya Gram Jyoti Yojana' },
     { code: 18, name: 'State Innovation Fund' }
   ];
 
-  finYears = ['2026-27', '2025-26', '2024-25', '2023-24'];
+  finYears: string[] = [];
 
-  districts = [
+  districts: { code: string; name: string }[] = [
     { code: '0', name: 'State Level (All Districts / राज्य)' },
     { code: '101', name: 'JAIPUR (जयपुर)' },
     { code: '102', name: 'JODHPUR (जोधपुर)' },
@@ -71,15 +77,133 @@ export class PlanListComponent implements OnInit {
   isSuccess = false;
 
   ngOnInit(): void {
+    this.activeTab = this.router.url.includes('/approved-list') ? 'approved' : 'all';
     const session = this.authService.getCurrentUser();
-    if (session && session.district) {
-      // Set default district code if non-state
-      this.districtCode = session.district.toUpperCase().includes('JAIPUR') ? '101' : '';
+    this.schemes = [];
+    this.districts = [];
+    this.isStateUser = !!(session?.districtCode === '0' || session?.districtCode === '00'
+      || session?.district?.toLowerCase() === 'state'
+      || session?.role?.toLowerCase().includes('state')
+      || session?.username?.toLowerCase().includes('state'));
+    this.districtCode = this.isStateUser
+      ? '0'
+      : (session?.districtCode || (session?.district?.toUpperCase().includes('JAIPUR') ? '12' : ''));
+    this.loadSchemes();
+    this.loadFinancialYears();
+  }
+
+  private extractRows(response: any): any[] {
+    if (Array.isArray(response)) return response;
+    if (!response || typeof response !== 'object') return [];
+    for (const key of ['data', 'Data', 'result', 'Result', 'items', 'Items', 'table', 'Table']) {
+      const value = response[key];
+      if (Array.isArray(value)) return value;
+      const nested = this.extractRows(value);
+      if (nested.length) return nested;
     }
-    this.fetchPlans();
+    return [];
+  }
+
+  private loadSchemes(): void {
+    this.isLoadingSchemes = true;
+    this.planApi.getAllowPlanSchemeList().subscribe({
+      next: response => {
+        this.schemes = this.extractRows(response).map((row: any) => ({
+          code: Number(row.scheme_code ?? row.schemeCode ?? row.SchemeCode ?? row.code ?? row.Code ?? 0),
+          name: String(row.scheme_name ?? row.schemeName ?? row.schemeNameE ?? row.SchemeName ?? row.name ?? row.Name ?? '').trim()
+        })).filter(item => item.code > 0 && !!item.name);
+        const preferred = this.schemes.find(item => item.code === 5) || this.schemes[0];
+        this.schemeCode = preferred?.code || 0;
+        this.isLoadingSchemes = false;
+        if (this.schemeCode) this.loadDistrictsForScheme(this.schemeCode);
+        else this.tryFetchAfterMasterLoad();
+      },
+      error: () => {
+        this.schemes = [];
+        this.schemeCode = 0;
+        this.isLoadingSchemes = false;
+        this.tryFetchAfterMasterLoad();
+      }
+    });
+  }
+
+  private loadFinancialYears(): void {
+    this.isLoadingFinYears = true;
+    this.planApi.getFinancialYears().subscribe({
+      next: response => {
+        this.finYears = this.extractRows(response).map((row: any) => {
+          const value = typeof row === 'string' || typeof row === 'number'
+            ? row
+            : row?.finYr ?? row?.FinYr ?? row?.finYear ?? row?.FinYear
+              ?? row?.financialYear ?? row?.FinancialYear ?? row?.year ?? row?.Year;
+          return String(value ?? '').trim();
+        }).filter((year, index, years) => !!year && years.indexOf(year) === index);
+        const now = new Date();
+        const yearStart = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+        const currentYear = `${yearStart}-${String(yearStart + 1).slice(-2)}`;
+        this.finYr = this.finYears.includes(currentYear) ? currentYear : (this.finYears[0] || '');
+        this.isLoadingFinYears = false;
+        this.tryFetchAfterMasterLoad();
+      },
+      error: () => {
+        this.finYears = [];
+        this.finYr = '';
+        this.isLoadingFinYears = false;
+        this.tryFetchAfterMasterLoad();
+      }
+    });
+  }
+
+  private loadDistrictsForScheme(schemeCode: number): void {
+    this.isLoadingDistricts = true;
+    this.districts = [];
+    this.planApi.getDistrictSchemeList(schemeCode).subscribe({
+      next: response => {
+        const rows = this.extractRows(response);
+        const mapped = rows.map((row: any) => {
+          const code = String(row.districtCode ?? row.district_code ?? row.DistrictCode ?? row.id ?? row.code ?? row.Code ?? '').trim();
+          const englishName = String(row.distNameEng ?? row.lgdDistrictNameEnglish ?? row.districtNameE ?? row.DistrictNameE ?? '').trim();
+          const name = String(row.districtName ?? row.district_name ?? row.DistrictName ?? row.distName ?? row.name ?? row.Name ?? '').trim();
+          return { code, name: englishName && name ? `${englishName} (${name})` : (englishName || name || (code ? `District ${code}` : '')) };
+        }).filter(item => item.code && item.name);
+        const session = this.authService.getCurrentUser();
+        if (!this.isStateUser && this.districtCode && !mapped.some(item => item.code === this.districtCode)) {
+          mapped.unshift({ code: this.districtCode, name: session?.district || `District ${this.districtCode}` });
+        }
+        this.districts = this.isStateUser
+          ? [{ code: '0', name: 'All Districts' }, ...mapped.filter(item => item.code !== '0' && item.code !== '00')]
+          : mapped.filter(item => item.code === this.districtCode);
+        if (this.isStateUser) this.districtCode = '0';
+        else if (this.districts.length) this.districtCode = this.districts[0].code;
+        this.isLoadingDistricts = false;
+        this.tryFetchAfterMasterLoad();
+      },
+      error: () => {
+        this.districts = this.isStateUser ? [{ code: '0', name: 'All Districts' }] : [];
+        this.isLoadingDistricts = false;
+        this.tryFetchAfterMasterLoad();
+      }
+    });
+  }
+
+  onSchemeChange(): void {
+    this.planList = [];
+    this.selectedPlanMap = {};
+    this.selectAll = false;
+    if (this.schemeCode) this.loadDistrictsForScheme(Number(this.schemeCode));
+    else {
+      this.districts = [];
+      this.districtCode = '';
+    }
+  }
+
+  private tryFetchAfterMasterLoad(): void {
+    if (this.isLoadingSchemes || this.isLoadingFinYears || this.isLoadingDistricts) return;
+    if (this.schemeCode > 0 && this.finYr && this.districtCode) this.fetchPlans();
   }
 
   fetchPlans(): void {
+    if (!this.schemeCode || !this.finYr || !this.districtCode || this.isLoadingSchemes || this.isLoadingFinYears || this.isLoadingDistricts) return;
     this.isLoading = true;
     this.selectedPlanMap = {};
     this.selectAll = false;
@@ -87,7 +211,7 @@ export class PlanListComponent implements OnInit {
     const filter: PlanModel = {
       schemeCode: Number(this.schemeCode),
       finYr: this.finYr,
-      districtCode: this.districtCode || undefined
+      districtCode: this.districtCode || this.authService.getCurrentUser()?.districtCode || '0'
     };
 
     const call$ = this.activeTab === 'approved'

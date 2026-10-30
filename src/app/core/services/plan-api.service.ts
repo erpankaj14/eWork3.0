@@ -411,9 +411,21 @@ export class PlanApiService {
    * 12. Get approved plan/work list
    */
   getApprovedPlanListOfWork(filter: PlanModel): Observable<ApiListResponse<PlanModel>> {
+    const payload = {
+      schemeCode: Number(filter.schemeCode || 0),
+      finYr: String(filter.finYr || ''),
+      districtCode: String(filter.districtCode || '0'),
+      // The current API binds the full mdlPlan model, whose required fields
+      // are validated even though this list is filtered by scheme/year/district.
+      workName: String(filter.workName || 'Approved Plan List'),
+      workType: String(filter.workType || 'N'),
+      constCode: String(filter.constCode || '001'),
+      sectorArea: String(filter.sectorArea || 'R'),
+      workCategory: String(filter.workCategory || '01')
+    };
     return this.http.post<ApiListResponse<PlanModel>>(
       `${this.baseUrl}/GetApprovedPlanListOfWork`,
-      filter
+      payload
     ).pipe(
       catchError((err) => {
         console.warn('PlanApiService: GetApprovedPlanListOfWork 404 or offline. Returning fallback data.', err);

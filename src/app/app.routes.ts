@@ -109,6 +109,11 @@ export const routes: Routes = [
         data: { animation: 'PlanCreate' }
       },
       {
+        path: 'sanction/plan/work-list',
+        loadComponent: () => import('./features/sanction/plan/plan-list/plan-list.component').then(m => m.PlanListComponent),
+        data: { animation: 'PlanWorkList' }
+      },
+      {
         path: 'sanction/plan/approved-list',
         loadComponent: () => import('./features/sanction/plan/plan-list/plan-list.component').then(m => m.PlanListComponent),
         data: { animation: 'PlanList' }

@@ -171,6 +171,7 @@ export class PortalLayoutComponent implements OnInit {
           expanded: false,
           children: [
             { title: 'Create Plan', titleHi: 'योजना निर्माण (Create Plan)', badge: 'New', path: 'sanction/plan/create' },
+            { title: 'All Work Plans', titleHi: 'सभी कार्य योजनाएँ (All Work Plans)', path: 'sanction/plan/work-list' },
             { title: 'Approved Plan List', titleHi: 'स्वीकृत योजना सूची (Approved Plan List)', path: 'sanction/plan/approved-list' }
           ]
         }
