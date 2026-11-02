@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../../core/services/language.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-proposed-work-entry',
@@ -10,7 +11,7 @@ import { LanguageService } from '../../../../core/services/language.service';
   templateUrl: './proposed-work-entry.component.html',
   styleUrls: ['./proposed-work-entry.component.css']
 })
-export class ProposedWorkEntryComponent {
+export class ProposedWorkEntryComponent implements OnInit {
   // Classification
   sector: 'Rural' | 'Urban' = 'Rural';
   financialYear = '2026-27';
@@ -100,7 +101,22 @@ export class ProposedWorkEntryComponent {
 
   showSuccessToast = false;
 
-  constructor(public languageService: LanguageService) {}
+  constructor(public languageService: LanguageService, private readonly router: Router) {}
+
+  ngOnInit(): void {
+    const navigationPlan = this.router.getCurrentNavigation()?.extras.state?.['approvedPlan'];
+    const plan = navigationPlan || (typeof history !== 'undefined' ? history.state?.approvedPlan : null);
+    if (!plan) return;
+
+    if (plan.finYr) this.financialYear = String(plan.finYr);
+    if (plan.sectorArea) this.sector = String(plan.sectorArea).toUpperCase().startsWith('U') ? 'Urban' : 'Rural';
+    if (plan.workType) this.workType = String(plan.workType).toUpperCase().startsWith('M') ? 'Maintenance Work' : 'New Work';
+    if (plan.workName) this.workName = String(plan.workName);
+    if (plan.districtName) this.district = String(plan.districtName).trim();
+    if (plan.workCategoryName) this.workCategory = String(plan.workCategoryName);
+    if (plan.priority !== null && plan.priority !== undefined) this.workPriority = String(plan.priority);
+    this.convergence = plan.isConvergence ? 'Yes' : 'No';
+  }
 
   selectBlock(b: string): void {
     this.selectedBlock = b;

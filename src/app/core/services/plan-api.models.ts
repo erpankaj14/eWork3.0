@@ -68,6 +68,9 @@ export interface PlanModel {
   updatedBy?: string;
   updatedDate?: string;
   workCount?: number;
+  worKId?: string | null;
+  workId?: string | null;
+  worKIdExists?: string | null;
   planCreatedBy?: string;
   sectorAreaName?: string;
   panchayatName?: string;

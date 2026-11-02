@@ -236,6 +236,19 @@ export class PlanListComponent implements OnInit {
     });
   }
 
+  getPlanWorkId(plan: PlanModel): string {
+    const rawId = (plan as any).worKId ?? (plan as any).workId ?? (plan as any).WorkId ?? (plan as any).WorkID;
+    const workId = String(rawId ?? '').trim();
+    return workId.toLowerCase() === 'null' || workId.toLowerCase() === 'undefined' ? '' : workId;
+  }
+
+  selectPlanForProposedWork(plan: PlanModel): void {
+    if (this.getPlanWorkId(plan)) return;
+    this.router.navigateByUrl('/portal/sanction/proposed-work/entry', {
+      state: { approvedPlan: plan }
+    });
+  }
+
   private loadMockPlans(): void {
     this.planList = [
       {

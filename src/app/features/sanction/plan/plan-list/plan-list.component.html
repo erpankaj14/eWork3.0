@@ -93,6 +93,7 @@
               <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()" class="rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500" />
             </th>
             <th class="p-3.5">Plan ID / District</th>
+            <th class="p-3.5">Work ID</th>
             <th class="p-3.5">Scheme & FY</th>
             <th class="p-3.5">Approval Dates (DLC / Block / SLC)</th>
             <th class="p-3.5">Est. Cost (Lakhs) & Works</th>
@@ -103,10 +104,10 @@
         </thead>
         <tbody class="divide-y divide-slate-100 dark:divide-slate-700/60">
           <tr *ngIf="isLoading" class="text-center py-8">
-            <td colspan="8" class="p-8 text-slate-400">Loading plan records...</td>
+            <td colspan="9" class="p-8 text-slate-400">Loading plan records...</td>
           </tr>
           <tr *ngIf="!isLoading && planList.length === 0">
-            <td colspan="8" class="p-8 text-center text-slate-400">No plan records found matching the filter criteria.</td>
+            <td colspan="9" class="p-8 text-center text-slate-400">No plan records found matching the filter criteria.</td>
           </tr>
           <tr *ngFor="let plan of planList" class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
             <td class="p-3.5 text-center">
@@ -115,6 +116,16 @@
             <td class="p-3.5 font-medium text-slate-800 dark:text-slate-100">
               <div class="font-bold">#{{ plan.id }}</div>
               <div class="text-[11px] text-slate-500">{{ plan.districtName || ('Dist Code: ' + plan.districtCode) }}</div>
+            </td>
+            <td class="p-3.5">
+              <span *ngIf="getPlanWorkId(plan); else selectPlanButton" class="font-mono text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+                {{ getPlanWorkId(plan) }}
+              </span>
+              <ng-template #selectPlanButton>
+                <button type="button" (click)="selectPlanForProposedWork(plan)" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white bg-orange-600 hover:bg-orange-700 transition">
+                  Select
+                </button>
+              </ng-template>
             </td>
             <td class="p-3.5">
               <span class="inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
