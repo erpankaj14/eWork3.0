@@ -42,6 +42,7 @@
 .notice { color: #c2410c; padding: .55rem .75rem; margin-bottom: .5rem; border: 1px solid #fed7aa; border-radius: .6rem; background: #fff7ed; font-size: .85rem; }
 .checks { display: flex; flex-wrap: wrap; gap: .65rem; }
 .error { color: #b91c1c; background: #fff1f2; font-weight: 700 !important; }
+.validation-list { margin: .5rem 0 0; padding-left: 1.25rem; display: grid; gap: .3rem; font-weight: 600; }
 .success { color: #047857; background: #ecfdf5; font-weight: 700 !important; }
 .submit-row { text-align: right !important; background: #fff; }
 .submit-row button { padding: .7rem 1.35rem; border: 1px solid #d85720; border-radius: .75rem; background: linear-gradient(120deg,#ff8b45,#ff5b0b); color: white; font-weight: 850; box-shadow: 0 4px 12px rgba(225,91,37,.2); }
